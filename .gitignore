@@ -48,3 +48,5 @@ Thumbs.db
 # Coverage
 coverage/
 .nyc_output/
+.cursor/
+frontend/.vite/
