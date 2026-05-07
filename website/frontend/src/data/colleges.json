@@ -1,0 +1,38 @@
+{
+  "colleges": [
+    {
+      "id": "sait",
+      "college": "SAIT",
+      "fullName": "Southern Alberta Institute of Technology",
+      "program": "Applied Technology & Innovation",
+      "intake": "Sep",
+      "filter": "IT",
+      "logo": "/logos/sait.svg",
+      "highlight": "Industry-leading co-op programs",
+      "description": "Premier polytechnic institution offering hands-on technical education"
+    },
+    {
+      "id": "uofc",
+      "college": "UofC",
+      "fullName": "University of Calgary",
+      "program": "Business & Engineering Programs",
+      "intake": "Jan",
+      "filter": "Business",
+      "logo": "/logos/uofc.svg",
+      "highlight": "Top-ranked research university",
+      "description": "Comprehensive programs in business, engineering, and sciences"
+    },
+    {
+      "id": "bowvalley",
+      "college": "Bow Valley College",
+      "fullName": "Bow Valley College",
+      "program": "Healthcare & Business Administration",
+      "intake": "May",
+      "filter": "Healthcare",
+      "logo": "/logos/bowvalley.svg",
+      "highlight": "Career-focused education",
+      "description": "Dedicated to student success and workforce readiness"
+    }
+  ]
+}
+

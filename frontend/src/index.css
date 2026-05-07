@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    background-color: var(--color-surface);
+    color: var(--color-neutral-800);
+  }
+
+  body {
+    @apply bg-surface text-gray-800 antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    @apply text-gray-900;
+  }
+
+  a {
+    @apply text-primary font-medium;
+  }
+  :root {
+    --background: #ffffff;
+    --foreground: #0D1B2A;
+    --card: #ffffff;
+    --card-foreground: #0D1B2A;
+    --popover: #ffffff;
+    --popover-foreground: #0D1B2A;
+    --primary: #1B263B;
+    --primary-foreground: #E0E1DD;
+    --secondary: #415A77;
+    --secondary-foreground: #E0E1DD;
+    --muted: #778DA9;
+    --muted-foreground: #0D1B2A;
+    --accent: #415A77;
+    --accent-foreground: #E0E1DD;
+    --destructive: #ef4444;
+    --destructive-foreground: #E0E1DD;
+    --border: #778DA9;
+    --input: #778DA9;
+    --ring: #1B263B;
+    --radius: 0.5rem;
+    
+    /* Custom Palette Variables for reference */
+    --primary-900: #0D1B2A;
+    --primary-800: #1B263B;
+    --primary-600: #415A77;
+    --primary-400: #778DA9;
+    --primary-200: #E0E1DD;
+  }
+  
+  .dark {
+    /* For now, map dark mode to the same palette or a darker variation if needed. 
+       Since the palette itself is quite dark (Blues), we can maybe invert some logic or just keep it consistent.
+       The user said "Use ONLY these colors". 
+       Let's try to make a "Dark Mode" using the darker shades as background.
+    */
+    --background: #0D1B2A; /* 900 */
+    --foreground: #E0E1DD; /* 200 */
+    --card: #1B263B; /* 800 */
+    --card-foreground: #E0E1DD; /* 200 */
+    --popover: #1B263B; /* 800 */
+    --popover-foreground: #E0E1DD; /* 200 */
+    --primary: #415A77; /* 600 - Lighter for dark mode contrast */
+    --primary-foreground: #E0E1DD; /* 200 */
+    --secondary: #1B263B; /* 800 */
+    --secondary-foreground: #E0E1DD; /* 200 */
+    --muted: #1B263B; /* 800 */
+    --muted-foreground: #778DA9; /* 400 */
+    --accent: #1B263B; /* 800 */
+    --accent-foreground: #E0E1DD; /* 200 */
+    --destructive: #ef4444;
+    --destructive-foreground: #E0E1DD;
+    --border: #415A77; /* 600 */
+    --input: #415A77; /* 600 */
+    --ring: #778DA9; /* 400 */
+  }
+}
+
+@layer utilities {
+  .shimmering-text {
+    display: inline-flex;
+    background-image: linear-gradient(
+      90deg,
+      rgba(120, 120, 120, 0.4),
+      rgba(60, 60, 60, 0.9),
+      rgba(120, 120, 120, 0.4)
+    );
+    background-size: 200% 100%;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .shimmering-text-wave {
+    animation: shimmering-text-wave 1.5s linear infinite;
+  }
+
+  @keyframes shimmering-text-wave {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: -200% 50%;
+    }
+  }
+}
+
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  to {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+}
+
+.animate-toast-progress {
+  animation: toast-progress 5s linear forwards;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -1,0 +1,459 @@
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useSocket } from "../../hooks/useSocket.jsx";
+import Button from "../common/Button";
+import studentTaskService from "../../services/studentTaskService";
+
+const navItems = [
+  {
+    label: "Dashboard",
+    to: "/student/dashboard",
+    icon: DashboardIcon,
+    matchPrefixes: ["/student/dashboard"],
+    requiresActive: true,
+  },
+  {
+    label: "Profile",
+    to: "/student/profile",
+    icon: UserIcon,
+    matchPrefixes: ["/student/profile"],
+    requiresActive: false,
+  },
+  {
+    label: "Documents",
+    to: "/student/documents",
+    icon: FolderIcon,
+    matchPrefixes: ["/student/documents"],
+    requiresActive: true,
+  },
+  {
+    label: "Messages",
+    to: "/student/messages",
+    icon: ChatIcon,
+    matchPrefixes: ["/student/messages"],
+    requiresActive: true,
+  },
+  {
+    label: "Tasks",
+    to: "/student/tasks",
+    icon: TasksIcon,
+    matchPrefixes: ["/student/tasks"],
+    requiresActive: true,
+  },
+  {
+    label: "Change Password",
+    to: "/student/change-password",
+    icon: LockIcon,
+    matchPrefixes: ["/student/change-password"],
+    requiresActive: true,
+  },
+  {
+    label: "University Recommendations",
+    to: "/student/university-recommendations",
+    icon: UniversityIcon,
+    matchPrefixes: ["/student/university-recommendations"],
+    requiresActive: false,
+  },
+];
+
+function DashboardIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M3 13h8V3H3zm10 8h8V3h-8zm-10 0h8v-6H3z"
+      />
+    </svg>
+  );
+}
+
+function UserIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+      />
+    </svg>
+  );
+}
+
+function FolderIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M3 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7z"
+      />
+    </svg>
+  );
+}
+
+function LockIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 10-8 0v4h8z"
+      />
+    </svg>
+  );
+}
+
+function UniversityIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M3 9.5l9-4.5 9 4.5-9 4.5-9-4.5z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M6 12v4.5c0 .6.34 1.15.88 1.42l5.12 2.56 5.12-2.56c.54-.27.88-.82.88-1.42V12"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M9 10l3 1.5 3-1.5"
+      />
+    </svg>
+  );
+}
+
+function ChatIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M21 11.5a8.5 8.5 0 01-8.5 8.5 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 018.5-8.5 8.5 8.5 0 018.5 8.5z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"
+      />
+    </svg>
+  );
+}
+
+function TasksIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M9 7l-2 2 2 2M15 7l2 2-2 2M6 4h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M9 15h6"
+      />
+    </svg>
+  );
+}
+
+const StudentLayout = ({ children }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const socketContext = useSocket() || {};
+  const { unreadTotal = 0 } = socketContext;
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [taskAlert, setTaskAlert] = useState(false);
+
+  const isRestricted =
+    user?.role === "student" && user?.status && user.status !== "active";
+
+  const allowedRestrictedRoutes = useMemo(
+    () =>
+      new Set([
+        "/student/profile",
+        "/student/university-recommendations",
+        "/student/change-password",
+      ]),
+    []
+  );
+
+  const currentPath = location.pathname;
+  const restrictedViewOnly =
+    isRestricted &&
+    !Array.from(allowedRestrictedRoutes).some((path) =>
+      currentPath.startsWith(path)
+    );
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchTaskAlert = async () => {
+      if (!user?.aiKey) return;
+      try {
+        const list = await studentTaskService.list(user.aiKey);
+        if (cancelled) return;
+        const hasNew = list.some(
+          (task) => !task.seenByStudent && task.status === "pending"
+        );
+        setTaskAlert(hasNew);
+      } catch {
+        if (!cancelled) {
+          setTaskAlert(false);
+        }
+      }
+    };
+    fetchTaskAlert();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.aiKey]);
+
+  useEffect(() => {
+    if (currentPath.startsWith("/student/tasks")) {
+      setTaskAlert(false);
+    }
+  }, [currentPath]);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
+  const renderNavLinks = (onNavigate) =>
+    navItems.map((item) => {
+      const prefixes = item.matchPrefixes || [item.to];
+      const isActive = prefixes.some((prefix) => currentPath.startsWith(prefix));
+      const Icon = item.icon;
+      const disabled = isRestricted && item.requiresActive;
+      const showTaskBadge = item.to === "/student/tasks" && taskAlert;
+
+      const handleClick = (event) => {
+        if (disabled) {
+          event.preventDefault();
+          return;
+        }
+
+        const isStandardClick =
+          event.button === 0 &&
+          !event.metaKey &&
+          !event.ctrlKey &&
+          !event.altKey &&
+          !event.shiftKey;
+
+        if (isStandardClick) {
+          event.preventDefault();
+          if (currentPath !== item.to) {
+            navigate(item.to);
+          } else {
+            // Force re-render for same-route navigations (e.g., closing overlays)
+            navigate(item.to, { replace: true });
+          }
+          onNavigate?.();
+        }
+      };
+
+      return (
+        <Link
+          key={item.to}
+          to={item.to}
+          onClick={handleClick}
+          className={`flex min-h-[40px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium leading-5 transition ${
+            disabled
+              ? "pointer-events-none bg-primary-800/50 text-primary-600"
+              : isActive
+              ? "bg-primary-800 text-primary-200 shadow-md"
+              : "text-primary-400 hover:bg-primary-800 hover:text-primary-200"
+          }`}
+        >
+          <Icon className="h-4 w-4 flex-shrink-0" />
+          <span className="flex-1 text-left">{item.label}</span>
+          {item.to === "/student/messages" && unreadTotal > 0 && (
+            <span className="ml-auto inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary-200 px-2 text-[11px] font-semibold text-primary-900">
+              {unreadTotal > 99 ? "99+" : unreadTotal}
+            </span>
+          )}
+          {showTaskBadge && (
+            <span className="ml-auto h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-primary-900" />
+          )}
+        </Link>
+      );
+    });
+
+  return (
+    <div className="h-screen bg-background">
+      <div className="flex h-full overflow-hidden">
+        <aside className="hidden h-full w-64 flex-shrink-0 flex-col border-r border-primary-800 bg-primary-900 p-6 md:flex">
+          <div className="mb-8">
+            <Link to="/student/dashboard" className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-800 text-primary-200">
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path d="M4 7.5L12 3l8 4.5M4 7.5V16.5L12 21l8-4.5V7.5M4 7.5l8 4.5 8-4.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M12 12V21" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <span className="text-lg font-semibold text-primary-200">
+                Immigration CRM
+              </span>
+            </Link>
+          </div>
+
+          <nav className="flex-1 space-y-2">{renderNavLinks()}</nav>
+
+          <div className="mt-8 space-y-3 text-sm text-primary-400">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-primary-600">
+                Signed in as
+              </p>
+              <p className="mt-1 font-medium text-primary-200">
+                {user?.username || user?.contactInfo?.name || "Student"}
+              </p>
+            </div>
+            <button 
+              className="w-full text-left text-sm font-medium text-red-500 hover:text-red-400" 
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
+        </aside>
+
+        <div
+          className={`fixed inset-0 z-40 bg-primary-900/80 transition-opacity md:hidden ${
+            mobileNavOpen ? "opacity-100" : "pointer-events-none opacity-0"
+          }`}
+          onClick={() => setMobileNavOpen(false)}
+        ></div>
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-primary-900 p-6 shadow-lg transition md:hidden ${
+            mobileNavOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="mb-8 flex items-center justify-between">
+            <Link
+              to="/student/dashboard"
+              className="flex items-center gap-2"
+              onClick={() => setMobileNavOpen(false)}
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-800 text-primary-200">
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path d="M4 7.5L12 3l8 4.5M4 7.5V16.5L12 21l8-4.5V7.5M4 7.5l8 4.5 8-4.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M12 12V21" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <span className="text-lg font-semibold text-primary-200">
+                Immigration CRM
+              </span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(false)}
+              className="rounded-md p-2 text-primary-400 hover:text-primary-200"
+              aria-label="Close navigation"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <nav className="space-y-2">
+            {renderNavLinks(() => setMobileNavOpen(false))}
+          </nav>
+          <div className="mt-6 space-y-3 text-sm text-primary-400">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-primary-600">
+                Signed in as
+              </p>
+              <p className="mt-1 font-medium text-primary-200">
+                {user?.username || user?.contactInfo?.name || "Student"}
+              </p>
+            </div>
+            <button 
+              className="w-full text-left text-sm font-medium text-red-500 hover:text-red-400" 
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
+        </aside>
+
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <header className="sticky top-0 z-30 flex items-center justify-between border-b border-primary-400/30 bg-primary-200 px-4 py-3 md:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(true)}
+              className="rounded-md p-2 text-primary-600 hover:bg-primary-400/20 hover:text-primary-900"
+              aria-label="Open navigation"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <span className="text-base font-semibold text-primary-900">
+              Student Portal
+            </span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-sm font-medium text-red-500 hover:text-red-400"
+            >
+              Logout
+            </button>
+          </header>
+
+          <main className="relative flex-1 overflow-y-auto bg-background px-4 py-6 md:px-8 md:py-10">
+            {isRestricted && (
+              <div className="mb-4 rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+                Your registration is awaiting advisor approval. You can update your profile details and explore university recommendations while other features remain locked.
+              </div>
+            )}
+            <div className={restrictedViewOnly ? "pointer-events-none opacity-40" : ""}>
+              {children}
+            </div>
+            {restrictedViewOnly && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="pointer-events-auto max-w-md rounded-lg border border-yellow-200 bg-white/95 px-6 py-4 text-center shadow-lg">
+                  <h3 className="text-base font-semibold text-yellow-800">
+                    Awaiting advisor activation
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-600">
+                    These features unlock once your advisor approves your account. In the meantime, keep your profile up to date and review university recommendations.
+                  </p>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StudentLayout;
