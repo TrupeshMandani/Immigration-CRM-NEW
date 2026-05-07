@@ -8,6 +8,8 @@
     "dev:web": "pnpm --filter @icrm/consultant-web dev",
     "dev:mcp": "pnpm --filter @icrm/mcp-server dev",
     "build": "pnpm -r build",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "docker:dev": "docker compose -f docker-compose.dev.yml up -d",
+    "docker:down": "docker compose -f docker-compose.dev.yml down"
   }
 }

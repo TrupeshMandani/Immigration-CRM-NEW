@@ -20,7 +20,29 @@ app.use(express.json({ limit: '10mb' }));
 app.use('/api', require('./routes'));
 
 // health
-app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/health', async (req, res) => {
+  const start = process.uptime();
+
+  // Mongo check
+  let mongoStatus = 'error';
+  try {
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState === 1) {
+      await mongoose.connection.db.admin().ping();
+      mongoStatus = 'ok';
+    }
+  } catch (_) {}
+
+  // Postgres check
+  let postgresStatus = 'error';
+  try {
+    const { sql } = require('./db/postgres');
+    await sql`SELECT 1`;
+    postgresStatus = 'ok';
+  } catch (_) {}
+
+  res.json({ mongo: mongoStatus, postgres: postgresStatus, uptime: process.uptime() });
+});
 
 // global error handler
 app.use((err, req, res, next) => {
