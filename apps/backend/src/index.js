@@ -1,4 +1,6 @@
 require('dotenv').config();
+const { tsReady } = require('./lib/typescript-canary');
+console.log(tsReady('Immigration CRM'));
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
