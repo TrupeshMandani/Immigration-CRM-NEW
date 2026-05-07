@@ -1,0 +1,13 @@
+{
+  "name": "@icrm/root",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:backend": "pnpm --filter @icrm/backend dev",
+    "dev:web": "pnpm --filter @icrm/consultant-web dev",
+    "dev:mcp": "pnpm --filter @icrm/mcp-server dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint"
+  }
+}

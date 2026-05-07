@@ -1,0 +1,6 @@
+{
+  "name": "@icrm/eslint-config-custom",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module"
+}
