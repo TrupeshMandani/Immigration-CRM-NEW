@@ -25,6 +25,7 @@ protectedRouter.use(authenticateToken);
 protectedRouter.use(tenantContextMiddleware);
 
 protectedRouter.use("/users", require("../modules/users/users.route").usersRouter);
+protectedRouter.use("/documents", require("../modules/documents/documents.routes").documentsRouter);
 protectedRouter.use("/upload", require("../modules/upload/upload.routes"));
 
 // Students: new Postgres-backed CRUD runs first.

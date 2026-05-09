@@ -33,6 +33,7 @@ import { users } from '../db/schema/users';
 import { tenantContextMiddleware } from '../middleware/tenantContext';
 import { usersRouter } from '../modules/users/users.route';
 import { studentsRouter } from '../modules/students/students.routes';
+import { documentsRouter } from '../modules/documents/documents.routes';
 import {
   provisionTwoFirmsWithData,
   teardownFirms,
@@ -72,6 +73,7 @@ app.use(express.json());
 // Stack: JWT stub → tenant context (opens RLS tx) → route handler
 app.use('/api/users', jwtAuthStub, tenantContextMiddleware, usersRouter);
 app.use('/api/students', jwtAuthStub, tenantContextMiddleware, studentsRouter);
+app.use('/api/documents', jwtAuthStub, tenantContextMiddleware, documentsRouter);
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -169,6 +171,42 @@ describe('Cross-tenant isolation: GET /api/students', () => {
 
   it('No token → 401', async () => {
     const res = await request(app).get('/api/students');
+    expect(res.status).toBe(401);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/documents/student/:studentId  [Postgres + RLS — active since Prompt 10]
+// ---------------------------------------------------------------------------
+describe('Cross-tenant isolation: GET /api/documents/student/:id', () => {
+  it('Firm A token → 200 with only Firm A documents', async () => {
+    const res = await request(app)
+      .get(`/api/documents/student/${fixture.studentA.id}`)
+      .set('Authorization', `Bearer ${fixture.jwtA}`);
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+    for (const row of res.body) {
+      expect(row.firm_id).toBe(fixture.firmA.id);
+    }
+  });
+
+  it('Firm A token → contains NO Firm B documents', async () => {
+    // Try to read Firm B student's documents with Firm A token.
+    // RLS will return [] because firm_id doesn't match.
+    const res = await request(app)
+      .get(`/api/documents/student/${fixture.studentB.id}`)
+      .set('Authorization', `Bearer ${fixture.jwtA}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(0); // Firm B student is invisible to Firm A
+  });
+
+  it('No token → 401', async () => {
+    const res = await request(app).get(
+      `/api/documents/student/${fixture.studentA.id}`,
+    );
     expect(res.status).toBe(401);
   });
 });

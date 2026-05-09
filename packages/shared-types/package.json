@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./students": "./students.ts"
+    "./students": "./students.ts",
+    "./documents": "./documents.ts"
   },
   "peerDependencies": {
     "zod": "^3.0.0"

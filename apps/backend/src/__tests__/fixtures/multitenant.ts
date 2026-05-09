@@ -19,6 +19,7 @@ import { firms, type Firm } from '../../db/schema/firms';
 import { users, type User } from '../../db/schema/users';
 import { createStudent } from '../../modules/students/students.service';
 import type { Student } from '../../db/schema/students';
+import { documents, type Document } from '../../db/schema/documents';
 
 // ---------------------------------------------------------------------------
 // JWT helper
@@ -37,15 +38,15 @@ function issueJwt(firmId: string, userId: string, role = 'admin'): string {
 export interface TwoFirmFixture {
   firmA: Firm;
   firmB: Firm;
-  /** Admin user belonging to Firm A. */
   userA: User;
-  /** Admin user belonging to Firm B. */
   userB: User;
   studentA: Student;
   studentB: Student;
-  /** Signed JWT carrying firmA.id — use as Bearer token for requests. */
+  /** One seeded document for studentA — no real S3 object, just DB metadata. */
+  documentA: Document;
+  /** One seeded document for studentB. */
+  documentB: Document;
   jwtA: string;
-  /** Signed JWT carrying firmB.id. */
   jwtB: string;
 }
 
@@ -114,6 +115,39 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
     }),
   );
 
+  // Seed one document per firm (DB-only, no real S3 object needed for RLS tests).
+  const documentA = await seedInFirm(firmA.id, (tx) =>
+    tx
+      .insert(documents)
+      .values({
+        firm_id: firmA.id,
+        student_id: studentA.id,
+        document_type: 'passport',
+        s3_key: `${studentA.ai_key}/documents/passport/test-a.pdf`,
+        s3_bucket: 'test-bucket',
+        mime_type: 'application/pdf',
+        size_bytes: 102_400,
+      })
+      .returning()
+      .then((r) => r[0]),
+  );
+
+  const documentB = await seedInFirm(firmB.id, (tx) =>
+    tx
+      .insert(documents)
+      .values({
+        firm_id: firmB.id,
+        student_id: studentB.id,
+        document_type: 'passport',
+        s3_key: `${studentB.ai_key}/documents/passport/test-b.pdf`,
+        s3_bucket: 'test-bucket',
+        mime_type: 'application/pdf',
+        size_bytes: 98_304,
+      })
+      .returning()
+      .then((r) => r[0]),
+  );
+
   return {
     firmA,
     firmB,
@@ -121,6 +155,8 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
     userB,
     studentA,
     studentB,
+    documentA,
+    documentB,
     jwtA: issueJwt(firmA.id, userA.id),
     jwtB: issueJwt(firmB.id, userB.id),
   };
