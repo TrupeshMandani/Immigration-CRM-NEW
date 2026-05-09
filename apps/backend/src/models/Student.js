@@ -1,3 +1,9 @@
+/**
+ * @deprecated Migrated to Postgres in Prompt 09. Do not use for new features.
+ * Use apps/backend/src/db/schema/students.ts + students.service.ts instead.
+ * Kept temporarily for: document management, task management, S3 uploads,
+ * and legacy aiKey lookups — these will be migrated in Prompts 10 and 12.
+ */
 const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema(

@@ -32,6 +32,7 @@ import { sql as pgClient } from '../db/postgres';
 import { users } from '../db/schema/users';
 import { tenantContextMiddleware } from '../middleware/tenantContext';
 import { usersRouter } from '../modules/users/users.route';
+import { studentsRouter } from '../modules/students/students.routes';
 import {
   provisionTwoFirmsWithData,
   teardownFirms,
@@ -70,6 +71,7 @@ app.use(express.json());
 
 // Stack: JWT stub → tenant context (opens RLS tx) → route handler
 app.use('/api/users', jwtAuthStub, tenantContextMiddleware, usersRouter);
+app.use('/api/students', jwtAuthStub, tenantContextMiddleware, studentsRouter);
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -129,18 +131,51 @@ describe('Cross-tenant isolation: GET /api/users', () => {
 });
 
 // ---------------------------------------------------------------------------
-// MongoDB-backed routes — placeholder skips pending Postgres migration.
-// Dates below are estimates; update when each module is migrated.
+// GET /api/students  [Postgres + RLS — active since Prompt 09]
 // ---------------------------------------------------------------------------
+describe('Cross-tenant isolation: GET /api/students', () => {
+  it('Firm A token → 200 with only Firm A students', async () => {
+    const res = await request(app)
+      .get('/api/students')
+      .set('Authorization', `Bearer ${fixture.jwtA}`);
 
-describe.skip('Cross-tenant isolation: GET /api/students [pending — Prompt 09]', () => {
-  it('Firm A token returns only Firm A students', () => {
-    // TODO: mount studentsRouter on app above once students table is in Postgres.
-    // Seed students via seedInFirm() in provisionTwoFirmsWithData().
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+    for (const row of res.body) {
+      expect(row.firm_id).toBe(fixture.firmA.id);
+    }
   });
 
-  it('contains no Firm B students', () => {});
+  it('Firm A token → contains NO Firm B students', async () => {
+    const res = await request(app)
+      .get('/api/students')
+      .set('Authorization', `Bearer ${fixture.jwtA}`);
+
+    const firmIds: string[] = res.body.map((r: { firm_id: string }) => r.firm_id);
+    expect(firmIds).not.toContain(fixture.firmB.id);
+  });
+
+  it('Firm B token → 200 with only Firm B students', async () => {
+    const res = await request(app)
+      .get('/api/students')
+      .set('Authorization', `Bearer ${fixture.jwtB}`);
+
+    expect(res.status).toBe(200);
+    for (const row of res.body) {
+      expect(row.firm_id).toBe(fixture.firmB.id);
+    }
+  });
+
+  it('No token → 401', async () => {
+    const res = await request(app).get('/api/students');
+    expect(res.status).toBe(401);
+  });
 });
+
+// ---------------------------------------------------------------------------
+// MongoDB-backed routes — placeholder skips pending Postgres migration.
+// ---------------------------------------------------------------------------
 
 describe.skip('Cross-tenant isolation: GET /api/tasks [pending — Prompt 09]', () => {
   it('Firm A token returns only Firm A tasks', () => {

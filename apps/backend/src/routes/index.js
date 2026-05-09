@@ -26,6 +26,11 @@ protectedRouter.use(tenantContextMiddleware);
 
 protectedRouter.use("/users", require("../modules/users/users.route").usersRouter);
 protectedRouter.use("/upload", require("../modules/upload/upload.routes"));
+
+// Students: new Postgres-backed CRUD runs first.
+// Requests for paths the new router doesn't handle (/:aiKey, /required-documents,
+// /tasks, etc.) fall through to the legacy Mongoose-backed router below.
+protectedRouter.use("/students", require("../modules/students/students.routes").studentsRouter);
 protectedRouter.use("/students", require("../modules/students/student.route"));
 protectedRouter.use("/tasks", require("../modules/tasks/task.routes"));
 protectedRouter.use("/notifications", require("../modules/notifications/notification.route"));

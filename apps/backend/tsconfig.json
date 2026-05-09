@@ -6,7 +6,11 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@icrm/shared-types/*": ["../../packages/shared-types/*"]
+    }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../../packages/shared-types/**/*"]
 }

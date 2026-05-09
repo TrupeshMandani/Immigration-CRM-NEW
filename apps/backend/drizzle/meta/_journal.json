@@ -15,6 +15,13 @@
       "when": 1778354499892,
       "tag": "0001_fuzzy_inertia",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778357956824,
+      "tag": "0002_organic_trish_tilby",
+      "breakpoints": true
     }
   ]
 }

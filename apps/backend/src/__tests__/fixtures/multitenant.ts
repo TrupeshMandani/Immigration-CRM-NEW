@@ -17,6 +17,8 @@ import { inArray } from 'drizzle-orm';
 import { db, withFirmContext } from '../../db/postgres';
 import { firms, type Firm } from '../../db/schema/firms';
 import { users, type User } from '../../db/schema/users';
+import { createStudent } from '../../modules/students/students.service';
+import type { Student } from '../../db/schema/students';
 
 // ---------------------------------------------------------------------------
 // JWT helper
@@ -39,6 +41,8 @@ export interface TwoFirmFixture {
   userA: User;
   /** Admin user belonging to Firm B. */
   userB: User;
+  studentA: Student;
+  studentB: Student;
   /** Signed JWT carrying firmA.id — use as Bearer token for requests. */
   jwtA: string;
   /** Signed JWT carrying firmB.id. */
@@ -94,11 +98,29 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .then((r) => r[0]),
   );
 
+  const studentA = await seedInFirm(firmA.id, (tx) =>
+    createStudent(tx as typeof db, firmA.id, {
+      email: `student-a-${tag}@ct.test`,
+      first_name: 'Student',
+      last_name: 'Alpha',
+    }),
+  );
+
+  const studentB = await seedInFirm(firmB.id, (tx) =>
+    createStudent(tx as typeof db, firmB.id, {
+      email: `student-b-${tag}@ct.test`,
+      first_name: 'Student',
+      last_name: 'Beta',
+    }),
+  );
+
   return {
     firmA,
     firmB,
     userA,
     userB,
+    studentA,
+    studentB,
     jwtA: issueJwt(firmA.id, userA.id),
     jwtB: issueJwt(firmB.id, userB.id),
   };
