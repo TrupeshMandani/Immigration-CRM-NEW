@@ -1,32 +1,39 @@
 const express = require("express");
 const router = express.Router();
+const { authenticateToken } = require("../middleware/auth");
+const { tenantContextMiddleware } = require("../middleware/tenantContext");
 
-router.use("/upload", require("../modules/upload/upload.routes"));
-
-router.get("/", (req, res) => res.json({ message: "API root ready" }));
-
-// Auth routes
+// ---------------------------------------------------------------------------
+// Public routes — no auth, no tenant context
+// /api/auth/*    login, register, token refresh
+// /api/contact/* contact-form submissions
+// ---------------------------------------------------------------------------
 router.use("/auth", require("../modules/auth/auth.route"));
-
-// Contact routes
 router.use("/contact", require("../modules/contact/contact.route"));
 
-// Student routes
-router.use("/students", require("../modules/students/student.route"));
+// ---------------------------------------------------------------------------
+// Protected routes — authenticateToken runs first (sets req.context),
+// then tenantContextMiddleware opens a transaction scoped to req.context.firmId
+// and attaches it as req.db.
+//
+// Individual route files also call authenticateToken on their own routes
+// (double-auth is harmless). Do NOT add SSE / streaming routes here — see
+// the comment in tenantContext.ts about long-lived connections.
+// ---------------------------------------------------------------------------
+const protectedRouter = express.Router();
+protectedRouter.use(authenticateToken);
+protectedRouter.use(tenantContextMiddleware);
 
-// Task routes
-router.use("/tasks", require("../modules/tasks/task.routes"));
+protectedRouter.use("/upload", require("../modules/upload/upload.routes"));
+protectedRouter.use("/students", require("../modules/students/student.route"));
+protectedRouter.use("/tasks", require("../modules/tasks/task.routes"));
+protectedRouter.use("/notifications", require("../modules/notifications/notification.route"));
+protectedRouter.use("/recommendations", require("../AI/ai-recommendation/recommendation.route"));
+protectedRouter.use("/ai", require("./ai.routes"));
+protectedRouter.use("/files", require("./file.routes"));
 
-// Notifications routes
-router.use("/notifications", require("../modules/notifications/notification.route"));
+router.use("/", protectedRouter);
 
-// Recommendation routes
-router.use("/recommendations", require("../AI/ai-recommendation/recommendation.route"));
-
-// AI Assistant routes
-router.use("/ai", require("./ai.routes"));
-
-// File routes
-router.use("/files", require("./file.routes"));
+router.get("/", (req, res) => res.json({ message: "API root ready" }));
 
 module.exports = router;
