@@ -24,6 +24,7 @@ const protectedRouter = express.Router();
 protectedRouter.use(authenticateToken);
 protectedRouter.use(tenantContextMiddleware);
 
+protectedRouter.use("/users", require("../modules/users/users.route").usersRouter);
 protectedRouter.use("/upload", require("../modules/upload/upload.routes"));
 protectedRouter.use("/students", require("../modules/students/student.route"));
 protectedRouter.use("/tasks", require("../modules/tasks/task.routes"));

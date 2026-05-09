@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend-test:
+    name: Backend — migrate + test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          # POSTGRES_USER becomes both the DB owner and a superuser,
+          # which is required for CREATE ROLE in the RLS migration.
+          POSTGRES_USER: icrm
+          POSTGRES_PASSWORD: icrm_dev
+          POSTGRES_DB: icrm_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: apps/backend
+
+    env:
+      DATABASE_URL: postgresql://icrm:icrm_dev@localhost:5432/icrm_dev
+      NODE_ENV: test
+      # Secrets — override with real values in GitHub → Settings → Secrets
+      JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET || 'ci-access-secret-change-in-prod' }}
+      JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET || 'ci-refresh-secret-change-in-prod' }}
+      # Tests provision their own firms; DEFAULT_FIRM_ID is only used by the
+      # live login flow, so a placeholder UUID is fine here.
+      DEFAULT_FIRM_ID: '00000000-0000-0000-0000-000000000001'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+          cache-dependency-path: apps/backend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run database migrations
+        run: pnpm db:migrate
+
+      - name: Run tests
+        run: pnpm test
