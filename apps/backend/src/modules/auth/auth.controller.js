@@ -13,17 +13,45 @@ const getAppBaseUrl = () =>
 
 console.log("🔧 AUTH CONTROLLER LOADED");
 
-// Generate JWT token
-const generateToken = (user) => {
+const ACCESS_SECRET = () => process.env.JWT_ACCESS_SECRET ?? process.env.JWT_SECRET;
+const REFRESH_SECRET = () => process.env.JWT_REFRESH_SECRET ?? process.env.JWT_SECRET;
+const DEFAULT_FIRM_ID = () => process.env.DEFAULT_FIRM_ID ?? '';
+
+const generateToken = (user, firmId) => {
   return jwt.sign(
     {
       id: user._id,
+      user_id: user._id,
+      firm_id: firmId ?? DEFAULT_FIRM_ID(),
       role: user.role,
       username: user.username,
     },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRY || "7d" }
+    ACCESS_SECRET(),
+    { expiresIn: '15m' }
   );
+};
+
+const generateRefreshToken = (user, firmId) => {
+  return jwt.sign(
+    {
+      id: user._id,
+      user_id: user._id,
+      firm_id: firmId ?? DEFAULT_FIRM_ID(),
+      role: user.role,
+    },
+    REFRESH_SECRET(),
+    { expiresIn: '7d' }
+  );
+};
+
+const setRefreshCookie = (res, refreshToken) => {
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: '/api/auth/refresh',
+  });
 };
 
 // Login for both admin and student
@@ -57,7 +85,8 @@ exports.login = async (req, res) => {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      const token = generateToken(admin);
+      const token = generateToken(admin, DEFAULT_FIRM_ID());
+      setRefreshCookie(res, generateRefreshToken(admin, DEFAULT_FIRM_ID()));
 
       return res.json({
         message: "Login successful",
@@ -233,7 +262,8 @@ exports.firebaseLogin = async (req, res) => {
       }
     }
 
-    const token = generateToken(student);
+    const token = generateToken(student, DEFAULT_FIRM_ID());
+    setRefreshCookie(res, generateRefreshToken(student, DEFAULT_FIRM_ID()));
 
     res.json({
       message: "Login successful",
@@ -532,7 +562,8 @@ exports.registerAdmin = async (req, res) => {
 
     await admin.save();
 
-    const token = generateToken(admin);
+    const token = generateToken(admin, DEFAULT_FIRM_ID());
+    setRefreshCookie(res, generateRefreshToken(admin, DEFAULT_FIRM_ID()));
 
     res.status(201).json({
       message: "Admin created successfully",
@@ -552,6 +583,43 @@ exports.registerAdmin = async (req, res) => {
         .json({ message: "Username or email already exists" });
     }
     res.status(500).json({ message: "Failed to create admin" });
+  }
+};
+
+// Refresh access token using httpOnly refresh cookie
+exports.refresh = async (req, res) => {
+  try {
+    const token = req.cookies?.refreshToken;
+    if (!token) {
+      return res.status(401).json({ message: "Refresh token required" });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, REFRESH_SECRET());
+    } catch (err) {
+      return res.status(401).json({ message: "Invalid or expired refresh token" });
+    }
+
+    let user;
+    if (decoded.role === "admin") {
+      user = await Admin.findById(decoded.id);
+    } else if (decoded.role === "student") {
+      user = await Student.findById(decoded.id);
+    }
+
+    if (!user) {
+      return res.status(403).json({ message: "User no longer exists" });
+    }
+
+    const firmId = decoded.firm_id ?? DEFAULT_FIRM_ID();
+    const newAccessToken = generateToken(user, firmId);
+    setRefreshCookie(res, generateRefreshToken(user, firmId));
+
+    res.json({ token: newAccessToken });
+  } catch (error) {
+    console.error("Refresh error:", error);
+    res.status(500).json({ message: "Token refresh failed" });
   }
 };
 

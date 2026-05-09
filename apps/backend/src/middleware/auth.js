@@ -2,6 +2,9 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 const Student = require("../models/Student");
 
+const ACCESS_SECRET = () =>
+  process.env.JWT_ACCESS_SECRET ?? process.env.JWT_SECRET;
+
 // Verify JWT token
 const authenticateToken = async (req, res, next) => {
   try {
@@ -13,8 +16,12 @@ const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ message: "Access token required" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, ACCESS_SECRET());
     console.log("🔐 Auth Debug - Decoded:", decoded);
+
+    if (req.context) {
+      throw new Error("req.context already set before auth middleware");
+    }
 
     let user;
     if (decoded.role === "admin") {
@@ -30,9 +37,16 @@ const authenticateToken = async (req, res, next) => {
       return res.status(403).json({ message: "Invalid or expired session" });
     }
 
+    req.context = {
+      firmId: decoded.firm_id ?? process.env.DEFAULT_FIRM_ID ?? '',
+      userId: String(user._id),
+      role: user.role || decoded.role,
+    };
+
+    // Legacy properties kept for existing routes
     req.user = user;
     req.userId = user._id;
-    req.userRole = user.role || decoded.role; // ensure fallback
+    req.userRole = req.context.role;
     next();
   } catch (error) {
     console.error("🔐 Auth Debug - Error:", error.message);

@@ -23,6 +23,9 @@ router.get("/test", (req, res) => {
 });
 router.post("/register-admin", ctrl.registerAdmin);
 
+// Token refresh (uses httpOnly cookie, no auth middleware needed)
+router.post("/refresh", ctrl.refresh);
+
 // Protected routes
 router.post("/change-password", authenticateToken, ctrl.changePassword);
 router.get("/profile", authenticateToken, ctrl.getProfile);

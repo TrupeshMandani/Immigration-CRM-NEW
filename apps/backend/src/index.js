@@ -4,6 +4,7 @@ console.log(tsReady('Immigration CRM'));
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const { PORT } = require('./config/env');
 
 const http = require('http');
@@ -12,8 +13,9 @@ const { initSocket } = require('./socket');
 const app = express();
 
 // middlewares
-app.use(cors());
+app.use(cors({ origin: process.env.APP_BASE_URL || 'http://localhost:5173', credentials: true }));
 app.use(helmet());
+app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 
 // routes (we’ll add upload next)
