@@ -1,7 +1,4 @@
-const path = require("path");
-const Student = require("../../models/Student");
-const File = require("../../models/File");
-const Admin = require("../../models/Admin");
+const path = require('path');
 const {
   getPresignedUrl,
   deleteS3Object,
@@ -9,155 +6,53 @@ const {
   getMimeType,
   uploadFileToS3,
   deleteLocalFile,
-} = require("../s3/s3.service");
-const { sendEmail } = require("../../utils/sendEmail");
-const env = require("../../config/env");
-const { getAdminNotificationEmails } = require("../../utils/adminRecipients");
-const { generateAiKey } = require("../../utils/generateAiKey");
-const { sendStudentInviteEmail } = require("./student.invite");
-const {
-  extractProfileWithAI,
-} = require("../../AI/ai-file-extract/extract.service");
-const { prioritizeFields } = require("../../AI/ai-file-extract/field-priority");
-const { upsertStudent } = require("./student.service");
+} = require('../s3/s3.service');
+const { sendEmail } = require('../../utils/sendEmail');
+const env = require('../../config/env');
+const { getAdminNotificationEmails } = require('../../utils/adminRecipients');
+const { generateAiKey } = require('../../utils/generateAiKey');
+const { sendStudentInviteEmail } = require('./student.invite');
+const { extractProfileWithAI } = require('../../AI/ai-file-extract/extract.service');
+const { prioritizeFields } = require('../../AI/ai-file-extract/field-priority');
+const { upsertStudent, mergePassportDetails, normalizePassportDate } = require('./student.service');
 const {
   buildRequiredDocFileName,
   guessExtension,
   getStudentDisplayName,
-} = require("../../utils/fileName");
-const {
-  verifyDocumentType,
-} = require("../../AI/ai-document-verify/verification.service");
-const {
-  createVerificationTask,
-  resolveVerificationTasks,
-} = require("../tasks/task.service");
-const Notification = require("../../models/Notification");
-const { emitNotification } = require("../../socket");
+} = require('../../utils/fileName');
+const { verifyDocumentType } = require('../../AI/ai-document-verify/verification.service');
+const { createAIVerificationTask } = require('../tasks/tasks.service');
+const { send: sendNotification } = require('../notifications/notifications.service');
+const { emitToFirm } = require('../../socket');
 
-const COMPLETED_TASK_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const { db } = require('../../db/postgres');
+const { students, documents, users, tasks } = require('../../db/schema');
+const { eq, and, or, ilike, inArray, isNull, ne, desc } = require('drizzle-orm');
 
-const purgeOldCompletedTasks = async (student) => {
-  if (!student || !Array.isArray(student.tasks) || !student.tasks.length)
-    return;
-  const now = Date.now();
-  const retained = [];
-  let changed = false;
+const DEFAULT_FIRM_ID = () => process.env.DEFAULT_FIRM_ID ?? '';
 
-  for (const task of student.tasks) {
-    if (
-      task.status === "completed" &&
-      task.completedAt &&
-      now - new Date(task.completedAt).getTime() > COMPLETED_TASK_TTL_MS
-    ) {
-      changed = true;
-      if (task.attachment?.key) {
-        try {
-          await deleteS3Object(task.attachment.key);
-        } catch (err) {
-          console.error(
-            "Failed to delete expired task attachment:",
-            err.message
-          );
-        }
-      }
-      continue;
-    }
-    retained.push(task);
-  }
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-  if (changed) {
-    student.tasks = retained;
-    student.markModified("tasks");
-    await student.save();
-  }
-};
-
-const TASK_STATUSES = ["pending", "completed"];
-
-const formatStudentTask = (task) => {
-  if (!task) return null;
-  const plain = task.toObject ? task.toObject() : task;
-  return {
-    id: plain._id,
-    title: plain.title,
-    description: plain.description || "",
-    dueDate: plain.dueDate,
-    status: plain.status || "pending",
-    assignedBy: plain.assignedBy,
-    assignedAt: plain.assignedAt,
-    completedAt: plain.completedAt,
-    seenByStudent: plain.seenByStudent,
-    attachment: plain.attachment
-      ? {
-          key: plain.attachment.key,
-          bucket: plain.attachment.bucket,
-          name: plain.attachment.name,
-          mimeType: plain.attachment.mimeType,
-          size: plain.attachment.size,
-        }
-      : null,
-  };
-};
-
-const logRequiredDocUpload = ({
-  aiKey,
-  docId,
-  documentName,
-  studentName,
-  originalName,
-  newName,
-  userRole,
-  userId,
-}) => {
-  try {
-    console.info("[required-docs:upload]", {
-      aiKey,
-      docId,
-      documentName,
-      studentName,
-      originalName,
-      storedName: newName,
-      actorRole: userRole,
-      actorId: userId,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (err) {
-    console.warn("Failed to log required-doc upload event:", err.message);
-  }
-};
-
-const logDocumentWorkflow = (stage, context = {}) => {
-  try {
-    console.info(`[doc-workflow] ${stage}`, {
-      ...context,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (err) {
-    console.warn("[doc-workflow] failed to log stage", stage, err.message);
-  }
-};
 const getAppBaseUrl = () =>
-  (
-    env?.APP_BASE_URL ||
-    process.env.APP_BASE_URL ||
-    "https://portal.example.com"
-  ).replace(/\/$/, "");
+  (env?.APP_BASE_URL || process.env.APP_BASE_URL || 'https://portal.example.com').replace(/\/$/, '');
 
 const canManageStudentDocuments = (user, student) => {
   if (!user || !student) return false;
-  if (user.role === "admin") return true;
-  if (user.role === "student" && user.aiKey === student.aiKey) return true;
+  if (['admin', 'senior', 'junior'].includes(user.role)) return true;
+  if (user.role === 'student' && (user.ai_key || user.aiKey) === student.ai_key) return true;
   return false;
 };
 
-const getStudentPrimaryEmail = (student) =>
-  student?.email || student?.username || student?.contactInfo?.email || null;
+const getStudentEmail = (student) => student?.email ?? null;
+
+const getStudentName = (student) =>
+  student.first_name
+    ? `${student.first_name} ${student.last_name || ''}`.trim()
+    : (student.profile_data?.fullName || student.profile_data?.name || student.email || 'Student');
 
 const sendTaskAssignedEmail = async ({ student, task }) => {
-  const recipient = getStudentPrimaryEmail(student);
+  const recipient = getStudentEmail(student);
   if (!recipient) return;
-
   try {
     await sendEmail({
       to: recipient,
@@ -165,645 +60,615 @@ const sendTaskAssignedEmail = async ({ student, task }) => {
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; color: #0f172a; line-height: 1.6;">
           <h2 style="margin-bottom: 12px; color: #1d4ed8;">New task assigned</h2>
-          <p style="margin: 0 0 12px 0;">You have been assigned a new task: <strong>${
-            task.title
-          }</strong>.</p>
-          ${
-            task.description
-              ? `<p style="margin: 0 0 12px 0;">${task.description}</p>`
-              : ""
-          }
-          ${
-            task.dueDate
-              ? `<p style="margin: 0 0 12px 0;">Due date: <strong>${new Date(
-                  task.dueDate
-                ).toLocaleDateString()}</strong></p>`
-              : ""
-          }
-          <p style="margin: 0 0 12px 0;">Please log into your portal to review the full details and upload any requested files.</p>
-          <p style="margin: 0;">Thank you,<br/>Immigration CRM Team</p>
+          <p>You have been assigned a new task: <strong>${task.title}</strong>.</p>
+          ${task.description ? `<p>${task.description}</p>` : ''}
+          ${task.due_at ? `<p>Due date: <strong>${new Date(task.due_at).toLocaleDateString()}</strong></p>` : ''}
+          <p>Please log into your portal to review the full details.</p>
         </div>
       `,
     });
   } catch (error) {
-    console.error("Failed to send task email:", error.message);
+    console.error('Failed to send task email:', error.message);
   }
 };
 
-// list all students (admin only)
+// ─── Required-doc helpers (state_data.doc_defs) ───────────────────────────────
+
+const createDocumentSlug = (name = '') => {
+  const base = name.toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'document';
+  const unique = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  return `${base}-${unique}`;
+};
+
+const getDocDefs = (student) => (student.state_data?.doc_defs ?? {});
+
+const saveDocDefs = async (studentId, defs, student) => {
+  const newStateData = { ...(student.state_data ?? {}), doc_defs: defs };
+  const [updated] = await db.update(students)
+    .set({ state_data: newStateData, updated_at: new Date() })
+    .where(eq(students.id, studentId))
+    .returning();
+  return updated;
+};
+
+const DEFAULT_REQUIRED_DOCUMENTS = [
+  { name: 'Passport', description: 'Upload a clear scan of the bio-data page from your passport.' },
+  { name: 'Language Test Result (IELTS)', description: 'Provide the most recent IELTS test report showing all band scores.' },
+  { name: 'Photograph', description: 'Attach a recent passport-sized photograph that meets visa requirements.' },
+  { name: 'Proof of Funds', description: 'Submit bank statements or financial documents demonstrating sufficient funds.' },
+  { name: 'Acceptance Letter', description: 'Upload the official acceptance letter from your educational institution.' },
+  { name: 'Medical Examination Report', description: 'Provide the medical examination report from an approved panel physician.' },
+  { name: 'Police Clearance Certificate', description: 'Attach a police clearance certificate from your country of residence.' },
+  { name: 'Previous Visa Copies', description: 'Upload copies of any previous visas you have held.' },
+  { name: 'Educational Transcripts', description: 'Provide transcripts from your previous educational institutions.' },
+];
+
+const sanitizeForSlug = (value = '') =>
+  value.toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'document';
+
+const ensureDefaultDocDefs = (defs) => {
+  const existingKeys = new Set(Object.values(defs).map((d) => sanitizeForSlug(d.name || '')));
+  let changed = false;
+  for (const { name, description } of DEFAULT_REQUIRED_DOCUMENTS) {
+    if (!existingKeys.has(sanitizeForSlug(name))) {
+      const slug = createDocumentSlug(name);
+      defs[slug] = { name, description, slug, aiExtractionEnabled: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      existingKeys.add(sanitizeForSlug(name));
+      changed = true;
+    }
+  }
+  return changed;
+};
+
+// Build formatted doc response from def + files rows
+const VERIFICATION_STATUSES = new Set(['pending', 'verified', 'failed']);
+
+const normalizeFileVerification = (ai_verification = {}) => {
+  const rawStatus = typeof ai_verification.status === 'string' ? ai_verification.status.toLowerCase() : '';
+  return {
+    status: VERIFICATION_STATUSES.has(rawStatus) ? rawStatus : 'pending',
+    confidence: typeof ai_verification.confidence === 'number' ? ai_verification.confidence : null,
+    detectedType: ai_verification.detectedType || '',
+    reason: ai_verification.reason || '',
+    checkedAt: ai_verification.checkedAt || ai_verification.lastCheckedAt || null,
+  };
+};
+
+const mapDocRowForResponse = (row) => ({
+  id: row.id,
+  name: row.ai_verification?.name || path.basename(row.s3_key || ''),
+  bucket: row.s3_bucket,
+  size: row.size_bytes,
+  mimeType: row.mime_type,
+  uploadedAt: row.created_at,
+  uploadedBy: row.uploaded_by,
+  uploadedByRole: row.ai_verification?.uploadedByRole || null,
+  key: row.s3_key,
+  verificationTaskId: row.ai_verification?.verificationTaskId || null,
+  verification: normalizeFileVerification(row.ai_verification ?? {}),
+});
+
+const buildVerificationSummary = (defData, fileRows) => {
+  const files = fileRows.map(mapDocRowForResponse);
+  const summary = {
+    status: defData.verification?.status || 'pending',
+    confidence: null,
+    detectedType: '',
+    reason: files.length ? 'Awaiting AI confirmation.' : 'No files uploaded yet.',
+    lastCheckedAt: defData.verification?.lastCheckedAt || null,
+  };
+
+  if (!files.length) { summary.status = 'pending'; return { summary, files }; }
+
+  const statuses = files.map((f) => f.verification.status);
+  if (statuses.includes('verified')) summary.status = 'verified';
+  else if (statuses.includes('failed')) summary.status = 'failed';
+  else summary.status = statuses[statuses.length - 1] || 'pending';
+
+  const sorted = [...files].sort((a, b) =>
+    new Date(b.verification.checkedAt || b.uploadedAt || 0) - new Date(a.verification.checkedAt || a.uploadedAt || 0)
+  );
+  const latest = sorted[0];
+  summary.lastCheckedAt = latest?.verification?.checkedAt || null;
+  summary.confidence = latest?.verification?.confidence ?? null;
+  summary.detectedType = latest?.verification?.detectedType || '';
+  summary.reason = latest?.verification?.reason || (summary.status === 'verified' ? 'AI verified the latest upload.' : 'Manual verification required.');
+
+  return { summary, files };
+};
+
+const formatRequiredDoc = (slug, defData, fileRows) => {
+  const { summary, files } = buildVerificationSummary(defData, fileRows);
+  return {
+    id: slug,
+    name: defData.name,
+    description: defData.description || '',
+    slug,
+    aiExtractionEnabled: Boolean(defData.aiExtractionEnabled),
+    createdAt: defData.createdAt,
+    updatedAt: defData.updatedAt,
+    isUploaded: files.length > 0,
+    filesCount: files.length,
+    verification: summary,
+    verificationStatus: summary.status,
+    files,
+  };
+};
+
+const getDocFilesMap = async (studentId, slugs) => {
+  if (!slugs.length) return {};
+  const rows = await db.select().from(documents)
+    .where(and(eq(documents.student_id, studentId), inArray(documents.document_type, slugs)));
+  const map = {};
+  for (const row of rows) {
+    if (!map[row.document_type]) map[row.document_type] = [];
+    map[row.document_type].push(row);
+  }
+  return map;
+};
+
+const notifyStudentAboutRequiredDoc = async (student, docName) => {
+  try {
+    const recipient = getStudentEmail(student);
+    if (!recipient) return;
+    await sendEmail({
+      to: recipient,
+      subject: `New required document: ${docName}`,
+      html: `
+        <div style="font-family: 'Inter', Arial, sans-serif; color: #0f172a; line-height: 1.6;">
+          <h2 style="margin-bottom: 12px; color: #1d4ed8;">New document requested</h2>
+          <p>Your advisor just requested <strong>${docName}</strong>.</p>
+          <p>Please sign in to the client portal to upload the file securely.</p>
+          <a href="${env.APP_BASE_URL}/login" style="display: inline-block; padding: 12px 20px; background: #2563eb; color: #ffffff; border-radius: 8px; font-weight: 600; text-decoration: none;">Open portal</a>
+        </div>
+      `,
+    });
+  } catch (err) {
+    console.error('Failed to send required document notification:', err);
+  }
+};
+
+// ─── Task helpers ─────────────────────────────────────────────────────────────
+
+// Map Postgres task row to legacy student-task response shape
+const formatStudentTask = (row) => {
+  if (!row) return null;
+  const meta = row.metadata ?? {};
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description || '',
+    dueDate: row.due_at,
+    status: row.status === 'done' ? 'completed' : row.status === 'open' ? 'pending' : row.status,
+    assignedBy: row.created_by,
+    assignedAt: row.created_at,
+    completedAt: row.completed_at,
+    seenByStudent: row.is_read,
+    attachment: meta.attachment ?? null,
+  };
+};
+
+// ─── Student list/CRUD ────────────────────────────────────────────────────────
+
 exports.getAllStudents = async (req, res) => {
   try {
     const { status, search } = req.query;
-    let query = {};
+    const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
 
-    if (status) {
-      query.status = status;
-    }
+    let conditions = [eq(students.firm_id, firmId)];
+    if (status) conditions.push(eq(students.status, status));
 
+    let list;
     if (search) {
-      query.$or = [
-        { "contactInfo.name": { $regex: search, $options: "i" } },
-        { "contactInfo.email": { $regex: search, $options: "i" } },
-        { username: { $regex: search, $options: "i" } },
-      ];
+      const term = `%${search}%`;
+      list = await db.select().from(students)
+        .where(and(...conditions, or(
+          ilike(students.first_name, term),
+          ilike(students.last_name, term),
+          ilike(students.email, term),
+        )));
+    } else {
+      list = await db.select().from(students).where(and(...conditions));
     }
 
-    const list = await Student.find(query).sort({ _id: -1 });
     res.json(list);
   } catch (error) {
-    console.error("Get students error:", error);
-    res.status(500).json({ message: "Failed to get students" });
+    console.error('Get students error:', error);
+    res.status(500).json({ message: 'Failed to get students' });
   }
 };
 
 exports.getRegisteredStudents = async (req, res) => {
   try {
     const { search } = req.query;
-    const query = { status: "registered" };
+    const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
+    let conditions = [eq(students.firm_id, firmId), eq(students.status, 'registered')];
 
+    let list;
     if (search) {
-      query.$or = [
-        { "contactInfo.name": { $regex: search, $options: "i" } },
-        { "contactInfo.email": { $regex: search, $options: "i" } },
-        { username: { $regex: search, $options: "i" } },
-      ];
+      const term = `%${search}%`;
+      list = await db.select().from(students)
+        .where(and(...conditions, or(ilike(students.first_name, term), ilike(students.last_name, term), ilike(students.email, term))));
+    } else {
+      list = await db.select().from(students).where(and(...conditions));
     }
 
-    const list = await Student.find(query).sort({ createdAt: -1 });
     res.json(list);
   } catch (error) {
-    console.error("Get registered students error:", error);
-    res.status(500).json({ message: "Failed to get registered students" });
+    console.error('Get registered students error:', error);
+    res.status(500).json({ message: 'Failed to get registered students' });
   }
 };
 
-// get pending contact requests (admin only)
 exports.getPendingContacts = async (req, res) => {
   try {
-    const pending = await Student.find({ status: "pending" }).sort({ _id: -1 });
+    const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
+    const pending = await db.select().from(students)
+      .where(and(eq(students.firm_id, firmId), eq(students.status, 'pending')));
     res.json(pending);
   } catch (error) {
-    console.error("Get pending contacts error:", error);
-    res.status(500).json({ message: "Failed to get pending contacts" });
+    console.error('Get pending contacts error:', error);
+    res.status(500).json({ message: 'Failed to get pending contacts' });
   }
 };
 
-// approve contact request (admin only)
 exports.approveContactRequest = async (req, res) => {
   try {
     const { id } = req.params;
+    const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
 
-    const student = await Student.findById(id);
-    if (!student) {
-      return res.status(404).json({ message: "Contact request not found" });
-    }
+    const [student] = await db.select().from(students)
+      .where(and(eq(students.id, id), eq(students.firm_id, firmId))).limit(1);
+    if (!student) return res.status(404).json({ message: 'Contact request not found' });
+    if (student.status !== 'pending') return res.status(400).json({ message: 'This contact has already been processed' });
 
-    if (student.status !== "pending") {
-      return res
-        .status(400)
-        .json({ message: "This contact has already been processed" });
-    }
-
-    const contactEmail = student.contactInfo?.email;
-    if (!contactEmail) {
-      return res
-        .status(400)
-        .json({ message: "Contact request is missing an email address" });
-    }
+    const contactEmail = student.email;
+    if (!contactEmail) return res.status(400).json({ message: 'Contact request is missing an email address' });
 
     const username = contactEmail.toLowerCase();
 
-    const existingStudent = await Student.findOne({
-      _id: { $ne: student._id },
-      $or: [{ username }, { email: username }],
-      status: { $ne: "inactive" },
-    });
-
-    if (existingStudent) {
-      return res.status(400).json({
-        message:
-          "Another student already uses this email. Update or remove the existing account first.",
-      });
+    const [existingOther] = await db.select({ id: students.id }).from(students)
+      .where(and(eq(students.email, username), eq(students.firm_id, firmId), ne(students.id, id))).limit(1);
+    if (existingOther) {
+      return res.status(400).json({ message: 'Another student already uses this email.' });
     }
 
-    const existingAdmin = await Admin.findOne({
-      $or: [{ username }, { email: username }],
-    });
-
+    const [existingAdmin] = await db.select({ id: users.id }).from(users)
+      .where(and(eq(users.email, username), eq(users.firm_id, firmId))).limit(1);
     if (existingAdmin) {
-      return res.status(400).json({
-        message:
-          "An administrator account already uses this email. Choose a different email before approving.",
-      });
+      return res.status(400).json({ message: 'An administrator account already uses this email.' });
     }
 
-    student.username = username;
-    student.email = username;
-    student.status = "registered";
-    student.isFirstLogin = false;
-    if (student.contactInfo) {
-      student.contactInfo.approvedAt = new Date();
-    }
+    const [updated] = await db.update(students)
+      .set({ status: 'registered', updated_at: new Date() })
+      .where(eq(students.id, id))
+      .returning();
 
-    await student.save();
-
-    const invite = await sendStudentInviteEmail({
-      email: username,
-      name: student.contactInfo?.name,
-    });
+    const name = getStudentName(updated);
+    const invite = await sendStudentInviteEmail({ email: username, name });
 
     res.json({
       message: invite.emailSent
-        ? "Contact approved and login instructions sent successfully."
-        : "Contact approved, but the email could not be delivered automatically.",
-      student: {
-        id: student._id,
-        username: student.username,
-        email: student.email,
-        contactInfo: student.contactInfo,
-      },
+        ? 'Contact approved and login instructions sent successfully.'
+        : 'Contact approved, but the email could not be delivered automatically.',
+      student: { id: updated.id, email: updated.email },
       inviteSent: invite.emailSent,
       loginLink: invite.loginLink,
     });
   } catch (error) {
-    console.error("Approve contact request error:", error);
-    res.status(500).json({
-      message:
-        error.message || "Failed to approve contact request. Please try again.",
-    });
+    console.error('Approve contact request error:', error);
+    res.status(500).json({ message: error.message || 'Failed to approve contact request.' });
   }
 };
 
-// activate student account (admin only)
 exports.activateStudent = async (req, res) => {
   try {
     const { id } = req.params;
-    const student = await Student.findById(id);
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
+    const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
+
+    const [student] = await db.select().from(students)
+      .where(and(eq(students.id, id), eq(students.firm_id, firmId))).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+
+    if (!['pending', 'registered'].includes(student.status)) {
+      return res.status(400).json({ message: 'Student cannot be activated' });
     }
 
-    const isPending = student.status === "pending";
-    const isRegistered = student.status === "registered";
-
-    if (!isPending && !isRegistered) {
-      return res.status(400).json({ message: "Student cannot be activated" });
-    }
-
-    const contactEmail = student.contactInfo?.email?.trim()?.toLowerCase();
+    const contactEmail = student.email?.trim()?.toLowerCase();
     if (!contactEmail) {
-      return res.status(400).json({
-        message:
-          "Student is missing an email address. Update their contact information before activating.",
-      });
+      return res.status(400).json({ message: 'Student is missing an email address.' });
     }
 
-    student.username = contactEmail;
-    student.email = contactEmail;
-    student.status = "active";
-    student.isFirstLogin = false;
+    // Ensure default required document defs exist
+    const defs = getDocDefs(student);
+    ensureDefaultDocDefs(defs);
+    const newStateData = { ...(student.state_data ?? {}), doc_defs: defs };
 
-    await ensureDefaultRequiredDocuments(student, { save: false });
-    await student.save();
+    const [updated] = await db.update(students)
+      .set({ status: 'active', state_data: newStateData, updated_at: new Date() })
+      .where(eq(students.id, id))
+      .returning();
 
     try {
-      const recipient = contactEmail;
-      if (recipient) {
-        const studentName = student.contactInfo?.name || "there";
-        const dashboardUrl = `${getAppBaseUrl()}/student/dashboard`;
-        await sendEmail({
-          to: recipient,
-          subject: "Your Immigration CRM portal is now active",
-          html: `
-            <div style="font-family: 'Inter', Arial, sans-serif; line-height: 1.7; color: #0f172a;">
-              <h1 style="margin-bottom: 12px; color: #0f172a;">Welcome aboard, ${studentName}!</h1>
-              <p style="margin: 0 0 16px 0;">
-                Your profile has been reviewed and your Immigration CRM portal is officially active.
-                You can now upload the required study permit documents, track your progress, and message your advisor.
-              </p>
-              <div style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-bottom: 18px;">
-                <p style="margin: 0 0 12px 0; font-weight: 600;">Please have these documents ready:</p>
-                <ul style="margin: 0; padding-left: 18px;">
-                  <li>Passport (bio-data page)</li>
-                  <li>IELTS / language test result</li>
-                  <li>Recent passport-sized photograph</li>
-                </ul>
-              </div>
-              <a
-                href="${dashboardUrl}"
-                style="
-                  display: inline-flex;
-                  align-items: center;
-                  justify-content: center;
-                  padding: 12px 22px;
-                  border-radius: 999px;
-                  background: linear-gradient(135deg, #2563eb, #7c3aed);
-                  color: #ffffff;
-                  font-weight: 600;
-                  text-decoration: none;
-                  min-width: 240px;
-                "
-              >
-                Access my dashboard
-              </a>
-              <p style="margin-top: 24px; font-size: 13px; color: #64748b;">
-                Need help? Reply to this email and your advisor will follow up shortly.
-              </p>
-            </div>
-          `,
-        });
-      }
+      const studentName = getStudentName(updated);
+      const dashboardUrl = `${getAppBaseUrl()}/student/dashboard`;
+      await sendEmail({
+        to: contactEmail,
+        subject: 'Your Immigration CRM portal is now active',
+        html: `
+          <div style="font-family: 'Inter', Arial, sans-serif; line-height: 1.7; color: #0f172a;">
+            <h1 style="margin-bottom: 12px;">Welcome aboard, ${studentName}!</h1>
+            <p>Your profile has been reviewed and your Immigration CRM portal is officially active.</p>
+            <a href="${dashboardUrl}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-weight:600;text-decoration:none;">Access my dashboard</a>
+          </div>
+        `,
+      });
     } catch (emailError) {
-      console.error("Failed to send activation email:", emailError);
+      console.error('Failed to send activation email:', emailError);
     }
 
     res.json({
-      message: "Student account activated successfully",
-      student: {
-        id: student._id,
-        aiKey: student.aiKey,
-        username: student.username,
-        email: student.email,
-        contactInfo: student.contactInfo,
-      },
+      message: 'Student account activated successfully',
+      student: { id: updated.id, aiKey: updated.ai_key, email: updated.email },
     });
   } catch (error) {
-    console.error("Activate student error:", error);
-    if (error.code === 11000) {
-      return res.status(400).json({ message: "Username already exists" });
-    }
-    res.status(500).json({ message: "Failed to activate student" });
+    console.error('Activate student error:', error);
+    res.status(500).json({ message: 'Failed to activate student' });
   }
 };
 
-// single student
 exports.getStudentByKey = async (req, res) => {
-  const student = await Student.findOne({ aiKey: req.params.aiKey });
-  if (!student) return res.status(404).json({ message: "Not found" });
-  res.json(student);
-};
-
-// get student by ID (admin only)
-exports.getStudentById = async (req, res) => {
   try {
-    const student = await Student.findById(req.params.id);
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const [student] = await db.select().from(students)
+      .where(eq(students.ai_key, req.params.aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Not found' });
     res.json(student);
   } catch (error) {
-    console.error("Get student error:", error);
-    res.status(500).json({ message: "Failed to get student" });
+    console.error('Get student by key error:', error);
+    res.status(500).json({ message: 'Failed to get student' });
   }
 };
 
-// update student (admin only)
+exports.getStudentById = async (req, res) => {
+  try {
+    const [student] = await db.select().from(students)
+      .where(eq(students.id, req.params.id)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+    res.json(student);
+  } catch (error) {
+    console.error('Get student error:', error);
+    res.status(500).json({ message: 'Failed to get student' });
+  }
+};
+
 exports.updateStudent = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const { first_name, last_name, email, status, stage, profile_data, state_data } = req.body;
 
-    const student = await Student.findByIdAndUpdate(
-      id,
-      { $set: updates },
-      { new: true, runValidators: true }
-    );
+    const allowedFields = {};
+    if (first_name !== undefined) allowedFields.first_name = first_name;
+    if (last_name !== undefined) allowedFields.last_name = last_name;
+    if (email !== undefined) allowedFields.email = email;
+    if (status !== undefined) allowedFields.status = status;
+    if (stage !== undefined) allowedFields.stage = stage;
+    if (profile_data !== undefined) allowedFields.profile_data = profile_data;
+    if (state_data !== undefined) allowedFields.state_data = state_data;
+    allowedFields.updated_at = new Date();
 
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
+    const [updated] = await db.update(students)
+      .set(allowedFields)
+      .where(eq(students.id, id))
+      .returning();
 
-    res.json({
-      message: "Student updated successfully",
-      student,
-    });
+    if (!updated) return res.status(404).json({ message: 'Student not found' });
+
+    res.json({ message: 'Student updated successfully', student: updated });
   } catch (error) {
-    console.error("Update student error:", error);
-    res.status(500).json({ message: "Failed to update student" });
+    console.error('Update student error:', error);
+    res.status(500).json({ message: 'Failed to update student' });
   }
 };
 
-// delete student (admin only)
 exports.deleteStudent = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const student = await Student.findByIdAndDelete(id);
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-
-    res.json({ message: "Student deleted successfully" });
+    const result = await db.delete(students).where(eq(students.id, id)).returning({ id: students.id });
+    if (!result.length) return res.status(404).json({ message: 'Student not found' });
+    res.json({ message: 'Student deleted successfully' });
   } catch (error) {
-    console.error("Delete student error:", error);
-    res.status(500).json({ message: "Failed to delete student" });
+    console.error('Delete student error:', error);
+    res.status(500).json({ message: 'Failed to delete student' });
   }
 };
 
+// ─── Self-service profile update ──────────────────────────────────────────────
+
 const normalizePassportDateValue = (value) => {
-  if (!value) return "";
+  if (!value) return '';
   const parsed = new Date(value);
-  if (!Number.isNaN(parsed.getTime())) {
-    return parsed.toISOString().slice(0, 10);
-  }
-  if (typeof value === "string") {
+  if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
+  if (typeof value === 'string') {
     const match = value.match(/(\d{4}-\d{2}-\d{2})/);
     if (match) {
       const normalized = new Date(match[1]);
-      if (!Number.isNaN(normalized.getTime())) {
-        return normalized.toISOString().slice(0, 10);
-      }
+      if (!Number.isNaN(normalized.getTime())) return normalized.toISOString().slice(0, 10);
     }
   }
   return value;
 };
 
 const sanitizePassportDetails = (details = {}) => {
-  if (!details || typeof details !== "object") {
-    return {};
-  }
-
+  if (!details || typeof details !== 'object') return {};
   const cleaned = {};
   if (details.fullName) cleaned.fullName = details.fullName.trim();
   if (details.number) cleaned.number = details.number.trim();
-  if (details.dateOfBirth)
-    cleaned.dateOfBirth = normalizePassportDateValue(details.dateOfBirth);
-  if (details.expiryDate)
-    cleaned.expiryDate = normalizePassportDateValue(details.expiryDate);
-
+  if (details.dateOfBirth) cleaned.dateOfBirth = normalizePassportDateValue(details.dateOfBirth);
+  if (details.expiryDate) cleaned.expiryDate = normalizePassportDateValue(details.expiryDate);
   if (Object.keys(cleaned).length) {
-    cleaned.source = "manual";
+    cleaned.source = 'manual';
     cleaned.manuallyUpdated = true;
     cleaned.updatedAt = new Date();
   }
-
   return cleaned;
 };
 
-// update profile (student self-service)
 exports.updateSelfProfile = async (req, res) => {
   try {
     const { profile = {}, contactInfo = {} } = req.body || {};
+    const [student] = await db.select().from(students).where(eq(students.id, req.userId)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+    if (student.status === 'inactive') return res.status(403).json({ message: 'Account inactive' });
 
-    const student = await Student.findById(req.userId);
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
+    let profileData = { ...(student.profile_data ?? {}) };
 
-    if (student.status === "inactive") {
-      return res.status(403).json({ message: "Account inactive" });
-    }
-
-    if (profile && typeof profile === "object") {
-      const passportDetailsInput = profile.passportDetails;
-      const cleanedPassport = sanitizePassportDetails(passportDetailsInput);
+    if (profile && typeof profile === 'object') {
+      const cleanedPassport = sanitizePassportDetails(profile.passportDetails);
       if (cleanedPassport && Object.keys(cleanedPassport).length) {
-        student.profile = student.profile || {};
-        student.profile.passportDetails = {
-          ...(student.profile.passportDetails || {}),
-          ...cleanedPassport,
-        };
+        profileData.passportDetails = { ...(profileData.passportDetails || {}), ...cleanedPassport };
       }
-
-      const profileWithoutPassport = { ...profile };
-      delete profileWithoutPassport.passportDetails;
-
-      if (Object.keys(profileWithoutPassport).length) {
-        student.profile = {
-          ...(student.profile || {}),
-          ...profileWithoutPassport,
-        };
-      }
+      const { passportDetails: _ignored, ...rest } = profile;
+      if (Object.keys(rest).length) profileData = { ...profileData, ...rest };
     }
 
-    if (contactInfo && typeof contactInfo === "object") {
-      student.contactInfo = {
-        ...(student.contactInfo || {}),
-        ...contactInfo,
-      };
+    if (contactInfo && typeof contactInfo === 'object' && Object.keys(contactInfo).length) {
+      profileData = { ...profileData, ...contactInfo };
     }
 
-    const profileObj = student.profile || {};
-    const languageScores = [
-      profileObj.listeningScore,
-      profileObj.readingScore,
-      profileObj.writingScore,
-      profileObj.speakingScore,
-    ];
-
-    if (languageScores.every((value) => Number.isFinite(Number(value)))) {
-      const numericScores = languageScores.map((value) => Number(value));
-      const average =
-        numericScores.reduce((acc, value) => acc + value, 0) /
-        numericScores.length;
-      const rounded = Math.round(average * 2) / 2;
-      student.profile = {
-        ...profileObj,
-        overallScore: rounded,
-      };
+    const scores = ['listeningScore', 'readingScore', 'writingScore', 'speakingScore'];
+    if (scores.every((k) => Number.isFinite(Number(profileData[k])))) {
+      profileData.overallScore = Math.round((scores.map((k) => Number(profileData[k])).reduce((a, b) => a + b, 0) / 4) * 2) / 2;
     }
 
-    await student.save();
+    const [updated] = await db.update(students)
+      .set({ profile_data: profileData, updated_at: new Date() })
+      .where(eq(students.id, req.userId))
+      .returning();
 
-    res.json({
-      message: "Profile updated",
-      student: student.toObject(),
-    });
+    res.json({ message: 'Profile updated', student: updated });
   } catch (error) {
-    console.error("Update self profile error:", error);
-    res.status(500).json({ message: "Failed to update profile" });
+    console.error('Update self profile error:', error);
+    res.status(500).json({ message: 'Failed to update profile' });
   }
 };
 
-// create student (admin only)
+// ─── Create student (admin) ───────────────────────────────────────────────────
+
 exports.createStudent = async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      phone,
-      message,
-      status = "active",
-      profile = {},
-    } = req.body;
-
-    if (!name || !email) {
-      return res.status(400).json({ message: "Name and email are required" });
-    }
+    const { name, email, phone, message, status = 'active', profile = {} } = req.body;
+    if (!name || !email) return res.status(400).json({ message: 'Name and email are required' });
 
     const normalizedEmail = email.trim().toLowerCase();
-    const normalizedUsername = normalizedEmail;
+    const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
 
-    const existingStudent = await Student.findOne({
-      $or: [
-        { email: normalizedEmail },
-        { username: normalizedUsername },
-        { "contactInfo.email": normalizedEmail },
-      ],
-    });
+    const [existingStudent] = await db.select({ id: students.id }).from(students)
+      .where(and(eq(students.email, normalizedEmail), eq(students.firm_id, firmId))).limit(1);
+    if (existingStudent) return res.status(400).json({ message: 'A student with this email already exists' });
 
-    if (existingStudent) {
-      return res.status(400).json({
-        message: "A student with this email or username already exists",
-      });
-    }
+    const [existingAdmin] = await db.select({ id: users.id }).from(users)
+      .where(and(eq(users.email, normalizedEmail), eq(users.firm_id, firmId))).limit(1);
+    if (existingAdmin) return res.status(400).json({ message: 'An admin already uses this email' });
 
-    const existingAdmin = await Admin.findOne({
-      $or: [{ email: normalizedEmail }, { username: normalizedUsername }],
-    });
+    const validStatuses = ['active', 'pending', 'registered'];
+    const nameParts = name.trim().split(' ');
+    const aiKey = `admin-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    if (existingAdmin) {
-      return res.status(400).json({
-        message: "An admin already uses this email or username",
-      });
-    }
+    const defs = {};
+    ensureDefaultDocDefs(defs);
 
-    const student = new Student({
-      aiKey: `admin-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      status: ["active", "pending", "inactive", "registered"].includes(status)
-        ? status
-        : "registered",
-      username: normalizedUsername,
+    const [inserted] = await db.insert(students).values({
+      firm_id: firmId,
+      ai_key: aiKey,
+      status: validStatuses.includes(status) ? status : 'registered',
       email: normalizedEmail,
-      isFirstLogin: false,
-      profile,
-      contactInfo: {
-        name,
-        email: normalizedEmail,
-        phone,
-        message,
-      },
-    });
+      first_name: nameParts[0] || name,
+      last_name: nameParts.slice(1).join(' ') || null,
+      profile_data: { ...profile, fullName: name, email: normalizedEmail, phone: phone || '', message: message || '' },
+      state_data: { doc_defs: defs },
+    }).returning();
 
-    await ensureDefaultRequiredDocuments(student, { save: false });
-    await student.save();
-
-    const invite = await sendStudentInviteEmail({
-      email: normalizedEmail,
-      name,
-    });
+    const invite = await sendStudentInviteEmail({ email: normalizedEmail, name });
 
     try {
       const adminRecipients = await getAdminNotificationEmails();
       if (adminRecipients.length) {
         await sendEmail({
-          to: adminRecipients.join(", "),
-          subject: "Student account created",
-          html: `
-          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
-            <h2 style="color:#1d4ed8;margin-bottom:12px;">New student created</h2>
-             <p style="margin:0 0 16px 0;">
-              ${name} (${normalizedEmail}) has been added${
-            invite.emailSent ? " and login instructions were delivered." : "."
-          }
-             </p>
-          </div>
-        `,
+          to: adminRecipients.join(', '),
+          subject: 'Student account created',
+          html: `<p>${name} (${normalizedEmail}) has been added${invite.emailSent ? ' and login instructions were delivered.' : '.'}</p>`,
         });
       }
     } catch (notifyError) {
-      console.error("Failed to send admin notification email:", notifyError);
+      console.error('Failed to send admin notification email:', notifyError);
     }
 
     res.status(201).json({
       message: invite.emailSent
-        ? "Student created successfully and login instructions sent."
-        : "Student created successfully, but the invitation email could not be delivered automatically.",
-      student: {
-        id: student._id,
-        username: student.username,
-        email: student.email,
-        status: student.status,
-      },
+        ? 'Student created successfully and login instructions sent.'
+        : 'Student created successfully, but the invitation email could not be delivered automatically.',
+      student: { id: inserted.id, email: inserted.email, status: inserted.status },
       inviteSent: invite.emailSent,
       loginLink: invite.loginLink,
     });
   } catch (error) {
-    console.error("Create student error:", error);
-    res.status(500).json({ message: "Failed to create student" });
+    console.error('Create student error:', error);
+    res.status(500).json({ message: 'Failed to create student' });
   }
 };
 
-// list S3 files with pre-signed URLs
+// ─── Generic S3 file management ───────────────────────────────────────────────
+
 exports.getStudentFiles = async (req, res) => {
   try {
-    const student = await Student.findOne({ aiKey: req.params.aiKey });
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
+    const { aiKey } = req.params;
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const ensurePlain = (doc) => (doc?.toObject ? doc.toObject() : doc || {});
+    let docRows = await db.select().from(documents)
+      .where(and(eq(documents.student_id, student.id), isNull(documents.document_type)));
 
-    let storedDocuments = (student.documents || []).map(ensurePlain);
-
-    // If our database metadata is empty, rebuild it directly from S3
-    if (!storedDocuments.length) {
+    if (!docRows.length) {
       try {
-        const prefixesToCheck = [
-          student.aiKey,
-          student.username && student.username !== student.aiKey
-            ? student.username
-            : null,
-        ].filter(Boolean);
-
-        for (const prefix of prefixesToCheck) {
-          const s3Objects = await listStudentFiles(prefix);
-          if (Array.isArray(s3Objects) && s3Objects.length) {
-            storedDocuments = s3Objects.map((objectItem) => {
-              const key = objectItem.Key;
-              const name = key.replace(`${prefix}/`, "") || path.basename(key);
-              return {
-                key,
-                bucket: env.AWS_S3_BUCKET_NAME,
-                name,
-                mimeType: getMimeType(name),
-                size: objectItem.Size || 0,
-                uploadedAt: objectItem.LastModified || new Date(),
-              };
-            });
-
-            await Student.updateOne(
-              { aiKey: student.aiKey },
-              { $set: { documents: storedDocuments } }
-            );
-          }
+        const s3Objects = await listStudentFiles(aiKey);
+        if (Array.isArray(s3Objects) && s3Objects.length) {
+          const inserts = s3Objects.map((obj) => {
+            const key = obj.Key;
+            const name = key.replace(`${aiKey}/`, '') || path.basename(key);
+            return {
+              firm_id: student.firm_id,
+              student_id: student.id,
+              s3_key: key,
+              s3_bucket: env.AWS_S3_BUCKET_NAME,
+              mime_type: getMimeType(name),
+              size_bytes: obj.Size || 0,
+              document_type: null,
+              ai_verification: { name },
+            };
+          });
+          docRows = await db.insert(documents).values(inserts).returning();
         }
       } catch (fallbackError) {
-        console.error(
-          `⚠️ Failed to rebuild document metadata from S3 for ${req.params.aiKey}:`,
-          fallbackError.message
-        );
+        console.error(`Failed to rebuild document metadata from S3 for ${aiKey}:`, fallbackError.message);
       }
     }
 
-    // Generate pre-signed URLs for all documents
-    const documentsWithUrls = await Promise.all(
-      storedDocuments.map(async (doc) => {
+    const filesWithUrls = await Promise.all(
+      docRows.map(async (row) => {
+        const name = row.ai_verification?.name || path.basename(row.s3_key || '');
         try {
-          const presignedUrl = await getPresignedUrl(doc.key, doc.name);
-          return {
-            ...doc,
-            url: presignedUrl,
-          };
-        } catch (error) {
-          console.error(`Error generating URL for ${doc.name}:`, error.message);
-          return {
-            ...doc,
-            url: null,
-          };
+          const url = await getPresignedUrl(row.s3_key, name);
+          return { id: row.id, key: row.s3_key, bucket: row.s3_bucket, name, mimeType: row.mime_type, size: row.size_bytes, uploadedAt: row.created_at, url };
+        } catch {
+          return { id: row.id, key: row.s3_key, bucket: row.s3_bucket, name, mimeType: row.mime_type, size: row.size_bytes, uploadedAt: row.created_at, url: null };
         }
       })
     );
 
-    console.log(
-      `📁 Fetching files for student ${req.params.aiKey}: ${documentsWithUrls.length} documents found`
-    );
-
-    res.json({
-      files: documentsWithUrls,
-      totalFiles: documentsWithUrls.length,
-    });
+    res.json({ files: filesWithUrls, totalFiles: filesWithUrls.length });
   } catch (error) {
-    console.error("Get student files error:", error);
-    res.status(500).json({ error: "Failed to retrieve documents" });
+    console.error('Get student files error:', error);
+    res.status(500).json({ error: 'Failed to retrieve documents' });
   }
 };
 
@@ -813,548 +678,169 @@ exports.renameStudentDocument = async (req, res) => {
     const { newName } = req.body;
 
     if (!newName || !newName.trim()) {
-      return res
-        .status(400)
-        .json({ success: false, message: "New document name is required" });
+      return res.status(400).json({ success: false, message: 'New document name is required' });
     }
 
-    const student = await Student.findOne({ aiKey });
-    if (!student) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Student not found" });
-    }
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
 
     if (!canManageStudentDocuments(req.user, student)) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Not authorized" });
+      return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
-    const document = student.documents.id(documentId);
-    if (!document) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Document not found" });
-    }
+    const [doc] = await db.select().from(documents)
+      .where(and(eq(documents.id, documentId), eq(documents.student_id, student.id))).limit(1);
+    if (!doc) return res.status(404).json({ success: false, message: 'Document not found' });
 
-    const sanitizedName = newName
-      .trim()
-      .replace(/[\\/:*?"<>|]/g, "_")
-      .replace(/\s+/g, " ");
+    const sanitized = newName.trim().replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, ' ');
+    const ext = path.extname(doc.ai_verification?.name || doc.s3_key || '');
+    const finalName = !path.extname(sanitized) && ext ? sanitized + ext : sanitized;
 
-    const ext = path.extname(document.name || "");
-    let finalName = sanitizedName;
-    if (!ext && !path.extname(finalName)) {
-      // no extension on original or new name
-    } else if (!path.extname(finalName) && ext) {
-      finalName += ext;
-    }
+    const newVerification = { ...(doc.ai_verification ?? {}), name: finalName };
+    const [updated] = await db.update(documents)
+      .set({ ai_verification: newVerification })
+      .where(eq(documents.id, documentId))
+      .returning();
 
-    document.name = finalName;
-    document.updatedAt = new Date();
-
-    await student.save();
-
-    const url = await getPresignedUrl(document.key, document.name);
-    const docObj = document.toObject ? document.toObject() : document;
-
-    res.json({
-      success: true,
-      message: "Document renamed successfully",
-      document: { ...docObj, url },
-    });
+    const url = await getPresignedUrl(updated.s3_key, finalName);
+    res.json({ success: true, message: 'Document renamed successfully', document: { ...mapDocRowForResponse(updated), url } });
   } catch (error) {
-    console.error("Rename document error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to rename document" });
+    console.error('Rename document error:', error);
+    res.status(500).json({ success: false, message: 'Failed to rename document' });
   }
 };
 
 exports.deleteStudentDocument = async (req, res) => {
   try {
     const { aiKey, documentId } = req.params;
-    const student = await Student.findOne({ aiKey });
-    if (!student)
-      return res
-        .status(404)
-        .json({ success: false, message: "Student not found" });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
 
-    const document =
-      student.documents.id(documentId) ||
-      student.documents.find((doc) => doc.key === documentId);
+    const [doc] = await db.select().from(documents)
+      .where(and(eq(documents.id, documentId), eq(documents.student_id, student.id))).limit(1);
+    if (!doc) return res.status(404).json({ success: false, message: 'Document not found' });
 
-    if (!document)
-      return res
-        .status(404)
-        .json({ success: false, message: "Document not found" });
-
-    // Delete from S3
-    if (document.key) {
-      try {
-        await deleteS3Object(document.key);
-      } catch (s3Err) {
-        console.error("⚠️ Failed to delete from S3:", s3Err.message);
+    if (doc.s3_key) {
+      try { await deleteS3Object(doc.s3_key); } catch (s3Err) {
+        console.error('Failed to delete from S3:', s3Err.message);
       }
     }
 
-    // Delete from MongoDB
-    const beforeCount = student.documents.length;
-    student.documents = student.documents.filter(
-      (doc) =>
-        doc._id.toString() !== document._id.toString() &&
-        doc.key !== document.key
-    );
-
-    await student.save({ validateBeforeSave: false });
-    const afterCount = student.documents.length;
-
-    console.log(
-      `🧹 Mongo cleanup: ${beforeCount - afterCount} document(s) removed`
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Document deleted successfully",
-      documentId,
-    });
+    await db.delete(documents).where(eq(documents.id, documentId));
+    return res.json({ success: true, message: 'Document deleted successfully', documentId });
   } catch (error) {
-    console.error("❌ Delete document error stack:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to delete document",
-      error: error.message,
-      stack: error.stack,
-    });
+    console.error('Delete document error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to delete document' });
   }
 };
 
-// =====================
-// REQUIRED DOCUMENTS
-// =====================
+// ─── Required Documents ───────────────────────────────────────────────────────
 
-const DEFAULT_REQUIRED_DOCUMENTS = [
-  {
-    name: "Passport",
-    description: "Upload a clear scan of the bio-data page from your passport.",
-  },
-  {
-    name: "Language Test Result (IELTS)",
-    description:
-      "Provide the most recent IELTS test report showing all band scores.",
-  },
-  {
-    name: "Photograph",
-    description:
-      "Attach a recent passport-sized photograph that meets visa requirements.",
-  },
-  {
-    name: "Proof of Funds",
-    description:
-      "Submit bank statements or financial documents demonstrating sufficient funds.",
-  },
-  {
-    name: "Acceptance Letter",
-    description:
-      "Upload the official acceptance letter from your educational institution.",
-  },
-  {
-    name: "Medical Examination Report",
-    description:
-      "Provide the medical examination report from an approved panel physician.",
-  },
-  {
-    name: "Police Clearance Certificate",
-    description:
-      "Attach a police clearance certificate from your country of residence.",
-  },
-  {
-    name: "Previous Visa Copies",
-    description: "Upload copies of any previous visas you have held.",
-  },
-  {
-    name: "Educational Transcripts",
-    description:
-      "Provide transcripts from your previous educational institutions.",
-  },
-];
-
-const sanitizeForSlug = (value = "") =>
-  value
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 48) || "document";
-
-const createDocumentSlug = (name = "") => {
-  const base = sanitizeForSlug(name);
-  const unique = Date.now().toString(36);
-  return `${base}-${unique}`;
-};
-
-const VERIFICATION_STATUSES = new Set(["pending", "verified", "failed"]);
-
-const normalizeFileVerification = (file = {}) => {
-  const verification = file.verification || {};
-  const rawStatus =
-    typeof verification.status === "string"
-      ? verification.status.toLowerCase()
-      : "";
-  const status = VERIFICATION_STATUSES.has(rawStatus) ? rawStatus : "pending";
-  return {
-    status,
-    confidence:
-      typeof verification.confidence === "number"
-        ? verification.confidence
-        : null,
-    detectedType: verification.detectedType || "",
-    reason: verification.reason || "",
-    checkedAt:
-      verification.checkedAt ||
-      verification.lastCheckedAt ||
-      file.uploadedAt ||
-      null,
-  };
-};
-
-const mapFileForResponse = (file) => {
-  if (!file) return null;
-  const plain = file.toObject ? file.toObject() : file;
-  return {
-    id: plain._id,
-    name: plain.name,
-    bucket: plain.bucket,
-    size: plain.size,
-    mimeType: plain.mimeType,
-    uploadedAt: plain.uploadedAt,
-    uploadedBy: plain.uploadedBy,
-    uploadedByRole: plain.uploadedByRole,
-    key: plain.key,
-    verificationTaskId: plain.verificationTaskId || null,
-    verification: normalizeFileVerification(plain),
-  };
-};
-
-const buildDocumentVerificationSummary = (plainDoc = {}, files = []) => {
-  const summary = {
-    status: plainDoc.verification?.status || "pending",
-    confidence:
-      typeof plainDoc.verification?.confidence === "number"
-        ? plainDoc.verification.confidence
-        : null,
-    detectedType: plainDoc.verification?.detectedType || "",
-    reason:
-      plainDoc.verification?.reason ||
-      (files.length ? "Awaiting AI confirmation." : "No files uploaded yet."),
-    lastCheckedAt:
-      plainDoc.verification?.lastCheckedAt ||
-      plainDoc.updatedAt ||
-      plainDoc.createdAt ||
-      null,
-  };
-
-  if (!files.length) {
-    summary.status = "pending";
-    return summary;
-  }
-
-  const statuses = files.map((file) => file.verification.status);
-  if (statuses.includes("verified")) {
-    summary.status = "verified";
-  } else if (statuses.includes("failed")) {
-    summary.status = "failed";
-  } else {
-    summary.status = statuses[statuses.length - 1] || "pending";
-  }
-
-  const sorted = [...files].sort((a, b) => {
-    const dateA = new Date(
-      a.verification.checkedAt || a.uploadedAt || 0
-    ).getTime();
-    const dateB = new Date(
-      b.verification.checkedAt || b.uploadedAt || 0
-    ).getTime();
-    return dateB - dateA;
-  });
-
-  const latest = sorted[0];
-  summary.lastCheckedAt =
-    latest?.verification?.checkedAt ||
-    plainDoc.verification?.lastCheckedAt ||
-    new Date();
-  summary.confidence =
-    latest?.verification?.confidence ??
-    plainDoc.verification?.confidence ??
-    null;
-  summary.detectedType =
-    latest?.verification?.detectedType ||
-    plainDoc.verification?.detectedType ||
-    "";
-  summary.reason =
-    latest?.verification?.reason ||
-    plainDoc.verification?.reason ||
-    (summary.status === "verified"
-      ? "AI verified the latest upload."
-      : "Manual verification required.");
-
-  return summary;
-};
-
-const refreshDocumentVerificationSnapshot = (document) => {
-  if (!document) return;
-  const files = Array.isArray(document.files)
-    ? document.files.map((file) => mapFileForResponse(file)).filter(Boolean)
-    : [];
-  const summary = buildDocumentVerificationSummary(document, files);
-  document.verification = {
-    status: summary.status,
-    confidence: summary.confidence,
-    detectedType: summary.detectedType,
-    reason: summary.reason,
-    lastCheckedAt: summary.lastCheckedAt || new Date(),
-  };
-  document.isUploaded = files.length > 0;
-};
-
-const createDefaultRequiredDocument = (name, description = "") => ({
-  name: name.trim(),
-  description: description?.toString()?.trim() || "",
-  slug: createDocumentSlug(name),
-  aiExtractionEnabled: true,
-  files: [],
-  isUploaded: false,
-  verification: {
-    status: "pending",
-    reason: "Document not uploaded yet",
-    lastCheckedAt: new Date(),
-  },
-  createdAt: new Date(),
-  updatedAt: new Date(),
-});
-
-const ensureDefaultRequiredDocuments = async (
-  student,
-  { save = true } = {}
-) => {
-  if (!student) return false;
-  if (!Array.isArray(student.requiredDocuments)) {
-    student.requiredDocuments = [];
-  }
-
-  const existingKeys = new Set(
-    student.requiredDocuments.map((doc) =>
-      sanitizeForSlug(doc?.name || doc?.slug || "")
-    )
-  );
-
-  let added = false;
-  DEFAULT_REQUIRED_DOCUMENTS.forEach(({ name, description }) => {
-    const key = sanitizeForSlug(name);
-    if (!existingKeys.has(key)) {
-      student.requiredDocuments.push(
-        createDefaultRequiredDocument(name, description)
-      );
-      existingKeys.add(key);
-      added = true;
-    }
-  });
-
-  if (added && save) {
-    student.markModified("requiredDocuments");
-    await student.save();
-  }
-
-  return added;
-};
-
-const formatRequiredDocument = (doc) => {
-  if (!doc) return null;
-  const plain = doc.toObject ? doc.toObject() : doc;
-  const slug = plain.slug || createDocumentSlug(plain.name || "document");
-  const files = Array.isArray(plain.files)
-    ? plain.files.map((file) => mapFileForResponse(file)).filter(Boolean)
-    : [];
-  const verification = buildDocumentVerificationSummary(plain, files);
-  return {
-    id: plain._id,
-    name: plain.name,
-    description: plain.description || "",
-    slug,
-    aiExtractionEnabled: Boolean(plain.aiExtractionEnabled),
-    createdAt: plain.createdAt,
-    updatedAt: plain.updatedAt,
-    isUploaded: plain.isUploaded || (plain.files && plain.files.length > 0),
-    filesCount: Array.isArray(plain.files) ? plain.files.length : 0,
-    verification,
-    verificationStatus: verification.status,
-    files,
-  };
-};
-
-const respondWithRequiredDocs = (res, student) => {
-  const docs = Array.isArray(student.requiredDocuments)
-    ? student.requiredDocuments.map(formatRequiredDocument)
-    : [];
-  return res.json({ success: true, requiredDocuments: docs });
-};
-
-const notifyStudentAboutRequiredDoc = async (student, document) => {
+exports.getRequiredDocuments = async (req, res) => {
   try {
-    const recipient = student.email || student.contactInfo?.email;
-    if (!recipient) {
-      return;
-    }
+    const { aiKey } = req.params;
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    await sendEmail({
-      to: recipient,
-      subject: `New required document: ${document.name}`,
-      html: `
-        <div style="font-family: 'Inter', Arial, sans-serif; color: #0f172a; line-height: 1.6;">
-          <h2 style="margin-bottom: 12px; color: #1d4ed8;">New document requested</h2>
-          <p style="margin: 0 0 16px 0;">
-            Your advisor just requested <strong>${document.name}</strong>.
-          </p>
-          <p style="margin: 0 0 16px 0;">Please sign in to the client portal to upload the file securely.</p>
-          <a href="${env.APP_BASE_URL}/login" style="display: inline-block; padding: 12px 20px; background: #2563eb; color: #ffffff; border-radius: 8px; font-weight: 600; text-decoration: none;">Open portal</a>
-          <p style="margin-top: 24px; font-size: 13px; color: #64748b;">If you believe this message was sent in error, contact your advisor.</p>
-        </div>
-      `,
-    });
-  } catch (notificationError) {
-    console.error(
-      "Failed to send required document notification:",
-      notificationError
-    );
+    const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
+    const isOwner = req.user?.role === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+    if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
+
+    const defs = getDocDefs(student);
+    const changed = ensureDefaultDocDefs(defs);
+    let currentStudent = student;
+    if (changed) currentStudent = await saveDocDefs(student.id, defs, student);
+
+    const slugs = Object.keys(defs);
+    const filesMap = await getDocFilesMap(student.id, slugs);
+    const requiredDocuments = slugs.map((slug) => formatRequiredDoc(slug, defs[slug], filesMap[slug] || []));
+
+    return res.json({ success: true, requiredDocuments });
+  } catch (error) {
+    console.error('Get required docs error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch required documents' });
   }
 };
 
-// Add a required document
 exports.addRequiredDocument = async (req, res) => {
   try {
     const { aiKey } = req.params;
     const { name, description, aiExtractionEnabled } = req.body || {};
+    if (!name || !name.trim()) return res.status(400).json({ message: 'Document name required' });
 
-    if (!name || !name.trim()) {
-      return res.status(400).json({ message: "Document name required" });
-    }
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const student = await Student.findOne({ aiKey });
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-
-    const newDoc = {
+    const slug = createDocumentSlug(name);
+    const defs = { ...getDocDefs(student) };
+    defs[slug] = {
       name: name.trim(),
-      description: description?.toString()?.trim() || "",
-      slug: createDocumentSlug(name),
-      aiExtractionEnabled:
-        typeof aiExtractionEnabled === "boolean" ? aiExtractionEnabled : true,
-      files: [],
-      isUploaded: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      description: description?.toString()?.trim() || '',
+      slug,
+      aiExtractionEnabled: typeof aiExtractionEnabled === 'boolean' ? aiExtractionEnabled : true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
-    const docs = Array.isArray(student.requiredDocuments)
-      ? student.requiredDocuments
-      : [];
+    const updated = await saveDocDefs(student.id, defs, student);
+    const newDefs = getDocDefs(updated);
+    const slugs = Object.keys(newDefs);
+    const filesMap = await getDocFilesMap(student.id, slugs);
+    const requiredDocuments = slugs.map((s) => formatRequiredDoc(s, newDefs[s], filesMap[s] || []));
 
-    student.requiredDocuments = [newDoc, ...docs];
-    student.markModified("requiredDocuments");
-    await student.save();
+    notifyStudentAboutRequiredDoc(student, name.trim()).catch(() => {});
 
-    const formattedDocs = student.requiredDocuments.map(formatRequiredDocument);
-
-    notifyStudentAboutRequiredDoc(student, newDoc).catch((err) =>
-      console.error("Required doc notification error:", err)
-    );
-
-    return res.json({ success: true, requiredDocuments: formattedDocs });
+    return res.json({ success: true, requiredDocuments });
   } catch (error) {
-    console.error("Add required doc error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to add required document" });
+    console.error('Add required doc error:', error);
+    res.status(500).json({ success: false, message: 'Failed to add required document' });
   }
 };
 
-// Get all required documents
-exports.getRequiredDocuments = async (req, res) => {
-  try {
-    const { aiKey } = req.params;
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
-
-    const isAdmin = req.user?.role === "admin";
-    const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
-
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    await ensureDefaultRequiredDocuments(student);
-    return respondWithRequiredDocs(res, student);
-  } catch (error) {
-    console.error("Get required docs error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to fetch required documents" });
-  }
-};
-
-// Delete a required document
 exports.deleteRequiredDocument = async (req, res) => {
   try {
     const { aiKey, docId } = req.params;
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const isAdmin = req.user?.role === "admin";
-    const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
+    const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
+    const isOwner = req.user?.role === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+    if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Access denied" });
-    }
+    const defs = { ...getDocDefs(student) };
+    if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
-    const doc = student.requiredDocuments.id(docId);
-    if (!doc) {
-      return res.status(404).json({ message: "Document not found" });
-    }
-
-    if (Array.isArray(doc.files)) {
-      for (const file of doc.files) {
-        if (file?.key) {
-          try {
-            await deleteS3Object(file.key);
-          } catch (s3Error) {
-            console.error(
-              "Failed to delete S3 object for required doc:",
-              s3Error.message
-            );
-          }
-        }
+    // Delete all files for this doc slot from S3 + db
+    const fileRows = await db.select().from(documents)
+      .where(and(eq(documents.student_id, student.id), eq(documents.document_type, docId)));
+    for (const row of fileRows) {
+      if (row.s3_key) {
+        try { await deleteS3Object(row.s3_key); } catch (e) { console.error('S3 delete failed:', e.message); }
       }
     }
+    if (fileRows.length) {
+      await db.delete(documents)
+        .where(and(eq(documents.student_id, student.id), eq(documents.document_type, docId)));
+    }
 
-    await resolveVerificationTasks({
-      documentId: doc._id,
-      status: "failed",
-      reason: "Document requirement removed.",
-    });
+    // Dismiss any open verification tasks for files in this doc
+    const fileIds = fileRows.map((r) => r.id);
+    if (fileIds.length) {
+      await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
+        .where(and(eq(tasks.firm_id, student.firm_id), eq(tasks.task_type, 'ai_verification'), inArray(tasks.document_id, fileIds)));
+    }
 
-    student.requiredDocuments.pull({ _id: docId });
-    student.markModified("requiredDocuments");
-    await student.save();
+    delete defs[docId];
+    const updated = await saveDocDefs(student.id, defs, student);
+    const newDefs = getDocDefs(updated);
+    const slugs = Object.keys(newDefs);
+    const filesMap = await getDocFilesMap(student.id, slugs);
+    const requiredDocuments = slugs.map((s) => formatRequiredDoc(s, newDefs[s], filesMap[s] || []));
 
-    return respondWithRequiredDocs(res, student);
+    return res.json({ success: true, requiredDocuments });
   } catch (error) {
-    console.error("Delete required doc error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to delete required document" });
+    console.error('Delete required doc error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete required document' });
   }
 };
 
@@ -1363,587 +849,344 @@ exports.updateRequiredDocumentSettings = async (req, res) => {
     const { aiKey, docId } = req.params;
     const { name, description, aiExtractionEnabled } = req.body || {};
 
-    const student = await Student.findOne({ aiKey });
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const document = student.requiredDocuments.id(docId);
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
+    const defs = { ...getDocDefs(student) };
+    if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
-    if (typeof name === "string" && name.trim()) {
-      document.name = name.trim();
-    }
+    const def = { ...defs[docId] };
+    if (typeof name === 'string' && name.trim()) def.name = name.trim();
+    if (typeof description === 'string') def.description = description.trim();
+    else if (description === null) def.description = '';
+    if (typeof aiExtractionEnabled === 'boolean') def.aiExtractionEnabled = aiExtractionEnabled;
+    def.updatedAt = new Date().toISOString();
+    defs[docId] = def;
 
-    if (typeof description === "string") {
-      document.description = description.trim();
-    } else if (description === null) {
-      document.description = "";
-    }
+    const updated = await saveDocDefs(student.id, defs, student);
+    const newDefs = getDocDefs(updated);
+    const fileRows = await db.select().from(documents)
+      .where(and(eq(documents.student_id, student.id), eq(documents.document_type, docId)));
 
-    if (typeof aiExtractionEnabled === "boolean") {
-      document.aiExtractionEnabled = aiExtractionEnabled;
-    }
-
-    document.updatedAt = new Date();
-    student.markModified("requiredDocuments");
-    await student.save();
-
-    return res.json({
-      success: true,
-      document: formatRequiredDocument(document),
-    });
+    return res.json({ success: true, document: formatRequiredDoc(docId, newDefs[docId], fileRows) });
   } catch (error) {
-    console.error("Update required doc settings error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to update required document settings",
-    });
+    console.error('Update required doc settings error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update required document settings' });
   }
 };
 
-// Shared helper: Process file upload to required document
-// This function contains the core upload logic used by both manual and AI upload routes
-const processRequiredDocumentUpload = async ({
-  student,
-  document,
-  file,
-  uploadOptions = {},
-}) => {
+// ─── Required-doc file upload ─────────────────────────────────────────────────
+
+const processRequiredDocumentUpload = async ({ student, slug, defData, file, uploadOptions = {} }) => {
   const {
-    ownerType = "student",
-    fileSource = "manual",
+    fileSource = 'manual',
     uploadedBy = null,
-    uploadedByRole = "student",
+    uploadedByRole = 'student',
     skipVerification = false,
     skipExtraction = false,
   } = uploadOptions;
 
-  const studentDisplayName = getStudentDisplayName(student);
+  const studentDisplayName = getStudentName(student);
   const extension = guessExtension(file.originalname, file.mimetype);
   const renamedFileName = buildRequiredDocFileName({
-    fieldName: document.name || "Document",
+    fieldName: defData.name || 'Document',
     studentName: studentDisplayName,
     extension,
   });
 
-  // AI Extraction (if enabled and not skipped)
   let extractedProfile = null;
-  if (!skipExtraction && document.aiExtractionEnabled) {
-    try {
-      extractedProfile = await extractProfileWithAI([file]);
-    } catch (extractionError) {
-      console.error("AI extraction failed:", extractionError);
-    }
+  if (!skipExtraction && defData.aiExtractionEnabled) {
+    try { extractedProfile = await extractProfileWithAI([file]); } catch (e) { console.error('AI extraction failed:', e); }
   }
 
-  // Document Verification (if not skipped)
-  let verificationResult = {
-    status: "pending",
-    confidence: 0,
-    detectedType: "",
-    reason: skipVerification ? "Verification skipped" : "Verification skipped",
-    checkedAt: new Date(),
-  };
-
+  let verificationResult = { status: 'pending', confidence: 0, detectedType: '', reason: 'Verification skipped', checkedAt: new Date() };
   if (!skipVerification) {
     try {
-      verificationResult = await verifyDocumentType({
-        expectedType: document.name,
-        filePath: file.path,
-        mimeType: file.mimetype,
-      });
-    } catch (verificationError) {
-      console.error("AI document verification failed:", verificationError);
-    }
+      verificationResult = await verifyDocumentType({ expectedType: defData.name, filePath: file.path, mimeType: file.mimetype });
+    } catch (e) { console.error('AI document verification failed:', e); }
   }
 
-  // Upload to S3
-  const s3Prefix = `${
-    student.aiKey || student.username || "student"
-  }/required/${document.slug}`;
-  const uploadResult = await uploadFileToS3(
-    file.path,
-    renamedFileName,
-    s3Prefix
-  );
+  const s3Prefix = `${student.ai_key || 'student'}/required/${slug}`;
+  const uploadResult = await uploadFileToS3(file.path, renamedFileName, s3Prefix);
 
-  // Create metadata
-  const metadata = {
-    key: uploadResult.key,
-    bucket: uploadResult.bucket,
-    name: renamedFileName,
-    size: file.size,
-    mimeType: file.mimetype,
-    uploadedAt: new Date(),
-    uploadedBy,
-    uploadedByRole,
-    verification: {
+  // Insert document row
+  const [docRow] = await db.insert(documents).values({
+    firm_id: student.firm_id,
+    student_id: student.id,
+    s3_key: uploadResult.key,
+    s3_bucket: uploadResult.bucket,
+    mime_type: file.mimetype,
+    size_bytes: file.size,
+    document_type: slug,
+    uploaded_by: uploadedBy,
+    ai_verification: {
+      name: renamedFileName,
+      uploadedByRole,
       status: verificationResult.status,
       confidence: verificationResult.confidence,
       detectedType: verificationResult.detectedType,
       reason: verificationResult.reason,
       checkedAt: verificationResult.checkedAt || new Date(),
     },
-  };
+  }).returning();
 
-  // Create comprehensive File record
-  try {
-    await File.create({
-      aiKey: student.aiKey,
-      studentId: student._id,
-      studentName: studentDisplayName,
-      ownerType,
-      field: document.name || "Document",
-      fieldSlug: document.slug,
-      requiredDocumentId: document._id,
-      originalName: file.originalname,
-      storedName: renamedFileName,
-      mimeType: file.mimetype,
-      size: file.size,
-      path: file.path,
-      s3Key: uploadResult.key,
-      bucket: uploadResult.bucket,
-      storageLocation: "S3",
-      source: fileSource,
-      status: "UPLOADED",
-    });
-  } catch (fileError) {
-    console.error("Failed to create File record:", fileError);
-    // Continue - don't block the main flow
-  }
-
-  // Add file to document
-  document.files = Array.isArray(document.files) ? document.files : [];
-  document.files.push(metadata);
-  const savedFile = document.files[document.files.length - 1];
-
-  // Handle verification tasks (only if verification was performed)
+  // Create verification task if not verified
   if (!skipVerification) {
-    if (verificationResult.status === "verified") {
-      await resolveVerificationTasks({
-        documentId: document._id,
-        status: "verified",
-      });
+    if (verificationResult.status !== 'verified') {
+      try {
+        await createAIVerificationTask(
+          docRow.id,
+          verificationResult,
+          null,
+          { firmId: student.firm_id, studentId: student.id }
+        );
+      } catch (e) { console.error('Failed to create verification task:', e); }
     } else {
-      const verificationTask = await createVerificationTask({
-        student,
-        document,
-        fileMeta: savedFile,
-        verification: verificationResult,
-      });
-      if (verificationTask?._id) {
-        savedFile.verificationTaskId = verificationTask._id;
+      // Dismiss any existing open verification tasks for this slot
+      const slotFiles = await db.select({ id: documents.id }).from(documents)
+        .where(and(eq(documents.student_id, student.id), eq(documents.document_type, slug)));
+      const fileIds = slotFiles.map((r) => r.id);
+      if (fileIds.length) {
+        await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
+          .where(and(eq(tasks.firm_id, student.firm_id), eq(tasks.task_type, 'ai_verification'), inArray(tasks.document_id, fileIds)));
       }
     }
   }
 
-  // Update document status
-  document.isUploaded = true;
-  if (document.status === "missing" || document.status === "pending") {
-    document.status = "uploaded";
-  }
-  document.updatedAt = new Date();
-  refreshDocumentVerificationSnapshot(document);
-
-  // Update student profile with extracted data (if any)
+  // Merge AI-extracted profile data
   if (extractedProfile && Object.keys(extractedProfile).length) {
     try {
       const prioritized = prioritizeFields(extractedProfile);
-      if (Object.keys(prioritized).length) {
-        await upsertStudent({
-          aiKey: student.aiKey,
-          profile: prioritized,
-        });
-      }
-    } catch (saveError) {
-      console.error("Failed to persist AI extraction:", saveError);
-    }
+      if (Object.keys(prioritized).length) await upsertStudent({ aiKey: student.ai_key, profile: prioritized });
+    } catch (e) { console.error('Failed to persist AI extraction:', e); }
   }
 
-  return {
-    metadata,
-    uploadResult,
-    savedFile,
-    extractedProfile,
-    verificationResult,
-  };
+  return { docRow, uploadResult, verificationResult, extractedProfile };
 };
 
-// Unified upload route: accepts either docId (URL param) or documentType (body param)
 exports.uploadRequiredDocumentFile = async (req, res) => {
   try {
     const { aiKey, docId } = req.params;
     const { documentType } = req.body;
     const file = req.file;
 
-    if (!file) {
-      return res.status(400).json({ message: "File is required" });
-    }
+    if (!file) return res.status(400).json({ message: 'File is required' });
 
-    // Determine if this is an AI/system upload (no user, or documentType provided)
     const isAISystemUpload = !req.user || (documentType && !docId);
-    const uploadSource = isAISystemUpload ? "ai" : "manual";
+    const actorRole = req.user?.role || 'ai_assistant';
 
-    logDocumentWorkflow(`${uploadSource}-upload:received`, {
-      aiKey,
-      docId: docId || null,
-      documentType: documentType || null,
-      actorRole: req.user?.role || "ai_assistant",
-      originalName: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-    });
-
-    // Auth checks only for manual uploads (not AI/system)
     if (!isAISystemUpload) {
-      const isAdmin = req.user?.role === "admin";
-      const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
-
-      if (!isAdmin && !isOwner) {
-        deleteLocalFile(file.path);
-        return res.status(403).json({ message: "Access denied" });
-      }
+      const isAdmin = ['admin', 'senior', 'junior'].includes(actorRole);
+      const isOwner = actorRole === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+      if (!isAdmin && !isOwner) { deleteLocalFile(file.path); return res.status(403).json({ message: 'Access denied' }); }
     }
 
-    const student = await Student.findOne({ aiKey });
-    if (!student) {
-      deleteLocalFile(file.path);
-      return res.status(404).json({ message: "Student not found" });
-    }
-    logDocumentWorkflow(`${uploadSource}-upload:student-loaded`, {
-      aiKey,
-      docId: docId || null,
-      studentId: student._id,
-      studentName: getStudentDisplayName(student),
-    });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) { deleteLocalFile(file.path); return res.status(404).json({ message: 'Student not found' }); }
 
-    // Find document by docId OR documentType
-    let document;
+    let slug, defData;
+    const defs = { ...getDocDefs(student) };
+
     if (docId) {
-      // Standard flow: document must exist
-      document = student.requiredDocuments.id(docId);
-      if (!document) {
-        deleteLocalFile(file.path);
-        return res.status(404).json({ message: "Document not found" });
-      }
+      if (!defs[docId]) { deleteLocalFile(file.path); return res.status(404).json({ message: 'Document not found' }); }
+      slug = docId;
+      defData = defs[docId];
     } else if (documentType) {
-      // AI/system flow: find or create by name
-      const normalizedDocumentType =
-        typeof documentType === "string" ? documentType.trim() : "";
-      if (!normalizedDocumentType) {
-        deleteLocalFile(file.path);
-        return res.status(400).json({ message: "Document type is required" });
-      }
-
-      document = student.requiredDocuments.find(
-        (doc) => doc.name.toLowerCase() === normalizedDocumentType.toLowerCase()
-      );
-
-      // If not found, create it
-      if (!document) {
-        const slug = createDocumentSlug(normalizedDocumentType);
-        student.requiredDocuments.push({
-          name: normalizedDocumentType,
-          slug,
-          isRequired: true,
-          status: "pending",
-          files: [],
-        });
-        await student.save();
-        document =
-          student.requiredDocuments[student.requiredDocuments.length - 1];
-        console.log(
-          `Upload: Created new required document '${normalizedDocumentType}' for ${aiKey}`
-        );
-        logDocumentWorkflow(`${uploadSource}-upload:document-created`, {
-          aiKey,
-          documentType: normalizedDocumentType,
-          slug,
-          docId: document?._id,
-        });
+      const normalizedType = documentType.trim();
+      if (!normalizedType) { deleteLocalFile(file.path); return res.status(400).json({ message: 'Document type is required' }); }
+      // Find by name match
+      const existingEntry = Object.entries(defs).find(([, d]) => d.name.toLowerCase() === normalizedType.toLowerCase());
+      if (existingEntry) {
+        [slug, defData] = existingEntry;
+      } else {
+        slug = createDocumentSlug(normalizedType);
+        defData = { name: normalizedType, description: '', slug, aiExtractionEnabled: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+        defs[slug] = defData;
+        await saveDocDefs(student.id, defs, student);
       }
     } else {
       deleteLocalFile(file.path);
-      return res
-        .status(400)
-        .json({ message: "Either docId or documentType is required" });
+      return res.status(400).json({ message: 'Either docId or documentType is required' });
     }
 
-    if (!document.slug) {
-      document.slug = createDocumentSlug(document.name || "document");
-    }
-    logDocumentWorkflow(`${uploadSource}-upload:document-resolved`, {
-      aiKey,
-      docId: document._id,
-      documentName: document.name,
-      slug: document.slug,
+    const fileSource = isAISystemUpload ? 'ai' : actorRole === 'admin' ? 'admin' : 'manual';
+    const uploadedBy = req.user?.id || null;
+
+    const { docRow, verificationResult } = await processRequiredDocumentUpload({
+      student, slug, defData, file,
+      uploadOptions: { fileSource, uploadedBy, uploadedByRole: actorRole, skipVerification: false, skipExtraction: false },
     });
 
-    // Determine upload metadata based on source
-    const actorRole = req.user?.role || "ai_assistant";
-    const ownerType = isAISystemUpload
-      ? "ai_assistant"
-      : actorRole === "admin"
-      ? "admin"
-      : actorRole === "student"
-      ? "student"
-      : "system";
-    const fileSource = isAISystemUpload
-      ? "ai"
-      : actorRole === "admin"
-      ? "admin"
-      : actorRole === "student"
-      ? "manual"
-      : "system";
+    if (file.path) deleteLocalFile(file.path);
 
-    const studentDisplayName = getStudentDisplayName(student);
-    const extension = guessExtension(file.originalname, file.mimetype);
-    const renamedFileName = buildRequiredDocFileName({
-      fieldName: document.name || "Document",
-      studentName: studentDisplayName,
-      extension,
-    });
+    // Reload student for fresh defs, then get files for this slot
+    const [freshStudent] = await db.select().from(students).where(eq(students.id, student.id)).limit(1);
+    const freshDefs = getDocDefs(freshStudent);
+    const fileRows = await db.select().from(documents)
+      .where(and(eq(documents.student_id, student.id), eq(documents.document_type, slug)));
 
-    logRequiredDocUpload({
-      aiKey,
-      docId: document._id,
-      documentName: document.name || "Document",
-      studentName: studentDisplayName,
-      originalName: file.originalname,
-      newName: renamedFileName,
-      userRole: actorRole,
-      userId: req.user?.id || req.user?._id || null,
-    });
-
-    // Use shared upload logic - ALWAYS do verification
-    const { metadata, uploadResult, savedFile } =
-      await processRequiredDocumentUpload({
-        student,
-        document,
-        file,
-        uploadOptions: {
-          ownerType,
-          fileSource,
-          uploadedBy: req.user?.id || req.user?._id || null,
-          uploadedByRole: actorRole,
-          skipVerification: false, // Always do verification
-          skipExtraction: false, // Do extraction if enabled
-        },
-      });
-
-    logDocumentWorkflow(`${uploadSource}-upload:s3-uploaded`, {
-      aiKey,
-      docId: document._id,
-      key: uploadResult.key,
-      bucket: uploadResult.bucket,
-      storedName: metadata.name,
-    });
-
-    logDocumentWorkflow(`${uploadSource}-upload:student-document-updated`, {
-      aiKey,
-      docId: document._id,
-      fileId: savedFile?._id,
-      fileKey: uploadResult.key,
-    });
-
-    student.markModified("requiredDocuments");
-    await student.save();
-    logDocumentWorkflow(`${uploadSource}-upload:student-saved`, {
-      aiKey,
-      docId: document._id,
-      studentId: student._id,
-      fileKey: uploadResult.key,
-    });
-
-    if (file.path) {
-      deleteLocalFile(file.path);
-    }
-
-    const formatted = formatRequiredDocument(document);
-    logDocumentWorkflow(`${uploadSource}-upload:success`, {
-      aiKey,
-      docId: document._id,
-      fileKey: uploadResult.key,
-      field: document.name,
-    });
-    res.json({ success: true, document: formatted });
+    res.json({ success: true, document: formatRequiredDoc(slug, freshDefs[slug] || defData, fileRows) });
   } catch (error) {
-    console.error("Upload required doc file error:", error);
-    logDocumentWorkflow("upload:error", {
-      error: error.message,
-      stack: error.stack,
-    });
-    if (req.file?.path) {
-      deleteLocalFile(req.file.path);
-    }
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to upload document" });
+    console.error('Upload required doc file error:', error);
+    if (req.file?.path) deleteLocalFile(req.file.path);
+    res.status(500).json({ success: false, message: 'Failed to upload document' });
   }
 };
 
 exports.listRequiredDocumentFiles = async (req, res) => {
   try {
     const { aiKey, docId } = req.params;
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const isAdmin = req.user?.role === "admin";
-    const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
+    const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
+    const isOwner = req.user?.role === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+    if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Access denied" });
-    }
+    const defs = getDocDefs(student);
+    if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
-    const document = student.requiredDocuments.id(docId);
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
-
-    const formatted = formatRequiredDocument(document);
+    const fileRows = await db.select().from(documents)
+      .where(and(eq(documents.student_id, student.id), eq(documents.document_type, docId)));
+    const formatted = formatRequiredDoc(docId, defs[docId], fileRows);
     res.json({ success: true, document: formatted, files: formatted.files });
   } catch (error) {
-    console.error("List required doc files error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to list document files" });
+    console.error('List required doc files error:', error);
+    res.status(500).json({ success: false, message: 'Failed to list document files' });
   }
 };
 
 exports.getRequiredDocumentFileUrl = async (req, res) => {
   try {
     const { aiKey, docId, fileId } = req.params;
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const isAdmin = req.user?.role === "admin";
-    const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
+    const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
+    const isOwner = req.user?.role === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+    if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Access denied" });
-    }
+    const defs = getDocDefs(student);
+    if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
-    const document = student.requiredDocuments.id(docId);
-    if (!document)
-      return res.status(404).json({ message: "Document not found" });
+    const [fileRow] = await db.select().from(documents)
+      .where(and(eq(documents.id, fileId), eq(documents.student_id, student.id), eq(documents.document_type, docId))).limit(1);
+    if (!fileRow) return res.status(404).json({ message: 'File not found' });
 
-    const file = (document.files || []).id(fileId);
-    if (!file) return res.status(404).json({ message: "File not found" });
-
-    const url = await getPresignedUrl(file.key, file.name);
+    const name = fileRow.ai_verification?.name || path.basename(fileRow.s3_key || '');
+    const url = await getPresignedUrl(fileRow.s3_key, name);
     res.json({ success: true, url });
   } catch (error) {
-    console.error("Get required doc file url error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to generate file link" });
+    console.error('Get required doc file url error:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate file link' });
   }
 };
 
 exports.deleteRequiredDocumentFile = async (req, res) => {
   try {
     const { aiKey, docId, fileId } = req.params;
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const isAdmin = req.user?.role === "admin";
-    const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
+    const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
+    const isOwner = req.user?.role === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+    if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Access denied" });
+    const defs = getDocDefs(student);
+    if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
+
+    const [fileRow] = await db.select().from(documents)
+      .where(and(eq(documents.id, fileId), eq(documents.student_id, student.id), eq(documents.document_type, docId))).limit(1);
+    if (!fileRow) return res.status(404).json({ message: 'File not found' });
+
+    if (fileRow.s3_key) {
+      try { await deleteS3Object(fileRow.s3_key); } catch (e) { console.error('Failed to delete S3 object:', e.message); }
     }
 
-    const document = student.requiredDocuments.id(docId);
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
+    // Dismiss open verification tasks for this file
+    await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
+      .where(and(eq(tasks.firm_id, student.firm_id), eq(tasks.task_type, 'ai_verification'), eq(tasks.document_id, fileId)));
 
-    const file = (document.files || []).id(fileId);
-    if (!file) {
-      return res.status(404).json({ message: "File not found" });
-    }
+    await db.delete(documents).where(eq(documents.id, fileId));
 
-    if (file.key) {
-      try {
-        await deleteS3Object(file.key);
-      } catch (s3Error) {
-        console.error("Failed to delete S3 object:", s3Error.message);
-      }
-    }
-
-    await resolveVerificationTasks({
-      documentId: document._id,
-      fileId,
-      status: "failed",
-      reason: "Source file deleted.",
-    });
-
-    document.files.pull({ _id: fileId });
-    if (!document.files.length) {
-      document.isUploaded = false;
-    }
-    document.updatedAt = new Date();
-    refreshDocumentVerificationSnapshot(document);
-    student.markModified("requiredDocuments");
-    await student.save();
-
-    res.json({
-      success: true,
-      document: formatRequiredDocument(document),
-    });
+    const fileRows = await db.select().from(documents)
+      .where(and(eq(documents.student_id, student.id), eq(documents.document_type, docId)));
+    res.json({ success: true, document: formatRequiredDoc(docId, defs[docId], fileRows) });
   } catch (error) {
-    console.error("Delete required doc file error:", error);
-    res.status(500).json({ success: false, message: "Failed to delete file" });
+    console.error('Delete required doc file error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete file' });
   }
 };
+
+exports.verifyRequiredDocumentFile = async (req, res) => {
+  try {
+    const { aiKey, docId, fileId } = req.params;
+    if (req.user?.role !== 'admin') return res.status(403).json({ message: 'Admin access required' });
+
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+
+    const defs = getDocDefs(student);
+    if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
+
+    const [fileRow] = await db.select().from(documents)
+      .where(and(eq(documents.id, fileId), eq(documents.student_id, student.id), eq(documents.document_type, docId))).limit(1);
+    if (!fileRow) return res.status(404).json({ message: 'File not found' });
+
+    const [updated] = await db.update(documents).set({
+      ai_verification: {
+        ...(fileRow.ai_verification ?? {}),
+        status: 'verified',
+        confidence: 1,
+        detectedType: fileRow.ai_verification?.detectedType || defs[docId].name || 'Document',
+        reason: 'Verified by admin',
+        checkedAt: new Date(),
+      },
+    }).where(eq(documents.id, fileId)).returning();
+
+    // Dismiss open verification tasks for this file
+    await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
+      .where(and(eq(tasks.firm_id, student.firm_id), eq(tasks.task_type, 'ai_verification'), eq(tasks.document_id, fileId)));
+
+    const fileRows = await db.select().from(documents)
+      .where(and(eq(documents.student_id, student.id), eq(documents.document_type, docId)));
+    res.json({ success: true, document: formatRequiredDoc(docId, defs[docId], fileRows) });
+  } catch (error) {
+    console.error('Verify required doc file error:', error);
+    res.status(500).json({ success: false, message: 'Failed to verify document' });
+  }
+};
+
+// ─── Student Tasks (via tasks table) ─────────────────────────────────────────
 
 exports.listStudentTasks = async (req, res) => {
   try {
     const { aiKey } = req.params;
     const { markSeen } = req.query;
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const isAdmin = req.user?.role === "admin";
-    const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Access denied" });
-    }
+    const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
+    const isOwner = req.user?.role === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+    if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    await purgeOldCompletedTasks(student);
+    const taskRows = await db.select().from(tasks)
+      .where(and(eq(tasks.student_id, student.id), eq(tasks.firm_id, student.firm_id)))
+      .orderBy(desc(tasks.created_at));
 
-    const tasks = Array.isArray(student.tasks)
-      ? [...student.tasks].sort(
-          (a, b) =>
-            new Date(b.assignedAt || b.createdAt || 0) -
-            new Date(a.assignedAt || a.createdAt || 0)
-        )
-      : [];
-
-    if (isOwner && markSeen === "true") {
-      let updated = false;
-      tasks.forEach((task) => {
-        if (!task.seenByStudent) {
-          task.seenByStudent = true;
-          updated = true;
-        }
-      });
-      if (updated) {
-        student.markModified("tasks");
-        await student.save();
+    if (isOwner && markSeen === 'true') {
+      const unreadIds = taskRows.filter((t) => !t.is_read).map((t) => t.id);
+      if (unreadIds.length) {
+        await db.update(tasks).set({ is_read: true, updated_at: new Date() })
+          .where(inArray(tasks.id, unreadIds));
+        taskRows.forEach((t) => { if (unreadIds.includes(t.id)) t.is_read = true; });
       }
     }
 
-    res.json({
-      success: true,
-      tasks: tasks.map((task) => formatStudentTask(task)),
-    });
+    res.json({ success: true, tasks: taskRows.map(formatStudentTask) });
   } catch (error) {
-    console.error("List student tasks error:", error);
-    res.status(500).json({ success: false, message: "Failed to load tasks" });
+    console.error('List student tasks error:', error);
+    res.status(500).json({ success: false, message: 'Failed to load tasks' });
   }
 };
 
@@ -1951,80 +1194,51 @@ exports.createStudentTask = async (req, res) => {
   try {
     const { aiKey } = req.params;
     const { title, description, dueDate } = req.body || {};
-    if (!title || !title.trim()) {
-      return res.status(400).json({ message: "Task title is required" });
-    }
+    if (!title || !title.trim()) return res.status(400).json({ message: 'Task title is required' });
 
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    let parsedDueDate = null;
+    let due_at = null;
     if (dueDate) {
       const candidate = new Date(dueDate);
-      if (Number.isNaN(candidate.getTime())) {
-        return res.status(400).json({ message: "Invalid due date" });
-      }
-      parsedDueDate = candidate;
+      if (Number.isNaN(candidate.getTime())) return res.status(400).json({ message: 'Invalid due date' });
+      due_at = candidate;
     }
 
     let attachment = null;
     if (req.file) {
       try {
-        const safeName = `${Date.now()}-${req.file.originalname.replace(
-          /\s+/g,
-          "_"
-        )}`;
-        const prefix = `${
-          student.aiKey || student.username || "student"
-        }/tasks`;
-        const uploadResult = await uploadFileToS3(
-          req.file.path,
-          safeName,
-          prefix
-        );
-        attachment = {
-          key: uploadResult.key,
-          bucket: uploadResult.bucket,
-          name: req.file.originalname,
-          mimeType: req.file.mimetype,
-          size: req.file.size,
-        };
+        const safeName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`;
+        const uploadResult = await uploadFileToS3(req.file.path, safeName, `${student.ai_key || 'student'}/tasks`);
+        attachment = { key: uploadResult.key, bucket: uploadResult.bucket, name: req.file.originalname, mimeType: req.file.mimetype, size: req.file.size };
       } finally {
-        if (req.file?.path) {
-          deleteLocalFile(req.file.path);
-        }
+        if (req.file?.path) deleteLocalFile(req.file.path);
       }
     }
 
-    const newTask = {
+    const [newTask] = await db.insert(tasks).values({
+      firm_id: student.firm_id,
+      student_id: student.id,
+      task_type: 'general',
       title: title.trim(),
-      description: description?.toString()?.trim() || "",
-      dueDate: parsedDueDate,
-      status: "pending",
-      attachment,
-      assignedBy: req.user?._id || req.user?.id || null,
-      assignedAt: new Date(),
-      seenByStudent: false,
-    };
+      description: description?.toString()?.trim() || null,
+      status: 'open',
+      created_by: req.user?.id || null,
+      due_at,
+      metadata: attachment ? { attachment } : {},
+    }).returning();
 
-    student.tasks = Array.isArray(student.tasks) ? student.tasks : [];
-    student.tasks.unshift(newTask);
-    student.markModified("tasks");
-    await student.save();
-    await purgeOldCompletedTasks(student);
+    await sendTaskAssignedEmail({ student, task: newTask });
 
-    await sendTaskAssignedEmail({
-      student,
-      task: newTask,
-    });
+    const allTasks = await db.select().from(tasks)
+      .where(and(eq(tasks.student_id, student.id), eq(tasks.firm_id, student.firm_id)))
+      .orderBy(desc(tasks.created_at));
 
-    res.json({
-      success: true,
-      tasks: student.tasks.map((task) => formatStudentTask(task)),
-    });
+    res.json({ success: true, tasks: allTasks.map(formatStudentTask) });
   } catch (error) {
-    console.error("Create student task error:", error);
-    res.status(500).json({ success: false, message: "Failed to create task" });
+    console.error('Create student task error:', error);
+    res.status(500).json({ success: false, message: 'Failed to create task' });
   }
 };
 
@@ -2032,204 +1246,117 @@ exports.updateStudentTask = async (req, res) => {
   try {
     const { aiKey, taskId } = req.params;
     const { status, seenByStudent } = req.body || {};
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
 
-    const task = (student.tasks || []).id(taskId);
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const isAdmin = req.user?.role === "admin";
-    const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Access denied" });
-    }
+    const [task] = await db.select().from(tasks)
+      .where(and(eq(tasks.id, taskId), eq(tasks.student_id, student.id))).limit(1);
+    if (!task) return res.status(404).json({ message: 'Task not found' });
 
+    const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
+    const isOwner = req.user?.role === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+    if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
+
+    const updates = { updated_at: new Date() };
     let statusUpdatedToCompleted = false;
-    if (status && TASK_STATUSES.includes(status)) {
-      const previousStatus = task.status;
-      task.status = status;
-      if (status === "completed") {
-        task.completedAt = new Date();
-        statusUpdatedToCompleted = previousStatus !== "completed";
-      } else {
-        task.completedAt = null;
+
+    if (status) {
+      const pgStatus = status === 'completed' ? 'done' : status === 'pending' ? 'open' : status;
+      if (['open', 'done', 'in_progress', 'dismissed'].includes(pgStatus)) {
+        updates.status = pgStatus;
+        if (pgStatus === 'done' && task.status !== 'done') {
+          updates.completed_at = new Date();
+          statusUpdatedToCompleted = true;
+        }
       }
     }
 
-    if (typeof seenByStudent === "boolean" && isOwner) {
-      task.seenByStudent = seenByStudent;
+    if (typeof seenByStudent === 'boolean' && isOwner) {
+      updates.is_read = seenByStudent;
     }
 
-    student.markModified("tasks");
-    await student.save();
+    const [updated] = await db.update(tasks).set(updates).where(eq(tasks.id, taskId)).returning();
 
-    if (
-      statusUpdatedToCompleted &&
-      req.userRole === "student" &&
-      task.assignedBy
-    ) {
+    if (statusUpdatedToCompleted && req.userRole === 'student' && task.created_by) {
       try {
-        const notification = await Notification.create({
-          recipientUserId: task.assignedBy,
-          recipientRole: "admin",
-          actorUserId: req.userId,
-          actorName: getStudentDisplayName(student),
-          taskId: task._id,
-          taskTitle: task.title,
-          taskSummary: task.description?.slice(0, 160) || "",
-          type: "TASK_COMPLETED",
-          status: "UNREAD",
-          meta: {
-            studentAiKey: student.aiKey,
-            studentId: student._id,
-            dueDate: task.dueDate,
-          },
-        });
-        emitNotification(notification.toObject());
-      } catch (notifyError) {
-        console.error(
-          "Failed to create task completion notification:",
-          notifyError
+        await sendNotification(
+          student.firm_id,
+          task.created_by,
+          'TASK_COMPLETED',
+          'Task completed',
+          `${getStudentName(student)} completed: ${task.title}`,
+          { studentId: student.id, studentAiKey: student.ai_key, taskId: task.id, dueDate: task.due_at },
         );
+      } catch (notifyError) {
+        console.error('Failed to create task completion notification:', notifyError);
       }
     }
 
-    res.json({
-      success: true,
-      tasks: student.tasks.map((item) => formatStudentTask(item)),
-    });
+    const allTasks = await db.select().from(tasks)
+      .where(and(eq(tasks.student_id, student.id), eq(tasks.firm_id, student.firm_id)))
+      .orderBy(desc(tasks.created_at));
+
+    res.json({ success: true, tasks: allTasks.map(formatStudentTask) });
   } catch (error) {
-    console.error("Update student task error:", error);
-    res.status(500).json({ success: false, message: "Failed to update task" });
+    console.error('Update student task error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update task' });
   }
 };
 
 exports.getStudentTaskAttachmentUrl = async (req, res) => {
   try {
     const { aiKey, taskId } = req.params;
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const task = (student.tasks || []).id(taskId);
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
+    const [task] = await db.select().from(tasks)
+      .where(and(eq(tasks.id, taskId), eq(tasks.student_id, student.id))).limit(1);
+    if (!task) return res.status(404).json({ message: 'Task not found' });
 
-    const isAdmin = req.user?.role === "admin";
-    const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Access denied" });
-    }
+    const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
+    const isOwner = req.user?.role === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+    if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    if (!task.attachment?.key || !task.attachment?.name) {
-      return res.status(404).json({ message: "Attachment not found" });
-    }
+    const attachment = task.metadata?.attachment;
+    if (!attachment?.key || !attachment?.name) return res.status(404).json({ message: 'Attachment not found' });
 
-    const url = await getPresignedUrl(
-      task.attachment.key,
-      task.attachment.name
-    );
+    const url = await getPresignedUrl(attachment.key, attachment.name);
     res.json({ success: true, url });
   } catch (error) {
-    console.error("Get task attachment url error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to generate attachment link" });
+    console.error('Get task attachment url error:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate attachment link' });
   }
 };
 
 exports.deleteStudentTask = async (req, res) => {
   try {
     const { aiKey, taskId } = req.params;
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const task = (student.tasks || []).id(taskId);
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+    const [task] = await db.select().from(tasks)
+      .where(and(eq(tasks.id, taskId), eq(tasks.student_id, student.id))).limit(1);
+    if (!task) return res.status(404).json({ message: 'Task not found' });
+
+    const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
+    const isOwner = req.user?.role === 'student' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
+    if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
+
+    const attachment = task.metadata?.attachment;
+    if (attachment?.key) {
+      try { await deleteS3Object(attachment.key); } catch (e) { console.error('Failed to delete task attachment:', e.message); }
     }
 
-    const isAdmin = req.user?.role === "admin";
-    const isOwner = req.user?.role === "student" && req.user?.aiKey === aiKey;
-    if (!isAdmin && !isOwner) {
-      return res.status(403).json({ message: "Access denied" });
-    }
+    await db.delete(tasks).where(eq(tasks.id, taskId));
 
-    if (task.attachment?.key) {
-      try {
-        await deleteS3Object(task.attachment.key);
-      } catch (err) {
-        console.error("Failed to delete task attachment:", err.message);
-      }
-    }
+    const allTasks = await db.select().from(tasks)
+      .where(and(eq(tasks.student_id, student.id), eq(tasks.firm_id, student.firm_id)))
+      .orderBy(desc(tasks.created_at));
 
-    task.deleteOne();
-    student.markModified("tasks");
-    await student.save();
-
-    res.json({
-      success: true,
-      tasks: student.tasks.map((item) => formatStudentTask(item)),
-    });
+    res.json({ success: true, tasks: allTasks.map(formatStudentTask) });
   } catch (error) {
-    console.error("Delete student task error:", error);
-    res.status(500).json({ success: false, message: "Failed to delete task" });
-  }
-};
-
-exports.verifyRequiredDocumentFile = async (req, res) => {
-  try {
-    const { aiKey, docId, fileId } = req.params;
-    const student = await Student.findOne({ aiKey });
-    if (!student) return res.status(404).json({ message: "Student not found" });
-
-    if (req.user?.role !== "admin") {
-      return res.status(403).json({ message: "Admin access required" });
-    }
-
-    const document = student.requiredDocuments.id(docId);
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
-
-    const file = (document.files || []).id(fileId);
-    if (!file) {
-      return res.status(404).json({ message: "File not found" });
-    }
-
-    file.verification = {
-      status: "verified",
-      confidence: 1,
-      detectedType:
-        file.verification?.detectedType || document.name || "Document",
-      reason: "Verified by admin",
-      checkedAt: new Date(),
-    };
-
-    document.isUploaded = true;
-    document.updatedAt = new Date();
-    refreshDocumentVerificationSnapshot(document);
-    student.markModified("requiredDocuments");
-    await student.save();
-
-    await resolveVerificationTasks({
-      documentId: document._id,
-      fileId: file._id,
-      status: "verified",
-      resolvedBy: req.user?._id || req.user?.id || null,
-      reason: "Verified by admin",
-    });
-
-    res.json({
-      success: true,
-      document: formatRequiredDocument(document),
-    });
-  } catch (error) {
-    console.error("Verify required doc file error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to verify document" });
+    console.error('Delete student task error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete task' });
   }
 };

@@ -28,19 +28,6 @@ app.use('/api', require('./routes'));
 
 // health
 app.get('/health', async (req, res) => {
-  const start = process.uptime();
-
-  // Mongo check
-  let mongoStatus = 'error';
-  try {
-    const mongoose = require('mongoose');
-    if (mongoose.connection.readyState === 1) {
-      await mongoose.connection.db.admin().ping();
-      mongoStatus = 'ok';
-    }
-  } catch (_) {}
-
-  // Postgres check
   let postgresStatus = 'error';
   try {
     const { sql } = require('./db/postgres');
@@ -48,7 +35,16 @@ app.get('/health', async (req, res) => {
     postgresStatus = 'ok';
   } catch (_) {}
 
-  res.json({ mongo: mongoStatus, postgres: postgresStatus, uptime: process.uptime() });
+  let redisStatus = 'error';
+  try {
+    const IORedis = require('ioredis');
+    const redis = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', { lazyConnect: true, connectTimeout: 2000 });
+    await redis.ping();
+    redis.disconnect();
+    redisStatus = 'ok';
+  } catch (_) {}
+
+  res.json({ postgres: postgresStatus, redis: redisStatus, uptime: process.uptime() });
 });
 
 // global error handler
@@ -56,10 +52,6 @@ app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({ error: 'internal_server_error' });
 });
-
-// MongoDb connection
-const connectDB = require('./config/db');
-connectDB();
 
 // BullMQ workers — skipped in test environments (no live Redis needed).
 if (process.env.NODE_ENV !== 'test') {

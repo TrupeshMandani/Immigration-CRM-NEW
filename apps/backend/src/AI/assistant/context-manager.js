@@ -1,45 +1,51 @@
-const Student = require("../../models/Student");
+const { db } = require('../../db/postgres');
+const { students, documents, tasks } = require('../../db/schema');
+const { eq, and } = require('drizzle-orm');
 
-/**
- * Aggregates relevant student data into a context string for the AI.
- * @param {string} studentId - The ID of the student
- * @returns {Promise<string>} - The formatted context string
- */
 async function buildStudentContext(studentId) {
   try {
-    const student = await Student.findById(studentId).lean();
-    if (!student) return "Student not found.";
+    const [student] = await db.select().from(students)
+      .where(eq(students.id, studentId)).limit(1);
+
+    if (!student) return 'Student not found.';
+
+    const profile = student.profile_data ?? {};
+    const fullName = student.first_name
+      ? `${student.first_name} ${student.last_name || ''}`.trim()
+      : (profile.fullName || profile.name || 'N/A');
 
     let context = `Student Profile:\n`;
-    context += `- Name: ${student.contactInfo?.name || "N/A"}\n`;
-    context += `- Email: ${student.email || "N/A"}\n`;
+    context += `- Name: ${fullName}\n`;
+    context += `- Email: ${student.email || 'N/A'}\n`;
     context += `- Status: ${student.status}\n`;
+    context += `- Stage: ${student.stage}\n`;
 
-    if (student.profile) {
-      context += `\nDetailed Profile:\n${JSON.stringify(student.profile, null, 2)}\n`;
+    if (Object.keys(profile).length) {
+      context += `\nDetailed Profile:\n${JSON.stringify(profile, null, 2)}\n`;
     }
 
-    if (student.requiredDocuments && student.requiredDocuments.length > 0) {
-      context += `\nDocuments Status:\n`;
-      student.requiredDocuments.forEach((doc) => {
-        const status = doc.isUploaded ? "Uploaded" : "Missing";
-        context += `- ${doc.name}: ${status} (Verification: ${doc.verification?.status || "Pending"})\n`;
+    const docs = await db.select().from(documents).where(eq(documents.student_id, studentId));
+    if (docs.length) {
+      context += `\nDocuments on file: ${docs.length}\n`;
+      docs.forEach((d) => {
+        const verdict = d.ai_verification?.verdict ?? 'not verified';
+        context += `- ${d.document_type || d.s3_key || 'Unknown'}: ${verdict}\n`;
       });
     }
 
-    if (student.tasks && student.tasks.length > 0) {
-      context += `\nPending Tasks:\n`;
-      student.tasks
-        .filter((t) => t.status === "pending")
-        .forEach((t) => {
-          context += `- ${t.title} (Due: ${t.dueDate ? new Date(t.dueDate).toDateString() : "No date"})\n`;
-        });
+    const openTasks = await db.select().from(tasks)
+      .where(and(eq(tasks.student_id, studentId), eq(tasks.status, 'open')));
+    if (openTasks.length) {
+      context += `\nOpen Tasks (${openTasks.length}):\n`;
+      openTasks.forEach((t) => {
+        context += `- ${t.title} [${t.task_type}]\n`;
+      });
     }
 
     return context;
   } catch (error) {
-    console.error("Error building student context:", error);
-    return "Error retrieving student context.";
+    console.error('Error building student context:', error);
+    return 'Error retrieving student context.';
   }
 }
 
