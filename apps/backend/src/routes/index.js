@@ -35,7 +35,8 @@ protectedRouter.use("/students", require("../modules/students/students.routes").
 protectedRouter.use("/students", require("../modules/students/student.route"));
 // Task module — Postgres-backed (replaces Mongoose task.routes.js).
 protectedRouter.use("/tasks", require("../modules/tasks/tasks.routes").tasksRouter);
-protectedRouter.use("/notifications", require("../modules/notifications/notification.route"));
+// Notifications module — Postgres-backed (replaces Mongoose notification.route.js).
+protectedRouter.use("/notifications", require("../modules/notifications/notifications.routes").notificationsRouter);
 protectedRouter.use("/recommendations", require("../AI/ai-recommendation/recommendation.route"));
 // New AI module: orchestrator + ai_jobs ledger + multi-provider router
 protectedRouter.use("/ai", require("../modules/ai/ai.routes").aiRouter);

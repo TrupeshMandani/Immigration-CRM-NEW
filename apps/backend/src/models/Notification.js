@@ -1,3 +1,10 @@
+/**
+ * @deprecated Superseded by the Postgres `notifications` table
+ * (apps/backend/src/db/schema/notifications.ts) introduced in Prompt 13.
+ * All new code must use notifications.service.ts + notifications.routes.ts.
+ * Retained only for any in-flight MongoDB data until a migration script
+ * (Prompt 14+) backfills into Postgres.
+ */
 const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema(

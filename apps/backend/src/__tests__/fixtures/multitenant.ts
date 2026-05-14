@@ -21,6 +21,7 @@ import { createStudent } from '../../modules/students/students.service';
 import type { Student } from '../../db/schema/students';
 import { documents, type Document } from '../../db/schema/documents';
 import { tasks, type Task } from '../../db/schema/tasks';
+import { notifications, type Notification } from '../../db/schema/notifications';
 
 // ---------------------------------------------------------------------------
 // JWT helper
@@ -51,6 +52,10 @@ export interface TwoFirmFixture {
   taskA: Task;
   /** One seeded task for firmB. */
   taskB: Task;
+  /** One seeded notification for userA. */
+  notificationA: Notification;
+  /** One seeded notification for userB. */
+  notificationB: Notification;
   jwtA: string;
   jwtB: string;
 }
@@ -181,6 +186,34 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .then((r) => r[0]),
   );
 
+  const notificationA = await seedInFirm(firmA.id, (tx) =>
+    tx
+      .insert(notifications)
+      .values({
+        firm_id: firmA.id,
+        user_id: userA.id,
+        type: 'task.assigned',
+        title: `CT Notification A ${tag}`,
+        body: 'You have a new task.',
+      })
+      .returning()
+      .then((r) => r[0]),
+  );
+
+  const notificationB = await seedInFirm(firmB.id, (tx) =>
+    tx
+      .insert(notifications)
+      .values({
+        firm_id: firmB.id,
+        user_id: userB.id,
+        type: 'task.assigned',
+        title: `CT Notification B ${tag}`,
+        body: 'You have a new task.',
+      })
+      .returning()
+      .then((r) => r[0]),
+  );
+
   return {
     firmA,
     firmB,
@@ -192,6 +225,8 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
     documentB,
     taskA,
     taskB,
+    notificationA,
+    notificationB,
     jwtA: issueJwt(firmA.id, userA.id),
     jwtB: issueJwt(firmB.id, userB.id),
   };

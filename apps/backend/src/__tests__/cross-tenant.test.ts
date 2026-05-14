@@ -35,6 +35,7 @@ import { usersRouter } from '../modules/users/users.route';
 import { studentsRouter } from '../modules/students/students.routes';
 import { documentsRouter } from '../modules/documents/documents.routes';
 import { tasksRouter } from '../modules/tasks/tasks.routes';
+import { notificationsRouter } from '../modules/notifications/notifications.routes';
 import {
   provisionTwoFirmsWithData,
   teardownFirms,
@@ -76,6 +77,7 @@ app.use('/api/users', jwtAuthStub, tenantContextMiddleware, usersRouter);
 app.use('/api/students', jwtAuthStub, tenantContextMiddleware, studentsRouter);
 app.use('/api/documents', jwtAuthStub, tenantContextMiddleware, documentsRouter);
 app.use('/api/tasks', jwtAuthStub, tenantContextMiddleware, tasksRouter);
+app.use('/api/notifications', jwtAuthStub, tenantContextMiddleware, notificationsRouter);
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -259,12 +261,48 @@ describe('Cross-tenant isolation: GET /api/tasks', () => {
   });
 });
 
-describe.skip('Cross-tenant isolation: GET /api/notifications [pending — Prompt 09]', () => {
-  it('Firm A token returns only Firm A notifications', () => {
-    // TODO: enable after notifications table migrated to Postgres.
+// ---------------------------------------------------------------------------
+// GET /api/notifications  [Postgres + RLS — active since Prompt 13]
+// ---------------------------------------------------------------------------
+describe('Cross-tenant isolation: GET /api/notifications', () => {
+  it('Firm A token → 200 with only Firm A notifications', async () => {
+    const res = await request(app)
+      .get('/api/notifications?status=ALL')
+      .set('Authorization', `Bearer ${fixture.jwtA}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.notifications)).toBe(true);
+    expect(res.body.notifications.length).toBeGreaterThan(0);
+
+    const ids: string[] = res.body.notifications.map((n: { id: string }) => n.id);
+    expect(ids).toContain(fixture.notificationA.id);
   });
 
-  it('contains no Firm B notifications', () => {});
+  it('Firm A token → contains NO Firm B notifications', async () => {
+    const res = await request(app)
+      .get('/api/notifications?status=ALL')
+      .set('Authorization', `Bearer ${fixture.jwtA}`);
+
+    const ids: string[] = res.body.notifications.map((n: { id: string }) => n.id);
+    expect(ids).not.toContain(fixture.notificationB.id);
+  });
+
+  it('Firm B token → 200 with only Firm B notifications', async () => {
+    const res = await request(app)
+      .get('/api/notifications?status=ALL')
+      .set('Authorization', `Bearer ${fixture.jwtB}`);
+
+    expect(res.status).toBe(200);
+    const ids: string[] = res.body.notifications.map((n: { id: string }) => n.id);
+    expect(ids).toContain(fixture.notificationB.id);
+    expect(ids).not.toContain(fixture.notificationA.id);
+  });
+
+  it('No token → 401', async () => {
+    const res = await request(app).get('/api/notifications');
+    expect(res.status).toBe(401);
+  });
 });
 
 describe.skip('Cross-tenant isolation: GET /api/recommendations [pending — Prompt 09]', () => {

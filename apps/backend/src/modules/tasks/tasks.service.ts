@@ -1,7 +1,15 @@
-import { eq, inArray, and, not, isNull, desc, count, SQL, sql as drizzleSql } from 'drizzle-orm';
+import { eq, inArray, and, desc, SQL, sql as drizzleSql } from 'drizzle-orm';
 import { db, withFirmContext } from '../../db/postgres';
 import { tasks, type Task, type NewTask } from '../../db/schema/tasks';
 import type { VerificationResult } from '../ai/verification.service';
+
+// Lazy import (.js extension required by NodeNext resolution).
+// CJS module caching makes circular deps safe at runtime — socket is always
+// initialized before any task mutations occur.
+async function getSocketEmitters() {
+  const socket = await import('../../socket/index.js');
+  return { emitToFirm: socket.emitToFirm };
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -255,6 +263,11 @@ export async function createTask(
       metadata: (input.metadata ?? {}) as Record<string, unknown>,
     })
     .returning();
+
+  getSocketEmitters()
+    .then(({ emitToFirm }) => emitToFirm(firmId, 'task:created', formatTask(row)))
+    .catch(() => {});
+
   return row;
 }
 
@@ -342,6 +355,11 @@ export async function createAIVerificationTask(
         is_read: false,
       })
       .returning();
+
+    getSocketEmitters()
+      .then(({ emitToFirm }) => emitToFirm(firmId, 'task:created', formatTask(created)))
+      .catch(() => {});
+
     return created;
   });
 }
@@ -365,6 +383,9 @@ export async function completeTask(
     .where(eq(tasks.id, id))
     .returning();
   if (!row) throw Object.assign(new Error('Task not found'), { statusCode: 404 });
+  getSocketEmitters()
+    .then(({ emitToFirm }) => emitToFirm(row.firm_id, 'task:updated', formatTask(row)))
+    .catch(() => {});
   return row;
 }
 
@@ -381,6 +402,9 @@ export async function reassignTask(
     .where(eq(tasks.id, id))
     .returning();
   if (!row) throw Object.assign(new Error('Task not found'), { statusCode: 404 });
+  getSocketEmitters()
+    .then(({ emitToFirm }) => emitToFirm(row.firm_id, 'task:updated', formatTask(row)))
+    .catch(() => {});
   return row;
 }
 
@@ -426,6 +450,9 @@ export async function updateTask(
     .returning();
 
   if (!row) throw Object.assign(new Error('Task not found'), { statusCode: 404 });
+  getSocketEmitters()
+    .then(({ emitToFirm }) => emitToFirm(row.firm_id, 'task:updated', formatTask(row)))
+    .catch(() => {});
   return row;
 }
 
