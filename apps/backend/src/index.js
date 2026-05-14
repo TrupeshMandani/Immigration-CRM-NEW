@@ -56,11 +56,13 @@ app.use((err, req, res, next) => {
 const connectDB = require('./config/db');
 connectDB();
 
-// BullMQ worker for background SHA-256 hashing of large S3 uploads.
-// Skipped in test environments to avoid needing a live Redis connection.
+// BullMQ workers — skipped in test environments (no live Redis needed).
 if (process.env.NODE_ENV !== 'test') {
   const { startHashingWorker } = require('./modules/documents/documents.worker');
   startHashingWorker();
+
+  const { startVerifyWorker } = require('./modules/ai/ai.worker');
+  startVerifyWorker();
 }
 
 

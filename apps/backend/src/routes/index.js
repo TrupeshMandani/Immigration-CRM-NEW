@@ -33,10 +33,12 @@ protectedRouter.use("/upload", require("../modules/upload/upload.routes"));
 // /tasks, etc.) fall through to the legacy Mongoose-backed router below.
 protectedRouter.use("/students", require("../modules/students/students.routes").studentsRouter);
 protectedRouter.use("/students", require("../modules/students/student.route"));
-protectedRouter.use("/tasks", require("../modules/tasks/task.routes"));
+// Task module — Postgres-backed (replaces Mongoose task.routes.js).
+protectedRouter.use("/tasks", require("../modules/tasks/tasks.routes").tasksRouter);
 protectedRouter.use("/notifications", require("../modules/notifications/notification.route"));
 protectedRouter.use("/recommendations", require("../AI/ai-recommendation/recommendation.route"));
-protectedRouter.use("/ai", require("./ai.routes"));
+// New AI module: orchestrator + ai_jobs ledger + multi-provider router
+protectedRouter.use("/ai", require("../modules/ai/ai.routes").aiRouter);
 protectedRouter.use("/files", require("./file.routes"));
 
 router.use("/", protectedRouter);

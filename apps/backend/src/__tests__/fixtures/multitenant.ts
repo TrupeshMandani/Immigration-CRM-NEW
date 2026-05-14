@@ -20,6 +20,7 @@ import { users, type User } from '../../db/schema/users';
 import { createStudent } from '../../modules/students/students.service';
 import type { Student } from '../../db/schema/students';
 import { documents, type Document } from '../../db/schema/documents';
+import { tasks, type Task } from '../../db/schema/tasks';
 
 // ---------------------------------------------------------------------------
 // JWT helper
@@ -46,6 +47,10 @@ export interface TwoFirmFixture {
   documentA: Document;
   /** One seeded document for studentB. */
   documentB: Document;
+  /** One seeded task for firmA. */
+  taskA: Task;
+  /** One seeded task for firmB. */
+  taskB: Task;
   jwtA: string;
   jwtB: string;
 }
@@ -148,6 +153,34 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .then((r) => r[0]),
   );
 
+  const taskA = await seedInFirm(firmA.id, (tx) =>
+    tx
+      .insert(tasks)
+      .values({
+        firm_id: firmA.id,
+        student_id: studentA.id,
+        task_type: 'general',
+        title: `CT Task A ${tag}`,
+        status: 'open',
+      })
+      .returning()
+      .then((r) => r[0]),
+  );
+
+  const taskB = await seedInFirm(firmB.id, (tx) =>
+    tx
+      .insert(tasks)
+      .values({
+        firm_id: firmB.id,
+        student_id: studentB.id,
+        task_type: 'general',
+        title: `CT Task B ${tag}`,
+        status: 'open',
+      })
+      .returning()
+      .then((r) => r[0]),
+  );
+
   return {
     firmA,
     firmB,
@@ -157,6 +190,8 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
     studentB,
     documentA,
     documentB,
+    taskA,
+    taskB,
     jwtA: issueJwt(firmA.id, userA.id),
     jwtB: issueJwt(firmB.id, userB.id),
   };

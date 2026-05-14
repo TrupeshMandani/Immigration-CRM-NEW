@@ -1,3 +1,10 @@
+/**
+ * @deprecated This Mongoose model is superseded by the Postgres `tasks` table
+ * (apps/backend/src/db/schema/tasks.ts) introduced in Prompt 12.
+ * All new code must use tasks.service.ts + tasks.routes.ts.
+ * This file is retained only for any in-flight MongoDB data until the
+ * data-migration script (Prompt 14+) backfills into Postgres.
+ */
 const mongoose = require("mongoose");
 
 const taskSchema = new mongoose.Schema(

@@ -34,6 +34,7 @@ import { tenantContextMiddleware } from '../middleware/tenantContext';
 import { usersRouter } from '../modules/users/users.route';
 import { studentsRouter } from '../modules/students/students.routes';
 import { documentsRouter } from '../modules/documents/documents.routes';
+import { tasksRouter } from '../modules/tasks/tasks.routes';
 import {
   provisionTwoFirmsWithData,
   teardownFirms,
@@ -74,6 +75,7 @@ app.use(express.json());
 app.use('/api/users', jwtAuthStub, tenantContextMiddleware, usersRouter);
 app.use('/api/students', jwtAuthStub, tenantContextMiddleware, studentsRouter);
 app.use('/api/documents', jwtAuthStub, tenantContextMiddleware, documentsRouter);
+app.use('/api/tasks', jwtAuthStub, tenantContextMiddleware, tasksRouter);
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -212,15 +214,49 @@ describe('Cross-tenant isolation: GET /api/documents/student/:id', () => {
 });
 
 // ---------------------------------------------------------------------------
-// MongoDB-backed routes — placeholder skips pending Postgres migration.
+// GET /api/tasks  [Postgres + RLS — active since Prompt 12]
 // ---------------------------------------------------------------------------
+describe('Cross-tenant isolation: GET /api/tasks', () => {
+  it('Firm A token → 200 with only Firm A tasks', async () => {
+    const res = await request(app)
+      .get('/api/tasks')
+      .set('Authorization', `Bearer ${fixture.jwtA}`);
 
-describe.skip('Cross-tenant isolation: GET /api/tasks [pending — Prompt 09]', () => {
-  it('Firm A token returns only Firm A tasks', () => {
-    // TODO: enable after tasks table migrated to Postgres.
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.tasks)).toBe(true);
+    expect(res.body.tasks.length).toBeGreaterThan(0);
+
+    // Every task returned must belong to Firm A's student or document
+    // (tasks don't expose firm_id directly, but we can check the seeded task id)
+    const ids: string[] = res.body.tasks.map((t: { id: string }) => t.id);
+    expect(ids).toContain(fixture.taskA.id);
   });
 
-  it('contains no Firm B tasks', () => {});
+  it('Firm A token → contains NO Firm B tasks', async () => {
+    const res = await request(app)
+      .get('/api/tasks')
+      .set('Authorization', `Bearer ${fixture.jwtA}`);
+
+    const ids: string[] = res.body.tasks.map((t: { id: string }) => t.id);
+    expect(ids).not.toContain(fixture.taskB.id);
+  });
+
+  it('Firm B token → 200 with only Firm B tasks', async () => {
+    const res = await request(app)
+      .get('/api/tasks')
+      .set('Authorization', `Bearer ${fixture.jwtB}`);
+
+    expect(res.status).toBe(200);
+    const ids: string[] = res.body.tasks.map((t: { id: string }) => t.id);
+    expect(ids).toContain(fixture.taskB.id);
+    expect(ids).not.toContain(fixture.taskA.id);
+  });
+
+  it('No token → 401', async () => {
+    const res = await request(app).get('/api/tasks');
+    expect(res.status).toBe(401);
+  });
 });
 
 describe.skip('Cross-tenant isolation: GET /api/notifications [pending — Prompt 09]', () => {

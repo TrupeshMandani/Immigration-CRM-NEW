@@ -11,6 +11,7 @@ import { db } from '../../db/postgres';
 import { documents, type Document } from '../../db/schema/documents';
 import { students } from '../../db/schema/students';
 import { hashingQueue } from './hashing.queue';
+import { verifyQueue } from '../ai/verify.queue';
 import {
   GenerateUploadUrlSchema,
   type GenerateUploadUrlInput,
@@ -127,6 +128,17 @@ export async function finalizeUpload(
     }
     throw err;
   }
+
+  // Queue AI verification for all documents (independent of hashing).
+  await verifyQueue.add('verify', {
+    documentId: doc.id,
+    firmId,
+    studentId: doc.student_id,
+    s3Key: doc.s3_key,
+    s3Bucket: doc.s3_bucket,
+    documentType: doc.document_type ?? 'Document',
+    mimeType: doc.mime_type ?? 'application/octet-stream',
+  });
 
   // Large file: hand off to background worker.
   if ((doc.size_bytes ?? 0) >= LARGE_FILE_BYTES) {
