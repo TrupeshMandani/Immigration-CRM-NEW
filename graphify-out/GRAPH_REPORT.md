@@ -1,16 +1,16 @@
 # Graph Report - Immigration-CRM  (2026-05-14)
 
 ## Corpus Check
-- 247 files · ~137,190 words
+- 259 files · ~143,030 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1386 nodes · 2273 edges · 109 communities (99 shown, 10 thin omitted)
+- 1465 nodes · 2434 edges · 108 communities (99 shown, 9 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d31597b5`
+- Built from commit: `fe921e0c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -102,7 +102,6 @@
 - [[_COMMUNITY_Community 85|Community 85]]
 - [[_COMMUNITY_Community 86|Community 86]]
 - [[_COMMUNITY_Community 87|Community 87]]
-- [[_COMMUNITY_Community 88|Community 88]]
 - [[_COMMUNITY_Community 89|Community 89]]
 - [[_COMMUNITY_Community 90|Community 90]]
 - [[_COMMUNITY_Community 91|Community 91]]
@@ -115,15 +114,15 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `useAuth()` - 31 edges
-2. `Backend: Services` - 16 edges
-3. `Document Tools - Manual Testing Guide` - 16 edges
-4. `withFirmContext()` - 15 edges
-5. `runAIJob()` - 15 edges
-6. `firms` - 14 edges
-7. `SectionShell()` - 14 edges
-8. `SYSTEM INVENTORY — Immigration CRM` - 14 edges
-9. `cn()` - 13 edges
-10. `db` - 13 edges
+2. `db` - 19 edges
+3. `firms` - 19 edges
+4. `withFirmContext()` - 17 edges
+5. `Backend: Services` - 16 edges
+6. `Document Tools - Manual Testing Guide` - 16 edges
+7. `runAIJob()` - 15 edges
+8. `SectionShell()` - 14 edges
+9. `SYSTEM INVENTORY — Immigration CRM` - 14 edges
+10. `cn()` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `sendStudentInviteEmail()` --calls--> `sendEmail()`  [INFERRED]
@@ -137,42 +136,39 @@
 - `Documents()` --calls--> `useAuth()`  [EXTRACTED]
   apps/consultant-web/src/pages/student/Documents.jsx → apps/consultant-web/src/context/AuthContext.jsx
 
-## Communities (109 total, 10 thin omitted)
+## Communities (108 total, 9 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.05
-Nodes (51): tsReady(), mongoose, taskSchema, deriveOrigins(), emitNotification(), emitTaskCreated(), emitTaskUpdated(), emitToFirm() (+43 more)
+Cohesion: 0.11
+Nodes (17): tsReady(), app, connectDB, cookieParser, cors, express, helmet, http (+9 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.04
-Nodes (51): Admin, {
+Cohesion: 0.03
+Nodes (57): Admin, buildDocumentVerificationSummary(), {
   buildRequiredDocFileName,
   guessExtension,
   getStudentDisplayName,
-}, candidate, cleanedPassport, contactEmail, {
-  createVerificationTask,
-  resolveVerificationTasks,
-}, DEFAULT_REQUIRED_DOCUMENTS, doc (+43 more)
+}, candidate, cleanedPassport, contactEmail, createDefaultRequiredDocument(), createDocumentSlug() (+49 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.06
-Nodes (37): BACKEND_SERVICE_TOKEN, BACKEND_URL, { getEnv }, agentRequest, { describe, it, expect, jest, beforeEach }, documentTools, fs, httpClient (+29 more)
+Cohesion: 0.18
+Nodes (15): buildRequiredDocPath(), buildRequiredDocsPath(), buildStudentPath(), cleanupTempFile(), deleteDocument(), FormData, fs, getDocumentById() (+7 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.09
-Nodes (39): addNote(), axios, { BACKEND_SERVICE_TOKEN }, buildStudentPath(), client, createStudentTask(), deleteStudentTask(), ensureValue() (+31 more)
+Cohesion: 0.05
+Nodes (61): BACKEND_SERVICE_TOKEN, BACKEND_URL, { getEnv }, addNote(), axios, { BACKEND_SERVICE_TOKEN }, buildStudentPath(), client (+53 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.12
-Nodes (15): AdminDashboard(), EMPTY_CONTACT, StudentDetail(), AuthContext, AuthProvider(), useAuth(), Login(), Register() (+7 more)
+Cohesion: 0.13
+Nodes (13): AdminDashboard(), AuthContext, AuthProvider(), useAuth(), Login(), Register(), authService, studentService (+5 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.1
-Nodes (20): initialFilesModalState, initialUploadModalState, initialPreviewState, statusFilters, typeFilters, statusTokens, requiredDocsService, taskService (+12 more)
+Nodes (20): initialFilesModalState, initialUploadModalState, initialPreviewState, statusFilters, TasksPage(), typeFilters, statusTokens, requiredDocsService (+12 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.11
-Nodes (23): documentsRouter, BUCKET(), computeS3Hash(), DbClient, deleteDocument(), DOWNLOAD_TTL(), finalizeUpload(), generateUploadUrl() (+15 more)
+Cohesion: 0.13
+Nodes (20): BUCKET(), computeS3Hash(), DbClient, deleteDocument(), DOWNLOAD_TTL(), finalizeUpload(), generateUploadUrl(), getDownloadUrl() (+12 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.09
@@ -183,12 +179,12 @@ Cohesion: 0.12
 Nodes (24): NewTask, body, taskId, { taskIds }, { type, status, scope, limit, page }, { userId }, completeTask(), createTask() (+16 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.1
-Nodes (11): buttonSizes, NotificationBell(), statusStyles, TasksPage(), NotificationContext, NotificationProvider(), SocketContext, SocketProvider() (+3 more)
+Cohesion: 0.06
+Nodes (16): buttonSizes, NotificationBell(), statusStyles, filterTabs, NotificationsPage(), NotificationContext, NotificationProvider(), useNotifications() (+8 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.19
-Nodes (15): issueJwt(), provisionTwoFirmsWithData(), seedInFirm(), NewDocument, Firm, firms, NewFirm, Student (+7 more)
+Nodes (17): issueJwt(), provisionTwoFirmsWithData(), seedInFirm(), Document, documents, NewDocument, Firm, firms (+9 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.15
@@ -207,36 +203,36 @@ Cohesion: 0.1
 Nodes (21): ACCESS_SECRET(), Admin, aiKeyBase, baseKey, DEFAULT_FIRM_ID(), email, env, firebaseAdmin (+13 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.12
-Nodes (15): db, sql, teardownFirms(), TwoFirmFixture, EXEMPT_PREFIXES, Request, tenantContextMiddleware(), notificationsRouter (+7 more)
+Cohesion: 0.11
+Nodes (17): db, sql, documentsRouter, teardownFirms(), TwoFirmFixture, EXEMPT_PREFIXES, Request, tenantContextMiddleware() (+9 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.14
 Nodes (17): buildUserContent(), chatWithAssistant(), client, extractImportantFields(), fs, OpenAI, path, { chatWithAssistant } (+9 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.12
-Nodes (5): filterTabs, NotificationsPage(), useNotifications(), AdminLayout(), navItems
+Cohesion: 0.08
+Nodes (25): DbClient, forbidden(), getInvoice(), notFound(), sendInvoice(), stripe(), DbClient, generateMonthlyReconciliation() (+17 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.15
 Nodes (11): geistMono, geistSans, metadata, viewport, cn(), SiteFooter(), SiteFooterProps, SiteNavbar() (+3 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.16
-Nodes (17): AIJobContext, ANTHROPIC_MODELS, calcCostCents(), callAnthropic(), callOpenAI(), JobType, logJob(), LogJobParams (+9 more)
+Cohesion: 0.17
+Nodes (15): ANTHROPIC_MODELS, calcCostCents(), callAnthropic(), callOpenAI(), JobType, logJob(), LogJobParams, OAIContentBlock (+7 more)
 
 ### Community 20 - "Community 20"
 Cohesion: 0.12
 Nodes (15): buildFallbackUniversities(), FALLBACK_UNIVERSITIES, generateUniversityListFromProfile(), OpenAI, { generateUniversityListFromProfile }, languageBandKeys, mergedPreferences, numericBandValues (+7 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.14
-Nodes (12): aiRouter, current, documentId, profile, studentId, redisOpts(), startVerifyWorker(), VerifyJobData (+4 more)
+Cohesion: 0.18
+Nodes (11): aiRouter, current, documentId, profile, studentId, buildFallbackUniversities(), buildRecommendationUserPrompt(), FALLBACK_UNIVERSITIES (+3 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.16
-Nodes (12): Hero(), Pathway, pathways, processSteps, PromotionFilter, promotionFilters, trustHighlights, CollegeShowcase() (+4 more)
+Cohesion: 0.13
+Nodes (17): Hero(), Pathway, pathways, processSteps, PromotionFilter, promotionFilters, trustHighlights, CollegeShowcase() (+9 more)
 
 ### Community 23 - "Community 23"
 Cohesion: 0.15
@@ -247,8 +243,8 @@ Nodes (14): { authenticateToken, requireAdmin }, express, {
 }, router, ACCESS_SECRET(), Admin, authenticateToken(), jwt (+6 more)
 
 ### Community 24 - "Community 24"
-Cohesion: 0.18
-Nodes (13): id, { status = 'UNREAD', page, limit }, DbClient, formatNotification(), listForUser(), ListOptions, markAllRead(), markAsRead() (+5 more)
+Cohesion: 0.11
+Nodes (18): redisOpts(), startVerifyWorker(), VerifyJobData, verifyQueue, withFirmContext(), s3, id, { status = 'UNREAD', page, limit } (+10 more)
 
 ### Community 25 - "Community 25"
 Cohesion: 0.12
@@ -323,24 +319,24 @@ Cohesion: 0.23
 Nodes (11): baseResult(), buildImagePayload(), client, { extractTextFromFile }, fs, normalizeStatus(), OpenAI, { pdfToImages } (+3 more)
 
 ### Community 43 - "Community 43"
-Cohesion: 0.17
-Nodes (8): api, token, notificationService, studentTaskService, defaultFilters, intakeOptions, modeOptions, UniversityRecommendation()
+Cohesion: 0.12
+Nodes (14): EMPTY_CONTACT, StudentDetail(), api, token, notificationService, enableRecommendation(), generateRecommendation(), getRecommendations() (+6 more)
 
 ### Community 44 - "Community 44"
-Cohesion: 0.2
-Nodes (8): partnerBenefits, showcaseMetrics, College, CollegesExplorer(), Props, sortOptions, SectionHeading(), SectionHeadingProps
+Cohesion: 0.14
+Nodes (13): billingRouter, month, { signature }, studentId, { studentId, lineItems, retainerId, dueAt }, { studentId, templateKey, scope }, templates, year (+5 more)
 
 ### Community 45 - "Community 45"
 Cohesion: 0.23
 Nodes (8): PromotionCard(), Props, College, colleges, collegeToPromotionCard(), PromotionCard, Marquee(), MarqueeProps
 
 ### Community 46 - "Community 46"
-Cohesion: 0.29
-Nodes (9): buildExtractSystemPrompt(), extractImportantFields(), extractProfileWithAI(), extractTextFromFile(), FileInput, pdfParse, { pdfToImages }, { fromPath } (+1 more)
+Cohesion: 0.27
+Nodes (10): AIJobContext, OAIMessage, classifyDocument(), buildExtractSystemPrompt(), extractImportantFields(), extractProfileWithAI(), extractTextFromFile(), FileInput (+2 more)
 
 ### Community 47 - "Community 47"
-Cohesion: 0.2
-Nodes (10): buildDocumentVerificationSummary(), createDefaultRequiredDocument(), createDocumentSlug(), formatRequiredDocument(), processRequiredDocumentUpload(), refreshDocumentVerificationSnapshot(), sanitizeForSlug(), getStudentDisplayName() (+2 more)
+Cohesion: 0.19
+Nodes (16): emitTaskUpdated(), processRequiredDocumentUpload(), createVerificationTask(), { emitTaskCreated, emitTaskUpdated }, ensureVerificationHistoryEntry(), formatTask(), { getStudentDisplayName }, mongoose (+8 more)
 
 ### Community 48 - "Community 48"
 Cohesion: 0.18
@@ -363,7 +359,7 @@ Cohesion: 0.22
 Nodes (8): axios, handleAssistantQuery(), document, express, { getPresignedUrl }, { handleAssistantQuery }, router, Student
 
 ### Community 54 - "Community 54"
-Cohesion: 0.24
+Cohesion: 0.2
 Nodes (5): derivePassportDetailsFromProfile(), mapKeysToLower(), normalizePassportDate(), PASSPORT_FIELD_KEYS, StudentProfile()
 
 ### Community 55 - "Community 55"
@@ -389,12 +385,12 @@ Cohesion: 0.22
 Nodes (8): admin, adminSchema, bcrypt, mongoose, Admin, { ADMIN_NOTIFICATIONS_EMAIL }, getAdminNotificationEmails(), parseList()
 
 ### Community 59 - "Community 59"
-Cohesion: 0.33
-Nodes (8): buildImagePayload(), buildVerifyUserPrompt(), normalizeStatus(), { pdfToImages }, safeJsonParse(), VALID_STATUSES, VerificationResult, verifyDocumentType()
+Cohesion: 0.26
+Nodes (10): { fromPath }, pdfToImages(), buildImagePayload(), buildVerifyUserPrompt(), normalizeStatus(), { pdfToImages }, safeJsonParse(), VALID_STATUSES (+2 more)
 
 ### Community 60 - "Community 60"
-Cohesion: 0.22
-Nodes (6): mongoose, notificationSchema, Notification, pageNum, perPage, query
+Cohesion: 0.14
+Nodes (10): mongoose, notificationSchema, Notification, pageNum, perPage, query, { authenticateToken }, ctrl (+2 more)
 
 ### Community 61 - "Community 61"
 Cohesion: 0.36
@@ -413,8 +409,12 @@ Cohesion: 0.31
 Nodes (7): buildInviteEmail(), env, { getFirebaseAdmin }, { sendEmail }, sendStudentInviteEmail(), admin, getFirebaseAdmin()
 
 ### Community 65 - "Community 65"
-Cohesion: 0.32
-Nodes (7): OAIMessage, buildFallbackUniversities(), buildRecommendationUserPrompt(), FALLBACK_UNIVERSITIES, generateUniversityListFromProfile(), RecommendationResult, University
+Cohesion: 0.12
+Nodes (12): mongoose, taskSchema, allowedStatuses, currentPage, { emitTaskUpdated }, {
+  formatTask,
+  purgeExpiredTasks,
+  markTasksRead,
+}, formatted, notificationQuery (+4 more)
 
 ### Community 66 - "Community 66"
 Cohesion: 0.25
@@ -456,6 +456,10 @@ Nodes (5): emailTemplates, mailOptions, nodemailer, results, transporter
 Cohesion: 0.33
 Nodes (5): { authenticateToken }, express, protectedRouter, router, { tenantContextMiddleware }
 
+### Community 77 - "Community 77"
+Cohesion: 0.18
+Nodes (5): partnerBenefits, showcaseMetrics, CollegesExplorer(), Dot, DotGridProps
+
 ### Community 79 - "Community 79"
 Cohesion: 0.33
 Nodes (6): Admin Pages (`src/pages/admin/`), Components, Context / Hooks / Services, Frontend: Pages, Public Pages (`src/pages/`), Student Pages (`src/pages/student/`)
@@ -473,12 +477,12 @@ Cohesion: 0.4
 Nodes (4): { authenticateToken }, ctrl, express, router
 
 ### Community 83 - "Community 83"
-Cohesion: 0.4
-Nodes (4): { authenticateToken }, ctrl, express, router
+Cohesion: 0.26
+Nodes (10): deriveOrigins(), emitNotification(), emitTaskCreated(), emitToFirm(), emitToUser(), getIo(), initSocket(), redisUrl() (+2 more)
 
 ### Community 84 - "Community 84"
-Cohesion: 0.5
-Nodes (4): main(), mongoSchema, MongoStudent, splitName()
+Cohesion: 0.1
+Nodes (25): createDraft(), DbClient, finalizeSignature(), getRetainer(), listTemplates(), notFound(), readTemplate(), renderTemplate() (+17 more)
 
 ### Community 85 - "Community 85"
 Cohesion: 0.4
@@ -491,10 +495,6 @@ Nodes (4): code:bash (npm run dev), Deploy on Vercel, Getting Started, Learn Mor
 ### Community 87 - "Community 87"
 Cohesion: 0.4
 Nodes (5): 1. Get a Student's AI Key, 2. Get Required Document IDs, code:bash (# Login as admin and get a student record), code:bash (# Get student's required documents), Getting Test Data
-
-### Community 88 - "Community 88"
-Cohesion: 0.7
-Nodes (4): enableRecommendation(), generateRecommendation(), getRecommendations(), withAuth()
 
 ### Community 89 - "Community 89"
 Cohesion: 0.5
@@ -509,24 +509,24 @@ Cohesion: 0.5
 Nodes (3): ctrl, express, router
 
 ## Knowledge Gaps
-- **638 isolated node(s):** `StudentStatusEnum`, `StudentStageEnum`, `GetStudentByIdInput`, `SearchStudentsInput`, `GetStudentMissingDocumentsInput` (+633 more)
+- **668 isolated node(s):** `StudentStatusEnum`, `StudentStageEnum`, `GetStudentByIdInput`, `SearchStudentsInput`, `GetStudentMissingDocumentsInput` (+663 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `buildRequiredDocFileName()` connect `Community 5` to `Community 1`, `Community 47`?**
-  _High betweenness centrality (0.187) - this node is a cross-community bridge._
+  _High betweenness centrality (0.185) - this node is a cross-community bridge._
 - **Why does `sendEmail()` connect `Community 32` to `Community 64`, `Community 1`?**
-  _High betweenness centrality (0.172) - this node is a cross-community bridge._
+  _High betweenness centrality (0.174) - this node is a cross-community bridge._
 - **Why does `sendStudentInviteEmail()` connect `Community 64` to `Community 32`, `Community 1`, `Community 14`?**
-  _High betweenness centrality (0.072) - this node is a cross-community bridge._
+  _High betweenness centrality (0.075) - this node is a cross-community bridge._
 - **What connects `StudentStatusEnum`, `StudentStageEnum`, `GetStudentByIdInput` to the rest of the system?**
-  _638 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _668 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.05 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.04 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.06 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.03 - nodes in this community are weakly interconnected._
+- **Should `Community 3` be split into smaller, more focused modules?**
+  _Cohesion score 0.05 - nodes in this community are weakly interconnected._

@@ -16,6 +16,11 @@ const app = express();
 app.use(cors({ origin: process.env.APP_BASE_URL || 'http://localhost:5173', credentials: true }));
 app.use(helmet());
 app.use(cookieParser());
+
+// Stripe webhook requires the raw request body for signature verification.
+// express.raw() must be registered BEFORE express.json() consumes the stream.
+app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }));
+
 app.use(express.json({ limit: '10mb' }));
 
 // routes (we’ll add upload next)

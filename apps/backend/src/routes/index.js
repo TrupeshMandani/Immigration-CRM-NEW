@@ -41,8 +41,15 @@ protectedRouter.use("/recommendations", require("../AI/ai-recommendation/recomme
 // New AI module: orchestrator + ai_jobs ledger + multi-provider router
 protectedRouter.use("/ai", require("../modules/ai/ai.routes").aiRouter);
 protectedRouter.use("/files", require("./file.routes"));
+// Billing module — Stripe Connect, invoices, trust ledger, retainer agreements
+protectedRouter.use("/billing", require("../modules/billing/billing.routes").billingRouter);
 
 router.use("/", protectedRouter);
+
+// ---------------------------------------------------------------------------
+// Webhook routes — public (no auth), raw body handled upstream in index.js.
+// ---------------------------------------------------------------------------
+router.use("/webhooks", require("../modules/billing/webhook.routes").webhookRouter);
 
 router.get("/", (req, res) => res.json({ message: "API root ready" }));
 
