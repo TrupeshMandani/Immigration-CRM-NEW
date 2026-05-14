@@ -18,12 +18,10 @@ const { upsertStudent, mergePassportDetails, normalizePassportDate } = require('
 const {
   buildRequiredDocFileName,
   guessExtension,
-  getStudentDisplayName,
 } = require('../../utils/fileName');
 const { verifyDocumentType } = require('../../AI/ai-document-verify/verification.service');
 const { createAIVerificationTask } = require('../tasks/tasks.service');
 const { send: sendNotification } = require('../notifications/notifications.service');
-const { emitToFirm } = require('../../socket');
 
 const { db } = require('../../db/postgres');
 const { students, documents, users, tasks } = require('../../db/schema');
@@ -518,7 +516,7 @@ exports.updateSelfProfile = async (req, res) => {
     const { profile = {}, contactInfo = {} } = req.body || {};
     const [student] = await db.select().from(students).where(eq(students.id, req.userId)).limit(1);
     if (!student) return res.status(404).json({ message: 'Student not found' });
-    if (student.status === 'inactive') return res.status(403).json({ message: 'Account inactive' });
+    if (student.status === 'closed') return res.status(403).json({ message: 'Account inactive' });
 
     let profileData = { ...(student.profile_data ?? {}) };
 

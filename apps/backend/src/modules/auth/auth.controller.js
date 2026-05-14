@@ -139,7 +139,7 @@ exports.firebaseLogin = async (req, res) => {
       }).returning();
       student = created;
     } else {
-      if (student.status === 'inactive') {
+      if (student.status === 'closed') {
         return res.status(403).json({ message: 'Your account is inactive. Please contact support.' });
       }
     }
@@ -187,7 +187,7 @@ exports.sendLoginLink = async (req, res) => {
         message: "We couldn't find a student account with that email. Please contact your advisor.",
       });
     }
-    if (student.status === 'inactive') {
+    if (student.status === 'closed') {
       return res.status(403).json({ message: 'This account is inactive. Contact your advisor.' });
     }
 
@@ -396,7 +396,7 @@ exports.getProfile = async (req, res) => {
       role: user.role,
       aiKey: user.ai_key ?? user.aiKey ?? undefined,
       profile: user.profile_data ?? user.profile ?? undefined,
-      status: user.status ?? (user.is_active ? 'active' : 'inactive'),
+      status: user.status ?? (user.is_active ? 'active' : 'closed'),
       preferences: user.preferences ?? (user.state_data ?? {}).preferences ?? {},
     });
   } catch (error) {

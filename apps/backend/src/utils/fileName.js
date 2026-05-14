@@ -39,6 +39,14 @@ const buildRequiredDocFileName = ({
 
 const getStudentDisplayName = (student = {}) => {
   if (!student) return "Student";
+  // Postgres shape
+  if (student.first_name) {
+    return [student.first_name, student.last_name].filter(Boolean).join(" ");
+  }
+  const profileData = student.profile_data || {};
+  if (profileData.fullName) return profileData.fullName;
+  if (profileData.name) return profileData.name;
+  // Legacy Mongoose shape fallback
   const profile = student.profile || {};
   const contact =
     student.contactInfo?.name ||
@@ -55,7 +63,7 @@ const getStudentDisplayName = (student = {}) => {
     firstLast ||
     student.fullName ||
     student.name ||
-    student.username ||
+    student.email ||
     "Student"
   );
 };

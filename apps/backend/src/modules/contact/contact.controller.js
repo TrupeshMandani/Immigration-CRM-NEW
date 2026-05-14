@@ -24,7 +24,7 @@ exports.submitContact = async (req, res) => {
     }
 
     const [existingActive] = await db.select({ id: students.id }).from(students)
-      .where(and(eq(students.email, normalizedEmail), ne(students.status, 'inactive'), eq(students.firm_id, firmId)))
+      .where(and(eq(students.email, normalizedEmail), ne(students.status, 'closed'), eq(students.firm_id, firmId)))
       .limit(1);
     if (existingActive) {
       return res.status(400).json({ message: 'An account with this email already exists. Please use the login option.' });

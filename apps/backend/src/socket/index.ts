@@ -175,10 +175,8 @@ export const emitToUser = (
   }
 };
 
-// ─── Legacy emitters (backward compat — deprecated) ──────────────────────────
-// Still consumed by the Mongoose-backed task.service.js and student.controller.js.
+// ─── Legacy emitters (kept for any external consumers) ───────────────────────
 // Provide firmId when available; falls back to old room names without it.
-// These will be removed once those callers are fully migrated.
 
 export const emitTaskCreated = (task: unknown, firmId?: string): void => {
   try {

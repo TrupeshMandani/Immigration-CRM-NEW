@@ -46,7 +46,7 @@ exports.generateRecommendations = async (req, res) => {
 
     const [student] = await db.select().from(students).where(eq(students.id, studentId)).limit(1);
     if (!student) return res.status(404).json({ message: 'Student not found' });
-    if (student.status === 'inactive') return res.status(403).json({ message: 'Inactive student' });
+    if (student.status === 'closed') return res.status(403).json({ message: 'Inactive student' });
 
     const stateData = student.state_data ?? {};
     const existingPreferences = stateData.preferences ?? {};
