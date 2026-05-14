@@ -1,4 +1,4 @@
-const MCP_API_URL = "http://localhost:3002/api/chat";
+const MCP_API_URL = import.meta.env.VITE_MCP_URL || "http://localhost:3002/api/chat";
 
 export const mcpAPI = {
   streamMessage: async (message, { signal } = {}) => {
