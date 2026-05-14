@@ -2,7 +2,7 @@ const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
 const { BACKEND_SERVICE_TOKEN } = require("../config/backend");
-const { getAuthHeader } = require("../utils/authContext");
+const { getAuthHeader, getFirmId } = require("../utils/authContext");
 
 const rawBaseUrl =
   process.env.CRM_API_URL ||
@@ -26,10 +26,14 @@ const client = axios.create({
 
 client.interceptors.request.use(
   (config) => {
+    config.headers = config.headers || {};
     const authHeader = getAuthHeader() || (BACKEND_SERVICE_TOKEN ? `Bearer ${BACKEND_SERVICE_TOKEN}` : null);
     if (authHeader) {
-      config.headers = config.headers || {};
       config.headers.Authorization = authHeader;
+    }
+    const firmId = getFirmId();
+    if (firmId) {
+      config.headers['X-Firm-Id'] = firmId;
     }
     return config;
   },

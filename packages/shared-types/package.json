@@ -4,9 +4,14 @@
   "private": true,
   "exports": {
     "./students": "./students.ts",
-    "./documents": "./documents.ts"
+    "./documents": "./documents.ts",
+    "./mcp": "./mcp.ts"
   },
   "peerDependencies": {
     "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "zod": "^3.25.0",
+    "zod-to-json-schema": "^3.23.0"
   }
 }

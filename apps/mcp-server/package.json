@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand",
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -16,10 +17,22 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "form-data": "^4.0.1",
     "nodemailer": "^7.0.10",
     "openai": "^6.9.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@jest/globals": "^29.7.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.11",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"],
+    "injectGlobals": false
   }
 }

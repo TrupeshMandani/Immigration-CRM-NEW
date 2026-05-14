@@ -73,14 +73,22 @@ const sendChatMessage = async (req, res) => {
 
   try {
     const authHeader = req.headers.authorization || null;
+    // firmId comes from the backend gateway via body or header
+    const firmId =
+      (req.body && req.body.firmId) ||
+      req.headers["x-firm-id"] ||
+      null;
+
     logger.info({
       scope: "mcp-chat",
       event: "incoming",
       hasAuth: Boolean(authHeader),
+      hasFirmId: Boolean(firmId),
       messagePreview: message.slice(0, 160),
     });
     const { reply, notifications } = await runWithAuthContext(
       authHeader,
+      firmId,
       () => sendToMCP(message)
     );
     logger.info({

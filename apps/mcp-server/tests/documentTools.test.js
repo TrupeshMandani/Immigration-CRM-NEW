@@ -1,4 +1,5 @@
 const { describe, it, expect, jest, beforeEach } = require("@jest/globals");
+const { Readable } = require("stream");
 
 // Mock dependencies
 jest.mock("../utils/httpClient");
@@ -68,7 +69,7 @@ describe("Document Tools Module", () => {
       await expect(
         documentTools.uploadDocument.run({
           aiKey: "test-key",
-          docId: "doc-123",
+          documentType: "Passport",
           filePath: "/fake/path.pdf",
         })
       ).rejects.toThrow("File not found");
@@ -76,7 +77,8 @@ describe("Document Tools Module", () => {
 
     it("should upload document successfully", async () => {
       fs.existsSync = jest.fn().mockReturnValue(true);
-      fs.createReadStream = jest.fn().mockReturnValue({});
+      fs.createReadStream = jest.fn().mockReturnValue(new Readable({ read() {} }));
+      fs.promises = { unlink: jest.fn().mockResolvedValue(undefined) };
 
       httpClient.post = jest.fn().mockResolvedValue({
         data: {
@@ -87,13 +89,13 @@ describe("Document Tools Module", () => {
 
       const result = await documentTools.uploadDocument.run({
         aiKey: "test-key",
-        docId: "doc-123",
+        documentType: "Passport",
         filePath: "/path/to/document.pdf",
       });
 
       expect(result.success).toBe(true);
       expect(httpClient.post).toHaveBeenCalledWith(
-        "/api/students/test-key/required-documents/doc-123/files",
+        "/students/test-key/required-documents/files",
         expect.any(Object),
         expect.objectContaining({
           headers: expect.any(Object),
@@ -129,7 +131,7 @@ describe("Document Tools Module", () => {
       expect(result.success).toBe(true);
       expect(result.files).toHaveLength(2);
       expect(result.totalFiles).toBe(2);
-      expect(httpClient.get).toHaveBeenCalledWith("/api/students/test-key/files");
+      expect(httpClient.get).toHaveBeenCalledWith("/students/test-key/files");
     });
   });
 
@@ -157,7 +159,7 @@ describe("Document Tools Module", () => {
       expect(result.success).toBe(true);
       expect(result.url).toBe("https://s3.example.com/signed-url");
       expect(httpClient.get).toHaveBeenCalledWith(
-        "/api/students/test-key/required-documents/doc-123/files/file-456/url"
+        "/students/test-key/required-documents/doc-123/files/file-456/url"
       );
     });
   });
@@ -187,7 +189,7 @@ describe("Document Tools Module", () => {
 
       expect(result.success).toBe(true);
       expect(httpClient.post).toHaveBeenCalledWith(
-        "/api/students/test-key/required-documents/doc-123/files/file-456/verify",
+        "/students/test-key/required-documents/doc-123/files/file-456/verify",
         { verified: true, notes: "Document looks good" }
       );
     });
@@ -213,20 +215,20 @@ describe("Document Tools Module", () => {
 
       expect(result.success).toBe(true);
       expect(httpClient.post).toHaveBeenCalledWith(
-        "/api/students/test-key/documents/doc-123/rename",
+        "/students/test-key/documents/doc-123/rename",
         { newName: "new-passport.pdf" }
       );
     });
   });
 
   describe("deleteDocument", () => {
-    it("should reject when missing required arguments", async () => {
+    it("should reject when neither documentId nor documentName is provided", async () => {
       await expect(
         documentTools.deleteDocument.run({ aiKey: "test" })
-      ).rejects.toThrow("Missing required arguments");
+      ).rejects.toThrow("Either documentId or documentName must be provided");
     });
 
-    it("should delete document successfully", async () => {
+    it("should delete document by ID successfully", async () => {
       httpClient.delete = jest.fn().mockResolvedValue({
         data: { success: true, message: "Document deleted" },
       });
@@ -238,7 +240,7 @@ describe("Document Tools Module", () => {
 
       expect(result.success).toBe(true);
       expect(httpClient.delete).toHaveBeenCalledWith(
-        "/api/students/test-key/documents/doc-123"
+        "/students/test-key/required-documents/doc-123"
       );
     });
   });
@@ -268,7 +270,8 @@ describe("Document Tools Module", () => {
   describe("Integration Tests (Mock)", () => {
     it("should simulate AI agent requesting document upload", async () => {
       fs.existsSync = jest.fn().mockReturnValue(true);
-      fs.createReadStream = jest.fn().mockReturnValue({});
+      fs.createReadStream = jest.fn().mockReturnValue(new Readable({ read() {} }));
+      fs.promises = { unlink: jest.fn().mockResolvedValue(undefined) };
 
       httpClient.post = jest.fn().mockResolvedValue({
         data: { success: true, file: { id: "new-file" } },
@@ -276,7 +279,7 @@ describe("Document Tools Module", () => {
 
       const agentRequest = {
         aiKey: "student-123",
-        docId: "passport-req",
+        documentType: "Passport",
         filePath: "/tmp/passport.pdf",
       };
 
