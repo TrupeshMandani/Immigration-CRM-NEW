@@ -1,5 +1,3 @@
-import axios from "axios";
-
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 /**
@@ -63,7 +61,7 @@ export const chatWithAI = async (
           if (json.error) {
             console.error("Stream error:", json.error);
           }
-        } catch (e) {
+        } catch {
           // Ignore parse errors for partial chunks
         }
       }

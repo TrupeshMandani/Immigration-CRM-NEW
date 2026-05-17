@@ -25,7 +25,7 @@ const MessageRenderer = ({ content, onFileClick }) => {
   // Custom renderers for markdown components
   const components = {
     // Link renderer - handles both file links and regular links
-    a: ({ node, children, href, ...props }) => {
+    a: ({ children, href, ...props }) => {
       const isFileLink = href?.startsWith('file://');
       
       if (isFileLink) {
@@ -75,7 +75,7 @@ const MessageRenderer = ({ content, onFileClick }) => {
     li: ({ children }) => <li className="leading-relaxed">{children}</li>,
     
     // Inline code
-    code: ({ node, inline, children, ...props }) => {
+    code: ({ inline, children, ...props }) => {
       if (inline) {
         return (
           <code

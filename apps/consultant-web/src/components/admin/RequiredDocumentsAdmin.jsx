@@ -7,8 +7,8 @@ import {
   FileCheck2,
   Sparkles,
 } from "lucide-react";
+import { toast } from "sonner";
 import Button from "../common/Button";
-import Toast from "../common/Toast";
 import DocumentViewer from "../student/DocumentViewer";
 import UploadConfirmationModal from "../student/UploadConfirmationModal";
 import UploadedFilesModal from "../student/UploadedFilesModal";
@@ -44,7 +44,6 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
   const [newDoc, setNewDoc] = useState("");
   const [loading, setLoading] = useState(false);
   const [viewingDoc, setViewingDoc] = useState(null);
-  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
   const [uploadModal, setUploadModal] = useState(initialUploadModalState);
   const [filesModal, setFilesModal] = useState(initialFilesModalState);
   const fileInputsRef = useRef({});
@@ -77,10 +76,9 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
   };
 
   const triggerToast = useCallback((message, type = "success") => {
-    setToast({ show: false, message: "", type });
-    window.setTimeout(() => {
-      setToast({ show: true, message, type });
-    }, 40);
+    if (type === "error") toast.error(message);
+    else if (type === "warning") toast.warning(message);
+    else toast.success(message);
   }, []);
 
   const fetchDocs = useCallback(async () => {
@@ -679,12 +677,6 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
         onRemoveFile={handleRemoveQueuedFile}
       />
 
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        show={toast.show}
-        onClose={() => setToast((prev) => ({ ...prev, show: false }))}
-      />
     </div>
   );
 };

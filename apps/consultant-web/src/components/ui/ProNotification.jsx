@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, X } from "lucide-react";
 
 const ProNotification = ({ message, type = "success", duration = 5000, onClose }) => {

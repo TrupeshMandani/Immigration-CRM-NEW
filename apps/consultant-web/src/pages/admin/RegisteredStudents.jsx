@@ -1,72 +1,34 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import AdminLayout from "../../components/layout/AdminLayout";
 import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
 import Loading from "../../components/common/Loading";
-import Toast from "../../components/common/Toast";
-import { studentService } from "../../services/authService";
+import { useRegisteredStudents, useActivateStudent } from "../../hooks/useStudents";
 
 const RegisteredStudents = () => {
-  const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
-  const [activatingId, setActivatingId] = useState(null);
+
+  const { data: students = [], isLoading, isError, refetch } = useRegisteredStudents();
+  const activateStudent = useActivateStudent();
 
   const filteredStudents = useMemo(() => {
     if (!search.trim()) return students;
     const query = search.trim().toLowerCase();
     return students.filter((student) => {
-      const name = student.contactInfo?.name || "";
-      const email = student.contactInfo?.email || student.email || "";
-      return (
-        name.toLowerCase().includes(query) || email.toLowerCase().includes(query)
-      );
+      const name = student.contactInfo?.name ?? "";
+      const email = student.contactInfo?.email ?? student.email ?? "";
+      return name.toLowerCase().includes(query) || email.toLowerCase().includes(query);
     });
   }, [students, search]);
 
-  const fetchStudents = async () => {
-    setLoading(true);
-    setError("");
-
-    try {
-      const list = await studentService.getRegisteredStudents();
-      setStudents(list || []);
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to load registered students."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  const showToast = (message, type = "success") => {
-    setToast({ show: true, message, type });
-  };
-
-  const closeToast = () => setToast((prev) => ({ ...prev, show: false }));
-
   const handleActivate = async (student) => {
     try {
-      setActivatingId(student._id);
-      await studentService.activateStudent(student._id);
-      showToast(`${student.contactInfo?.name || student.email} is now active.`);
-      setStudents((prev) => prev.filter((item) => item._id !== student._id));
+      await activateStudent.mutateAsync(student._id);
+      toast.success(`${student.contactInfo?.name || student.email} is now active.`);
     } catch (err) {
-      showToast(
-        err.response?.data?.message ||
-          "Unable to activate student. Please try again.",
-        "error"
-      );
-    } finally {
-      setActivatingId(null);
+      toast.error(err?.message || "Unable to activate student. Please try again.");
     }
   };
 
@@ -80,7 +42,7 @@ const RegisteredStudents = () => {
               Students who created their accounts but are awaiting advisor activation.
             </p>
           </div>
-          <Button variant="outline" onClick={fetchStudents} disabled={loading}>
+          <Button variant="outline" onClick={refetch} disabled={isLoading}>
             Refresh list
           </Button>
         </div>
@@ -92,7 +54,7 @@ const RegisteredStudents = () => {
                 type="text"
                 placeholder="Search by name or email"
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(e) => setSearch(e.target.value)}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:max-w-md"
               />
               <p className="text-xs text-gray-500">
@@ -102,7 +64,7 @@ const RegisteredStudents = () => {
           </Card.Body>
         </Card>
 
-        {loading ? (
+        {isLoading ? (
           <Card>
             <Card.Body>
               <div className="flex h-48 items-center justify-center">
@@ -110,10 +72,10 @@ const RegisteredStudents = () => {
               </div>
             </Card.Body>
           </Card>
-        ) : error ? (
+        ) : isError ? (
           <Card className="border-red-200 bg-red-50">
             <Card.Body>
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-red-600">Failed to load registered students.</p>
             </Card.Body>
           </Card>
         ) : filteredStudents.length === 0 ? (
@@ -130,15 +92,9 @@ const RegisteredStudents = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                      Student
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                      Registered on
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                      Contact
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Student</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Registered on</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Contact</th>
                     <th className="px-6 py-3" />
                   </tr>
                 </thead>
@@ -155,15 +111,11 @@ const RegisteredStudents = () => {
                           </div>
                           <div className="text-xs text-gray-500">{student.username}</div>
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-                          {createdAt}
-                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{createdAt}</td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
                           <div>{student.contactInfo?.email || student.email}</div>
                           {student.contactInfo?.phone && (
-                            <div className="text-xs text-gray-500">
-                              {student.contactInfo.phone}
-                            </div>
+                            <div className="text-xs text-gray-500">{student.contactInfo.phone}</div>
                           )}
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
@@ -178,8 +130,8 @@ const RegisteredStudents = () => {
                               type="button"
                               variant="primary"
                               size="sm"
-                              loading={activatingId === student._id}
-                              disabled={activatingId === student._id}
+                              loading={activateStudent.isPending}
+                              disabled={activateStudent.isPending}
                               onClick={() => handleActivate(student)}
                             >
                               Activate
@@ -194,13 +146,6 @@ const RegisteredStudents = () => {
             </div>
           </Card>
         )}
-
-        <Toast
-          show={toast.show}
-          message={toast.message}
-          type={toast.type}
-          onClose={closeToast}
-        />
       </div>
     </AdminLayout>
   );
