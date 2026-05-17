@@ -1,166 +1,124 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentLayout from "../../components/layout/StudentLayout";
-import Card from "../../components/common/Card";
-import Button from "../../components/common/Button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "../../context/AuthContext";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const ChangePassword = () => {
   const { changePassword, updateUser, user } = useAuth();
   const navigate = useNavigate();
 
-  const [formValues, setFormValues] = useState({
+  const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-
-  const [status, setStatus] = useState({ type: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setStatus({ type: "", message: "" });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (formValues.newPassword !== formValues.confirmPassword) {
-      setStatus({
-        type: "error",
-        message: "The new passwords do not match.",
-      });
+    if (form.newPassword !== form.confirmPassword) {
+      toast.error("The new passwords do not match.");
       return;
     }
 
     setSubmitting(true);
+    const result = await changePassword(form.currentPassword, form.newPassword);
 
-    const response = await changePassword(
-      formValues.currentPassword,
-      formValues.newPassword
-    );
-
-    if (response.success) {
+    if (result.success) {
       updateUser({ ...user, isFirstLogin: false });
-      setStatus({
-        type: "success",
-        message: "Password updated. Redirecting to your dashboard...",
-      });
-
-      setTimeout(() => {
-        navigate("/student/dashboard", { replace: true });
-      }, 1500);
+      toast.success("Password updated. Redirecting to your dashboard…");
+      setTimeout(() => navigate("/student/dashboard", { replace: true }), 1500);
     } else {
-      setStatus({
-        type: "error",
-        message: response.error,
-      });
+      toast.error(result.error || "Failed to change password.");
     }
-
     setSubmitting(false);
   };
 
   return (
     <StudentLayout>
-      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Update Your Password
-          </h1>
-          <p className="mt-3 text-sm text-gray-600">
-            Your account uses a temporary password. Please create a permanent
-            one to continue.
-          </p>
-        </div>
+      <div className="mx-auto w-full max-w-lg px-4 py-10 sm:px-6 lg:px-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Update Your Password</CardTitle>
+            <CardDescription>
+              Your account uses a temporary password. Please create a permanent one
+              to continue.
+            </CardDescription>
+          </CardHeader>
 
-        <Card className="bg-white border border-gray-100 shadow-lg">
-          <Card.Body>
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {status.message && (
-                <div
-                  className={`rounded-md border px-4 py-3 text-sm ${
-                    status.type === "success"
-                      ? "border-green-200 bg-green-50 text-green-700"
-                      : "border-red-200 bg-red-50 text-red-700"
-                  }`}
-                >
-                  {status.message}
-                </div>
-              )}
-
-              <div>
-                <label
-                  htmlFor="currentPassword"
-                  className="block text-sm font-medium text-gray-700"
-                >
+          <CardContent>
+            <form id="change-password-form" className="space-y-5" onSubmit={handleSubmit}>
+              <div className="space-y-1">
+                <Label htmlFor="currentPassword">
                   Current (Temporary) Password
-                </label>
-                <input
+                </Label>
+                <Input
                   id="currentPassword"
                   name="currentPassword"
                   type="password"
                   required
-                  value={formValues.currentPassword}
+                  value={form.currentPassword}
                   onChange={handleChange}
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="newPassword"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  New Password
-                </label>
-                <input
+              <div className="space-y-1">
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
                   id="newPassword"
                   name="newPassword"
                   type="password"
                   required
                   minLength={6}
-                  value={formValues.newPassword}
+                  value={form.newPassword}
                   onChange={handleChange}
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Confirm New Password
-                </label>
-                <input
+              <div className="space-y-1">
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <Input
                   id="confirmPassword"
                   name="confirmPassword"
                   type="password"
                   required
                   minLength={6}
-                  value={formValues.confirmPassword}
+                  value={form.confirmPassword}
                   onChange={handleChange}
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>
-
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  loading={submitting}
-                  disabled={submitting}
-                >
-                  Save Password
-                </Button>
-              </div>
             </form>
-          </Card.Body>
+          </CardContent>
+
+          <CardFooter className="justify-end border-t pt-4">
+            <Button
+              type="submit"
+              form="change-password-form"
+              disabled={submitting}
+            >
+              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Password
+            </Button>
+          </CardFooter>
         </Card>
       </div>
     </StudentLayout>

@@ -159,6 +159,56 @@ export async function listInvoices(dbClient: DbClient, firmId: string): Promise<
   return dbClient.select().from(invoices).where(eq(invoices.firm_id, firmId));
 }
 
+// ─── createCheckoutSession ────────────────────────────────────────────────────
+// Creates a Stripe Checkout Session so a student can pay via the hosted page.
+export async function createCheckoutSession(
+  dbClient: DbClient,
+  firmId: string,
+  invoiceId: string,
+  baseUrl: string,
+): Promise<{ url: string }> {
+  const [inv] = await dbClient
+    .select()
+    .from(invoices)
+    .where(eq(invoices.id, invoiceId))
+    .limit(1);
+  if (!inv || inv.firm_id !== firmId) notFound('Invoice not found');
+  if (inv.status === 'paid') {
+    throw Object.assign(new Error('Invoice is already paid'), { statusCode: 400 });
+  }
+
+  const [stripeAcct] = await dbClient
+    .select()
+    .from(firmStripeAccounts)
+    .where(eq(firmStripeAccounts.firm_id, firmId))
+    .limit(1);
+
+  const s = stripe();
+  const opts = stripeAcct ? ({ stripeAccount: stripeAcct.stripe_account_id } as object) : {};
+
+  const lineItems = (inv.line_items as InvoiceLineItem[]).map((li) => ({
+    price_data: {
+      currency: inv.currency.toLowerCase(),
+      product_data: { name: li.description },
+      unit_amount: li.amount_cents,
+    },
+    quantity: li.quantity ?? 1,
+  }));
+
+  const session = await (s.checkout.sessions.create as Function)(
+    {
+      mode: 'payment',
+      line_items: lineItems,
+      success_url: `${baseUrl}/student/pay-invoice?status=success&invoiceId=${invoiceId}`,
+      cancel_url: `${baseUrl}/student/pay-invoice?status=cancel&invoiceId=${invoiceId}`,
+      metadata: { invoiceId, firmId },
+    },
+    opts,
+  );
+
+  return { url: session.url as string };
+}
+
 // ─── getInvoice ───────────────────────────────────────────────────────────────
 export async function getInvoice(
   dbClient: DbClient,

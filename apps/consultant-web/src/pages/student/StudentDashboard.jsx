@@ -3,9 +3,14 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { studentService } from "../../services/authService";
 import StudentLayout from "../../components/layout/StudentLayout";
-import Card from "../../components/common/Card";
-import Button from "../../components/common/Button";
-import Loading from "../../components/common/Loading";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import StudentJourneyWorkflow from "../../components/student/StudentJourneyFlow";
 import { mapFilesWithDisplayName } from "../../utils/fileName";
 import {
@@ -14,6 +19,7 @@ import {
   ShieldCheck,
   Upload,
   FileText as FileTextIcon,
+  Loader2,
 } from "lucide-react";
 
 const QUICK_ACTIONS = [
@@ -73,14 +79,12 @@ const StudentDashboard = () => {
           setStudent(studentData);
           setFiles(mapFilesWithDisplayName(filesData.files || []));
         }
-      } catch (err) {
+      } catch {
         setError("Failed to load student data");
-        console.error("Error fetching student data:", err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchStudentData();
   }, [user?.aiKey]);
 
@@ -88,7 +92,7 @@ const StudentDashboard = () => {
     return (
       <StudentLayout>
         <div className="flex h-96 items-center justify-center">
-          <Loading size="lg" text="Loading your dashboard..." />
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       </StudentLayout>
     );
@@ -110,119 +114,48 @@ const StudentDashboard = () => {
     <StudentLayout>
       <div className="mx-auto w-full max-w-6xl space-y-8">
         <header>
-          <h1 className="text-3xl font-bold text-primary-900">
-            Welcome back, {user?.username}!
-          </h1>
-          <p className="mt-2 text-sm text-primary-600">
+          <h1 className="text-3xl font-bold">Welcome back, {user?.username}!</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             Keep track of your immigration documents and profile progress.
           </p>
         </header>
 
-        <Card className="overflow-hidden">
-          <Card.Body className="px-0 py-4 sm:px-2">
+        <Card>
+          <CardContent className="px-2 py-4 sm:px-4">
             <StudentJourneyWorkflow
               currentStep={currentJourneyStep}
               completedSteps={completedJourneySteps}
             />
-          </Card.Body>
+          </CardContent>
         </Card>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <StatsCard
-            title="Documents Uploaded"
-            value={documentsUploaded}
-            icon={
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7z"
-                />
-              </svg>
-            }
-            accent="secondary"
-          />
-          <StatsCard
-            title="Profile Fields Captured"
-            value={extractedFields}
-            icon={
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 12h6m-6 4h6M4 7h16"
-                />
-              </svg>
-            }
-            accent="primary"
-          />
-          <StatsCard
-            title="Last Updated"
-            value={lastUpdated}
-            icon={
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 8v4l3 3"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M21 12A9 9 0 113 12a9 9 0 0118 0z"
-                />
-              </svg>
-            }
-            accent="success"
-          />
+          <StatsCard title="Documents Uploaded" value={documentsUploaded} icon="folder" />
+          <StatsCard title="Profile Fields Captured" value={extractedFields} icon="list" />
+          <StatsCard title="Last Updated" value={lastUpdated} icon="clock" />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="h-full">
-            <Card.Header>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">
-                  Quick Actions
-                </p>
-                <h3 className="text-lg font-semibold text-primary-900">
-                  Stay on top of your tasks
-                </h3>
-              </div>
-            </Card.Header>
-            <Card.Body>
+            <CardHeader>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Quick Actions
+              </p>
+              <CardTitle className="text-lg">Stay on top of your tasks</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 {QUICK_ACTIONS.map((action) => {
                   const Icon = action.icon;
                   return (
                     <Link key={action.label} to={action.to} className="group">
-                      <div className="flex h-full items-center gap-4 rounded-2xl border border-primary-400/30 bg-primary-200 px-4 py-3 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary-400/60 group-hover:shadow-lg">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600/10 text-primary-600">
+                      <div className="flex h-full items-center gap-4 rounded-2xl border bg-card px-4 py-3 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                           <Icon className="h-5 w-5" />
                         </div>
                         <div className="min-w-0 text-left">
-                          <p className="text-sm font-semibold text-primary-900">
-                            {action.label}
-                          </p>
-                          <p className="text-xs text-primary-600">
+                          <p className="text-sm font-semibold">{action.label}</p>
+                          <p className="text-xs text-muted-foreground">
                             {action.description}
                           </p>
                         </div>
@@ -231,35 +164,29 @@ const StudentDashboard = () => {
                   );
                 })}
               </div>
-            </Card.Body>
+            </CardContent>
           </Card>
 
           <Card className="flex h-full flex-col">
-            <Card.Header>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">
-                  Recent Documents
-                </p>
-                <h3 className="text-lg font-semibold text-primary-900">
-                  Latest uploads
-                </h3>
-              </div>
-            </Card.Header>
-            <Card.Body className="flex-1 space-y-4">
+            <CardHeader>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Recent Documents
+              </p>
+              <CardTitle className="text-lg">Latest uploads</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 space-y-4">
               {files.length ? (
                 files.slice(0, 4).map((file) => (
                   <div
                     key={file.id || file.name}
-                    className="flex items-center gap-4 rounded-2xl border border-primary-400/30 px-4 py-3"
+                    className="flex items-center gap-4 rounded-2xl border px-4 py-3"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-400/20 text-primary-600">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                       <FileTextIcon className="h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-primary-900">
-                        {file.name}
-                      </p>
-                      <p className="text-xs text-primary-600">
+                      <p className="truncate text-sm font-semibold">{file.name}</p>
+                      <p className="text-xs text-muted-foreground">
                         {formatDate(file.updatedAt || file.createdAt)}
                       </p>
                     </div>
@@ -267,38 +194,36 @@ const StudentDashboard = () => {
                       href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-semibold text-primary-600 hover:text-primary-800"
+                      className="text-sm font-medium text-primary hover:underline"
                     >
                       View
                     </a>
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl border border-dashed border-primary-400/30 bg-primary-200/50 py-8 text-center text-sm text-primary-600">
+                <div className="rounded-2xl border border-dashed py-8 text-center text-sm text-muted-foreground">
                   You haven't uploaded any documents yet.
                 </div>
               )}
               {files.length > 4 && (
-                <p className="text-xs text-primary-600">
+                <p className="text-xs text-muted-foreground">
                   +{files.length - 4} more in your library
                 </p>
               )}
-            </Card.Body>
-            <Card.Footer>
-              <Link to="/student/documents">
-                <Button variant="primary" size="sm" className="w-full">
-                  Go to Documents
-                </Button>
-              </Link>
-            </Card.Footer>
+            </CardContent>
+            <CardFooter>
+              <Button asChild className="w-full">
+                <Link to="/student/documents">Go to Documents</Link>
+              </Button>
+            </CardFooter>
           </Card>
         </div>
 
         {error && (
-          <Card className="border-red-200 bg-red-50">
-            <Card.Body>
-              <p className="text-sm text-red-700">{error}</p>
-            </Card.Body>
+          <Card className="border-destructive/50 bg-destructive/5">
+            <CardContent className="pt-6">
+              <p className="text-sm text-destructive">{error}</p>
+            </CardContent>
           </Card>
         )}
       </div>
@@ -306,33 +231,30 @@ const StudentDashboard = () => {
   );
 };
 
-const StatsCard = ({ title, value, icon, accent = "primary" }) => {
-  const accentClass =
-    accent === "secondary"
-      ? "bg-secondary/10 text-secondary"
-      : accent === "success"
-      ? "bg-success/10 text-success"
-      : "bg-primary-600/10 text-primary-600";
-
-  return (
-    <Card>
-      <Card.Body>
-        <div className="flex items-center gap-3">
-          <div
-            className={`flex h-10 w-10 items-center justify-center rounded-lg ${accentClass}`}
-          >
-            {icon}
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary-600">
-              {title}
-            </p>
-            <p className="text-2xl font-semibold text-primary-900">{value}</p>
-          </div>
-        </div>
-      </Card.Body>
-    </Card>
-  );
+const ICON_PATHS = {
+  folder: "M4 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7z",
+  list: "M9 12h6m-6 4h6M4 7h16",
+  clock: "M12 8v4l3 3M21 12A9 9 0 113 12a9 9 0 0118 0z",
 };
+
+const StatsCard = ({ title, value, icon }) => (
+  <Card>
+    <CardContent className="pt-6">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d={ICON_PATHS[icon]} />
+          </svg>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {title}
+          </p>
+          <p className="text-2xl font-semibold">{value}</p>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
 
 export default StudentDashboard;

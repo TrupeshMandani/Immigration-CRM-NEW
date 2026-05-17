@@ -42,18 +42,32 @@ const navItems = [
     requiresActive: true,
   },
   {
-    label: "Change Password",
-    to: "/student/change-password",
-    icon: LockIcon,
-    matchPrefixes: ["/student/change-password"],
-    requiresActive: true,
-  },
-  {
     label: "University Recommendations",
     to: "/student/university-recommendations",
     icon: UniversityIcon,
     matchPrefixes: ["/student/university-recommendations"],
     requiresActive: false,
+  },
+  {
+    label: "Retainer Agreement",
+    to: "/student/retainer",
+    icon: RetainerIcon,
+    matchPrefixes: ["/student/retainer"],
+    requiresActive: false,
+  },
+  {
+    label: "Invoices & Payments",
+    to: "/student/pay-invoice",
+    icon: InvoiceIcon,
+    matchPrefixes: ["/student/pay-invoice"],
+    requiresActive: false,
+  },
+  {
+    label: "Change Password",
+    to: "/student/change-password",
+    icon: LockIcon,
+    matchPrefixes: ["/student/change-password"],
+    requiresActive: true,
   },
 ];
 
@@ -168,6 +182,27 @@ function TasksIcon(props) {
         strokeWidth={1.5}
         d="M9 15h6"
       />
+    </svg>
+  );
+}
+
+function RetainerIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+        d="M9 12h6m-6 4h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6" />
+    </svg>
+  );
+}
+
+function InvoiceIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+        d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+        d="M9 22V12h6v10" />
     </svg>
   );
 }

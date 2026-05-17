@@ -87,6 +87,16 @@ billingRouter.post('/invoices', async (req: Request, res: Response) => {
   } catch (err) { svcError(res, err); }
 });
 
+// POST /api/billing/invoices/:id/checkout  — student-facing Stripe Checkout
+billingRouter.post('/invoices/:id/checkout', async (req: Request, res: Response) => {
+  try {
+    const firmId = req.context!.firmId;
+    const base = process.env.APP_BASE_URL ?? 'http://localhost:5173';
+    const result = await invoicesService.createCheckoutSession(req.db, firmId, req.params.id, base);
+    res.json({ success: true, ...result });
+  } catch (err) { svcError(res, err); }
+});
+
 // POST /api/billing/invoices/:id/send
 billingRouter.post('/invoices/:id/send', async (req: Request, res: Response) => {
   try {
