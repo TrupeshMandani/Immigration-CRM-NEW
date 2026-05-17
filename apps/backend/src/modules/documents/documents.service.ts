@@ -62,7 +62,8 @@ export async function generateUploadUrl(
 
   const fileId = randomUUID();
   const sanitizedName = parsed.fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const s3Key = `${student.ai_key}/documents/${parsed.documentType}/${fileId}-${sanitizedName}`;
+  const typeSegment = parsed.documentType ?? 'general';
+  const s3Key = `${student.ai_key}/documents/${typeSegment}/${fileId}-${sanitizedName}`;
   const bucket = BUCKET();
 
   const [doc] = await dbClient
@@ -76,6 +77,7 @@ export async function generateUploadUrl(
       mime_type: parsed.mimeType,
       size_bytes: parsed.sizeBytes,
       uploaded_by: uploadedBy,
+      ai_verification: { name: parsed.fileName },
     })
     .returning();
 

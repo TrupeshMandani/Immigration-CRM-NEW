@@ -1,30 +1,43 @@
 import { useState, useCallback } from "react";
+import axios from "axios"; // bare axios — NOT api; presigned URLs embed auth in the URL
 import { useDropzone } from "react-dropzone";
+import api from "../../services/api";
 import { uploadService } from "../../services/uploadService";
+import { useAuth } from "../../context/AuthContext";
 import FilePreview from "../common/FilePreview";
 import Button from "../common/Button";
 
 const DocumentUpload = ({
   onUploadSuccess,
   onUploadError,
-  aiKey,
+  aiKey, // kept for API compat; upload logic now uses user.id from auth context
   maxFiles = 20,
   className = "",
 }) => {
+  const { user } = useAuth();
+
   const [files, setFiles] = useState([]);
-  const [status, setStatus] = useState("idle"); // idle | uploading | processing | completed | error
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [status, setStatus] = useState("idle"); // idle | uploading | completed | error
+  // Per-file progress: { [fileName]: 0-100 }
+  const [fileProgress, setFileProgress] = useState({});
   const [errors, setErrors] = useState([]);
 
   const isUploading = status === "uploading";
-  const isProcessing = status === "processing";
   const isCompleted = status === "completed";
-  const showProgress = isUploading || isProcessing || isCompleted;
-  const dropzoneDisabled = isUploading || isProcessing;
+  const showProgress = isUploading || isCompleted;
+  const dropzoneDisabled = isUploading;
+
+  // Average across all files in the current batch
+  const overallProgress =
+    files.length === 0
+      ? 0
+      : Math.round(
+          Object.values(fileProgress).reduce((sum, p) => sum + p, 0) /
+            files.length
+        );
 
   const onDrop = useCallback(
     (acceptedFiles, rejectedFiles) => {
-      // Handle rejected files
       if (rejectedFiles.length > 0) {
         const newErrors = rejectedFiles.map(({ file, errors }) => ({
           fileName: file.name,
@@ -33,17 +46,13 @@ const DocumentUpload = ({
         setErrors((prev) => [...prev, ...newErrors]);
       }
 
-      // Handle accepted files
       if (acceptedFiles.length > 0) {
         const validFiles = acceptedFiles.filter((file) => {
           const validation = uploadService.validateFile(file);
           if (!validation.isValid) {
             setErrors((prev) => [
               ...prev,
-              {
-                fileName: file.name,
-                errors: validation.errors,
-              },
+              { fileName: file.name, errors: validation.errors },
             ]);
             return false;
           }
@@ -81,67 +90,119 @@ const DocumentUpload = ({
         [".docx"],
     },
     maxFiles: maxFiles,
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 10 * 1024 * 1024,
     disabled: dropzoneDisabled,
   });
 
   const removeFile = (fileToRemove) => {
-    setFiles((prev) => prev.filter((file) => file !== fileToRemove));
+    setFiles((prev) => prev.filter((f) => f !== fileToRemove));
     setErrors((prev) =>
-      prev.filter((error) => error.fileName !== fileToRemove.name)
+      prev.filter((e) => e.fileName !== fileToRemove.name)
     );
+    setFileProgress((prev) => {
+      const next = { ...prev };
+      delete next[fileToRemove.name];
+      return next;
+    });
   };
+
+  // ── 3-step presigned-URL upload for a single file ─────────────────────────
+
+  const uploadOneFile = async (file) => {
+    // Step 1 — request presigned PUT URL from backend
+    const { data } = await api.post("/documents/upload-url", {
+      studentId: user.id,
+      // documentType omitted → backend defaults to null → appears in getStudentFiles
+      fileName: file.name,
+      mimeType: file.type || "application/octet-stream",
+      sizeBytes: file.size,
+    });
+    const { uploadUrl, documentId } = data;
+
+    // Step 2 — PUT directly to S3
+    // Must use bare axios (not `api`): presigned URLs embed AWS Signature in the
+    // URL itself; adding an Authorization header causes SignatureDoesNotMatch 403.
+    await axios.put(uploadUrl, file, {
+      headers: { "Content-Type": file.type || "application/octet-stream" },
+      onUploadProgress: (event) => {
+        if (!event.total) return;
+        const pct = Math.round((event.loaded / event.total) * 100);
+        setFileProgress((prev) => ({ ...prev, [file.name]: pct }));
+      },
+    });
+
+    // Mark this file at 100% before finalize call
+    setFileProgress((prev) => ({ ...prev, [file.name]: 100 }));
+
+    // Step 3 — finalize: backend verifies S3 presence, hashes file, enqueues AI verify
+    // 200 = small file hashed inline; 202 = large file, hashing queued — both are success
+    await api.post(`/documents/${documentId}/finalize`);
+
+    return file.name;
+  };
+
+  // ── Batch upload handler ──────────────────────────────────────────────────
 
   const handleUpload = async () => {
     if (files.length === 0) return;
-    if (!aiKey) return;
+
+    if (!user?.id) {
+      setErrors([
+        { fileName: "Upload", errors: ["Not authenticated. Please log in again."] },
+      ]);
+      return;
+    }
 
     setStatus("uploading");
-    setUploadProgress(0);
+    setFileProgress(Object.fromEntries(files.map((f) => [f.name, 0])));
     setErrors([]);
 
-    try {
-      const result = await uploadService.uploadDocuments(files, aiKey, {
-        onUploadProgress: (event) => {
-          if (!event.total) return;
-          const percent = Math.round((event.loaded / event.total) * 100);
-          setUploadProgress(percent);
-          if (percent >= 100) {
-            setStatus((prev) => (prev === "uploading" ? "processing" : prev));
-          }
-        },
-      });
+    const uploaded = [];
+    const uploadErrors = [];
 
-      setUploadProgress(100);
+    // Sequential uploads — simpler progress tracking, safe within 15-min presigned TTL
+    for (const file of files) {
+      try {
+        const name = await uploadOneFile(file);
+        uploaded.push(name);
+      } catch (err) {
+        console.error(`Upload failed for ${file.name}:`, err);
+        uploadErrors.push({
+          fileName: file.name,
+          errors: [
+            err?.response?.data?.message ||
+              err?.message ||
+              "Upload failed. Please try again.",
+          ],
+        });
+      }
+    }
+
+    if (uploadErrors.length > 0) {
+      setErrors(uploadErrors);
+    }
+
+    if (uploaded.length > 0) {
       setStatus("completed");
       setFiles([]);
-      onUploadSuccess?.(result);
-    } catch (error) {
-      console.error("Upload error:", error);
+      setFileProgress({});
+      // Shape preserved: Documents.jsx reads uploaded.length and extractedFields || 0
+      // extractedFields is 0 — AI verification now runs async via BullMQ worker
+      onUploadSuccess?.({ uploaded, extractedFields: 0 });
+    } else {
       setStatus("error");
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Upload failed. Please try again.";
-      setErrors((prev) => [
-        ...prev,
-        {
-          fileName: "Upload",
-          errors: [message],
-        },
-      ]);
-      onUploadError?.(error);
-    } finally {
-      setTimeout(() => {
-        setStatus("idle");
-        setUploadProgress(0);
-      }, 800);
+      onUploadError?.(new Error("All files failed to upload."));
     }
+
+    setTimeout(() => {
+      setStatus("idle");
+      setFileProgress({});
+    }, 800);
   };
 
-  const clearErrors = () => {
-    setErrors([]);
-  };
+  const clearErrors = () => setErrors([]);
+
+  // ── Render (UI unchanged from original) ──────────────────────────────────
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -215,27 +276,31 @@ const DocumentUpload = ({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span>
-              {isProcessing
-                ? "Processing with AI..."
-                : isUploading
-                ? "Uploading files..."
-                : "Wrapping up..."}
+              {isCompleted ? "Wrapping up..." : "Uploading files..."}
             </span>
-            {isUploading && <span>{uploadProgress}%</span>}
+            {isUploading && <span>{overallProgress}%</span>}
           </div>
           <div className="w-full overflow-hidden rounded-full bg-gray-200 h-2">
             <div
-              className={`h-full rounded-full bg-blue-600 transition-all duration-300 ${
-                isProcessing ? "animate-pulse" : ""
-              }`}
-              style={{ width: `${isUploading ? uploadProgress : 100}%` }}
+              className="h-full rounded-full bg-blue-600 transition-all duration-300"
+              style={{ width: `${isCompleted ? 100 : overallProgress}%` }}
             />
           </div>
-          {isProcessing && (
-            <p className="text-xs text-gray-500">
-              We’re extracting the important details from your documents. This can
-              take a moment.
-            </p>
+          {/* Per-file rows when uploading multiple files */}
+          {isUploading && files.length > 1 && (
+            <div className="space-y-1">
+              {files.map((file) => (
+                <div
+                  key={file.name}
+                  className="flex items-center gap-2 text-xs text-gray-500"
+                >
+                  <span className="truncate flex-1">{file.name}</span>
+                  <span className="w-8 text-right tabular-nums">
+                    {fileProgress[file.name] ?? 0}%
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
