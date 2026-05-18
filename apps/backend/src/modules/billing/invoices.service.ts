@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from '../../db/postgres';
 import { invoices, type Invoice, type InvoiceLineItem } from '../../db/schema/invoices';
 import { students } from '../../db/schema/students';
@@ -155,8 +155,19 @@ export async function markPaid(
 }
 
 // ─── listInvoices ─────────────────────────────────────────────────────────────
-export async function listInvoices(dbClient: DbClient, firmId: string): Promise<Invoice[]> {
-  return dbClient.select().from(invoices).where(eq(invoices.firm_id, firmId));
+export async function listInvoices(
+  dbClient: DbClient,
+  firmId: string,
+  studentId?: string,
+): Promise<Invoice[]> {
+  return dbClient
+    .select()
+    .from(invoices)
+    .where(
+      studentId
+        ? and(eq(invoices.firm_id, firmId), eq(invoices.student_id, studentId))
+        : eq(invoices.firm_id, firmId),
+    );
 }
 
 // ─── createCheckoutSession ────────────────────────────────────────────────────

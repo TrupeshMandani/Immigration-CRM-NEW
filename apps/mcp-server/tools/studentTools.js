@@ -15,7 +15,7 @@ module.exports = {
       properties: {
         studentId: {
           type: "string",
-          description: "Unique student identifier from the CRM backend.",
+          description: "The student's internal Postgres UUID (not the aiKey). Obtain from searchStudents first.",
         },
       },
       required: ["studentId"],
@@ -49,7 +49,7 @@ module.exports = {
       properties: {
         studentId: {
           type: "string",
-          description: "Unique student identifier from the CRM backend.",
+          description: "The student's internal Postgres UUID (not the aiKey). Obtain from searchStudents first.",
         },
       },
       required: ["studentId"],
@@ -66,7 +66,7 @@ module.exports = {
       properties: {
         studentId: {
           type: "string",
-          description: "Unique student identifier from the CRM backend.",
+          description: "The student's internal Postgres UUID (not the aiKey). Obtain from searchStudents first.",
         },
         newStage: {
           type: "string",
@@ -87,7 +87,7 @@ module.exports = {
       properties: {
         studentId: {
           type: "string",
-          description: "Unique student identifier from the CRM backend.",
+          description: "The student's internal Postgres UUID (not the aiKey). Obtain from searchStudents first.",
         },
         noteText: {
           type: "string",
@@ -108,7 +108,7 @@ module.exports = {
       properties: {
         studentId: {
           type: "string",
-          description: "Unique student identifier from the CRM backend.",
+          description: "The student's internal Postgres UUID (not the aiKey). Obtain from searchStudents first.",
         },
       },
       required: ["studentId"],

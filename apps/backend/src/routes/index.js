@@ -8,7 +8,7 @@ const { tenantContextMiddleware } = require("../middleware/tenantContext");
 // /api/auth/*    login, register, token refresh
 // /api/contact/* contact-form submissions
 // ---------------------------------------------------------------------------
-router.use("/auth", require("../modules/auth/auth.route"));
+router.use("/auth", require("../modules/auth/auth.route").authRouter);
 router.use("/contact", require("../modules/contact/contact.route"));
 
 // ---------------------------------------------------------------------------

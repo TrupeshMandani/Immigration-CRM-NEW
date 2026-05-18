@@ -1,37 +1,47 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { db } = require('../../db/postgres');
-const { users, students } = require('../../db/schema');
-const { eq, and, inArray } = require('drizzle-orm');
-const { generateAiKey } = require('../../utils/generateAiKey');
-const { getAdminNotificationEmails } = require('../../utils/adminRecipients');
-const { sendEmail } = require('../../utils/sendEmail');
-const { getFirebaseAdmin } = require('../../utils/firebaseAdmin');
-const { sendStudentInviteEmail } = require('../students/student.invite');
-const env = require('../../config/env');
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { Request, Response } from 'express';
+import { db } from '../../db/postgres';
+import { users, students } from '../../db/schema';
+import { eq, and, inArray } from 'drizzle-orm';
+import { generateAiKey } from '../../utils/generateAiKey';
+import { getAdminNotificationEmails } from '../../utils/adminRecipients';
+import { sendEmail } from '../../utils/sendEmail';
+import { getFirebaseAdmin } from '../../utils/firebaseAdmin';
+import { sendStudentInviteEmail } from '../students/student.invite';
+import env from '../../config/env';
+
+interface LoginBody { username: string; password: string; }
+interface FirebaseLoginBody { idToken: string; }
+interface SendLoginLinkBody { email: string; }
+interface ChangePasswordBody { currentPassword: string; newPassword: string; }
+interface RegisterStudentBody { name: string; email: string; phone?: string; }
+interface RegisterAdminBody { username: string; email: string; password: string; }
 
 const getAppBaseUrl = () =>
-  (env?.APP_BASE_URL || process.env.APP_BASE_URL || 'https://portal.example.com').replace(/\/$/, '');
+  ((env as { APP_BASE_URL?: string })?.APP_BASE_URL || process.env.APP_BASE_URL || 'https://portal.example.com').replace(/\/$/, '');
 
-const ACCESS_SECRET  = () => process.env.JWT_ACCESS_SECRET  ?? process.env.JWT_SECRET;
-const REFRESH_SECRET = () => process.env.JWT_REFRESH_SECRET ?? process.env.JWT_SECRET;
+const ACCESS_SECRET  = () => process.env.JWT_ACCESS_SECRET  ?? process.env.JWT_SECRET ?? '';
+const REFRESH_SECRET = () => process.env.JWT_REFRESH_SECRET ?? process.env.JWT_SECRET ?? '';
 const DEFAULT_FIRM_ID = () => process.env.DEFAULT_FIRM_ID ?? '';
 
-const generateToken = (user, firmId) =>
+interface UserLike { id: string; role: string; ai_key?: string | null; }
+
+const generateToken = (user: UserLike, firmId: string) =>
   jwt.sign(
-    { id: user.id, user_id: user.id, firm_id: firmId ?? DEFAULT_FIRM_ID(), role: user.role, aiKey: user.ai_key ?? undefined },
+    { id: user.id, user_id: user.id, firm_id: firmId, role: user.role, aiKey: user.ai_key ?? undefined },
     ACCESS_SECRET(),
     { expiresIn: '15m' },
   );
 
-const generateRefreshToken = (user, firmId) =>
+const generateRefreshToken = (user: UserLike, firmId: string) =>
   jwt.sign(
-    { id: user.id, user_id: user.id, firm_id: firmId ?? DEFAULT_FIRM_ID(), role: user.role },
+    { id: user.id, user_id: user.id, firm_id: firmId, role: user.role },
     REFRESH_SECRET(),
     { expiresIn: '7d' },
   );
 
-const setRefreshCookie = (res, refreshToken) =>
+const setRefreshCookie = (res: Response, refreshToken: string) =>
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -41,11 +51,12 @@ const setRefreshCookie = (res, refreshToken) =>
   });
 
 // ─── login ────────────────────────────────────────────────────────────────────
-exports.login = async (req, res) => {
+export async function login(req: Request, res: Response): Promise<void> {
   try {
-    const { username, password } = req.body;
+    const { username, password } = req.body as LoginBody;
     if (!username || !password) {
-      return res.status(400).json({ message: 'Username and password required' });
+      res.status(400).json({ message: 'Username and password required' });
+      return;
     }
 
     const email = username.trim().toLowerCase();
@@ -56,16 +67,17 @@ exports.login = async (req, res) => {
       .limit(1);
 
     if (admin) {
-      const valid = await bcrypt.compare(password, admin.password_hash);
-      if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
+      const valid = await bcrypt.compare(password, admin.password_hash ?? '');
+      if (!valid) { res.status(401).json({ message: 'Invalid credentials' }); return; }
 
-      const token = generateToken(admin, firmId);
-      setRefreshCookie(res, generateRefreshToken(admin, firmId));
-      return res.json({
+      const token = generateToken({ ...admin, role: admin.role ?? 'admin' }, firmId);
+      setRefreshCookie(res, generateRefreshToken({ ...admin, role: admin.role ?? 'admin' }, firmId));
+      res.json({
         message: 'Login successful',
         token,
         user: { id: admin.id, username: admin.email, email: admin.email, role: admin.role },
       });
+      return;
     }
 
     const [student] = await db.select({ id: students.id }).from(students)
@@ -73,35 +85,38 @@ exports.login = async (req, res) => {
       .limit(1);
 
     if (student) {
-      return res.status(403).json({
+      res.status(403).json({
         message: 'Students must sign in using the email link or Google option on the login page.',
       });
+      return;
     }
 
-    return res.status(401).json({ message: 'Invalid credentials' });
+    res.status(401).json({ message: 'Invalid credentials' });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Login failed' });
   }
-};
+}
 
 // ─── firebaseLogin ────────────────────────────────────────────────────────────
-exports.firebaseLogin = async (req, res) => {
+export async function firebaseLogin(req: Request, res: Response): Promise<void> {
   try {
     const firebaseAdmin = getFirebaseAdmin();
     if (!firebaseAdmin) {
-      return res.status(500).json({ message: 'Firebase authentication is not configured.' });
+      res.status(500).json({ message: 'Firebase authentication is not configured.' });
+      return;
     }
 
-    const { idToken } = req.body || {};
-    if (!idToken) return res.status(400).json({ message: 'Firebase idToken is required.' });
+    const { idToken } = (req.body ?? {}) as FirebaseLoginBody;
+    if (!idToken) { res.status(400).json({ message: 'Firebase idToken is required.' }); return; }
 
     const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
     const email = decoded.email?.toLowerCase();
-    if (!email) return res.status(400).json({ message: 'Firebase user is missing an email address.' });
+    if (!email) { res.status(400).json({ message: 'Firebase user is missing an email address.' }); return; }
 
     if (decoded.email_verified === false) {
-      return res.status(403).json({ message: 'Please verify your email with the provider before signing in.' });
+      res.status(403).json({ message: 'Please verify your email with the provider before signing in.' });
+      return;
     }
 
     const displayName =
@@ -115,7 +130,8 @@ exports.firebaseLogin = async (req, res) => {
       .where(and(eq(users.email, email), eq(users.firm_id, firmId)))
       .limit(1);
     if (existingAdmin) {
-      return res.status(403).json({ message: 'Admin accounts must sign in with email and password.' });
+      res.status(403).json({ message: 'Admin accounts must sign in with email and password.' });
+      return;
     }
 
     let [student] = await db.select().from(students)
@@ -140,12 +156,14 @@ exports.firebaseLogin = async (req, res) => {
       student = created;
     } else {
       if (student.status === 'closed') {
-        return res.status(403).json({ message: 'Your account is inactive. Please contact support.' });
+        res.status(403).json({ message: 'Your account is inactive. Please contact support.' });
+        return;
       }
     }
 
-    const token = generateToken({ ...student, role: 'student' }, firmId);
-    setRefreshCookie(res, generateRefreshToken({ ...student, role: 'student' }, firmId));
+    const studentUser = { ...student, role: 'student' };
+    const token = generateToken(studentUser, firmId);
+    setRefreshCookie(res, generateRefreshToken(studentUser, firmId));
 
     res.json({
       message: 'Login successful',
@@ -161,19 +179,21 @@ exports.firebaseLogin = async (req, res) => {
     });
   } catch (error) {
     console.error('Firebase login error:', error);
-    if (error.code === 'auth/invalid-id-token') {
-      return res.status(401).json({ message: 'Invalid Firebase token.' });
+    if ((error as { code?: string }).code === 'auth/invalid-id-token') {
+      res.status(401).json({ message: 'Invalid Firebase token.' });
+      return;
     }
     res.status(500).json({ message: 'Firebase login failed.' });
   }
-};
+}
 
 // ─── sendLoginLink ────────────────────────────────────────────────────────────
-exports.sendLoginLink = async (req, res) => {
+export async function sendLoginLink(req: Request, res: Response): Promise<void> {
   try {
-    const emailRaw = req.body?.email;
+    const emailRaw = (req.body as SendLoginLinkBody)?.email;
     if (!emailRaw || typeof emailRaw !== 'string') {
-      return res.status(400).json({ message: 'Email address is required.' });
+      res.status(400).json({ message: 'Email address is required.' });
+      return;
     }
     const email = emailRaw.trim().toLowerCase();
     const firmId = DEFAULT_FIRM_ID();
@@ -183,12 +203,14 @@ exports.sendLoginLink = async (req, res) => {
       .limit(1);
 
     if (!student) {
-      return res.status(404).json({
+      res.status(404).json({
         message: "We couldn't find a student account with that email. Please contact your advisor.",
       });
+      return;
     }
     if (student.status === 'closed') {
-      return res.status(403).json({ message: 'This account is inactive. Contact your advisor.' });
+      res.status(403).json({ message: 'This account is inactive. Contact your advisor.' });
+      return;
     }
 
     const name = student.first_name
@@ -196,7 +218,7 @@ exports.sendLoginLink = async (req, res) => {
       : email.split('@')[0];
 
     const invite = await sendStudentInviteEmail({ email, name });
-    return res.json({
+    res.json({
       message: invite.emailSent
         ? 'Check your inbox for a secure login link.'
         : 'Login link generated but email delivery failed. Ask your advisor to resend.',
@@ -205,30 +227,33 @@ exports.sendLoginLink = async (req, res) => {
     });
   } catch (error) {
     console.error('Send login link error:', error);
-    return res.status(500).json({ message: 'Unable to send the login link right now.' });
+    res.status(500).json({ message: 'Unable to send the login link right now.' });
   }
-};
+}
 
 // ─── changePassword ───────────────────────────────────────────────────────────
-exports.changePassword = async (req, res) => {
+export async function changePassword(req: Request, res: Response): Promise<void> {
   try {
-    const { currentPassword, newPassword } = req.body;
-    const user = req.user;
+    const { currentPassword, newPassword } = req.body as ChangePasswordBody;
+    const user = req.user as { role: string; id: string; password_hash?: string };
 
     if (user.role === 'student') {
-      return res.status(403).json({
+      res.status(403).json({
         message: 'Student accounts use passwordless authentication. Request a sign-in link instead.',
       });
+      return;
     }
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: 'Current and new password required' });
+      res.status(400).json({ message: 'Current and new password required' });
+      return;
     }
     if (newPassword.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+      res.status(400).json({ message: 'Password must be at least 6 characters' });
+      return;
     }
 
-    const valid = await bcrypt.compare(currentPassword, user.password_hash);
-    if (!valid) return res.status(401).json({ message: 'Current password is incorrect' });
+    const valid = await bcrypt.compare(currentPassword, user.password_hash ?? '');
+    if (!valid) { res.status(401).json({ message: 'Current password is incorrect' }); return; }
 
     const hash = await bcrypt.hash(newPassword, 10);
     await db.update(users).set({ password_hash: hash }).where(eq(users.id, user.id));
@@ -238,13 +263,13 @@ exports.changePassword = async (req, res) => {
     console.error('Change password error:', error);
     res.status(500).json({ message: 'Failed to change password' });
   }
-};
+}
 
 // ─── registerStudent ──────────────────────────────────────────────────────────
-exports.registerStudent = async (req, res) => {
+export async function registerStudent(req: Request, res: Response): Promise<void> {
   try {
-    const { name, email, phone } = req.body || {};
-    if (!name || !email) return res.status(400).json({ message: 'Name and email are required.' });
+    const { name, email, phone } = (req.body ?? {}) as RegisterStudentBody;
+    if (!name || !email) { res.status(400).json({ message: 'Name and email are required.' }); return; }
 
     const normalizedEmail = email.trim().toLowerCase();
     const firmId = DEFAULT_FIRM_ID();
@@ -252,13 +277,15 @@ exports.registerStudent = async (req, res) => {
     const [existingStudent] = await db.select({ id: students.id }).from(students)
       .where(and(eq(students.email, normalizedEmail), eq(students.firm_id, firmId))).limit(1);
     if (existingStudent) {
-      return res.status(400).json({ message: 'An account with this email already exists.' });
+      res.status(400).json({ message: 'An account with this email already exists.' });
+      return;
     }
 
     const [existingAdmin] = await db.select({ id: users.id }).from(users)
       .where(and(eq(users.email, normalizedEmail), eq(users.firm_id, firmId))).limit(1);
     if (existingAdmin) {
-      return res.status(400).json({ message: 'An administrator already uses this email.' });
+      res.status(400).json({ message: 'An administrator already uses this email.' });
+      return;
     }
 
     let aiKey = generateAiKey(name);
@@ -301,26 +328,29 @@ exports.registerStudent = async (req, res) => {
     });
   } catch (error) {
     console.error('Student registration error:', error);
-    if (error.code === '23505') {
-      return res.status(400).json({ message: 'Email already in use.' });
+    if ((error as { code?: string }).code === '23505') {
+      res.status(400).json({ message: 'Email already in use.' });
+      return;
     }
     res.status(500).json({ message: 'Failed to register student.' });
   }
-};
+}
 
 // ─── registerAdmin ────────────────────────────────────────────────────────────
-exports.registerAdmin = async (req, res) => {
+export async function registerAdmin(req: Request, res: Response): Promise<void> {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password } = req.body as RegisterAdminBody;
     if (!username || !email || !password) {
-      return res.status(400).json({ message: 'All fields required' });
+      res.status(400).json({ message: 'All fields required' });
+      return;
     }
 
     const firmId = DEFAULT_FIRM_ID();
     const existingAdmins = await db.select({ id: users.id }).from(users)
       .where(and(eq(users.role, 'admin'), eq(users.firm_id, firmId))).limit(1);
     if (existingAdmins.length) {
-      return res.status(400).json({ message: 'Admin already exists' });
+      res.status(400).json({ message: 'Admin already exists' });
+      return;
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -332,8 +362,8 @@ exports.registerAdmin = async (req, res) => {
       first_name: username,
     }).returning();
 
-    const token = generateToken(admin, firmId);
-    setRefreshCookie(res, generateRefreshToken(admin, firmId));
+    const token = generateToken({ ...admin, role: admin.role ?? 'admin' }, firmId);
+    setRefreshCookie(res, generateRefreshToken({ ...admin, role: admin.role ?? 'admin' }, firmId));
     res.status(201).json({
       message: 'Admin created successfully',
       token,
@@ -341,40 +371,42 @@ exports.registerAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error('Admin registration error:', error);
-    if (error.code === '23505') {
-      return res.status(400).json({ message: 'Email already exists' });
+    if ((error as { code?: string }).code === '23505') {
+      res.status(400).json({ message: 'Email already exists' });
+      return;
     }
     res.status(500).json({ message: 'Failed to create admin' });
   }
-};
+}
 
 // ─── refresh ──────────────────────────────────────────────────────────────────
-exports.refresh = async (req, res) => {
+export async function refresh(req: Request, res: Response): Promise<void> {
   try {
-    const token = req.cookies?.refreshToken;
-    if (!token) return res.status(401).json({ message: 'Refresh token required' });
+    const token = req.cookies?.refreshToken as string | undefined;
+    if (!token) { res.status(401).json({ message: 'Refresh token required' }); return; }
 
-    let decoded;
+    let decoded: jwt.JwtPayload;
     try {
-      decoded = jwt.verify(token, REFRESH_SECRET());
+      decoded = jwt.verify(token, REFRESH_SECRET()) as jwt.JwtPayload;
     } catch {
-      return res.status(401).json({ message: 'Invalid or expired refresh token' });
+      res.status(401).json({ message: 'Invalid or expired refresh token' });
+      return;
     }
 
-    const firmId = decoded.firm_id ?? DEFAULT_FIRM_ID();
-    let user = null;
+    const firmId = (decoded.firm_id as string | undefined) ?? DEFAULT_FIRM_ID();
+    let user: UserLike | null = null;
 
     if (decoded.role === 'student') {
       const [row] = await db.select().from(students)
-        .where(eq(students.id, decoded.id)).limit(1);
+        .where(eq(students.id, decoded.id as string)).limit(1);
       if (row) user = { ...row, role: 'student' };
     } else {
       const [row] = await db.select().from(users)
-        .where(eq(users.id, decoded.id)).limit(1);
-      user = row ?? null;
+        .where(eq(users.id, decoded.id as string)).limit(1);
+      user = row ? { ...row, role: row.role ?? 'admin' } : null;
     }
 
-    if (!user) return res.status(403).json({ message: 'User no longer exists' });
+    if (!user) { res.status(403).json({ message: 'User no longer exists' }); return; }
 
     const newAccessToken = generateToken(user, firmId);
     setRefreshCookie(res, generateRefreshToken(user, firmId));
@@ -383,12 +415,24 @@ exports.refresh = async (req, res) => {
     console.error('Refresh error:', error);
     res.status(500).json({ message: 'Token refresh failed' });
   }
-};
+}
 
 // ─── getProfile ───────────────────────────────────────────────────────────────
-exports.getProfile = async (req, res) => {
+export async function getProfile(req: Request, res: Response): Promise<void> {
   try {
-    const user = req.user;
+    const user = req.user as {
+      id: string;
+      email: string;
+      role: string;
+      ai_key?: string | null;
+      aiKey?: string;
+      profile_data?: unknown;
+      profile?: unknown;
+      status?: string;
+      is_active?: boolean;
+      preferences?: unknown;
+      state_data?: { preferences?: unknown };
+    };
     res.json({
       id: user.id,
       username: user.email,
@@ -403,4 +447,4 @@ exports.getProfile = async (req, res) => {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Failed to get profile' });
   }
-};
+}

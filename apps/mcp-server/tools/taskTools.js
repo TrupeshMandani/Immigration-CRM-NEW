@@ -13,7 +13,7 @@ module.exports = {
       properties: {
         studentId: {
           type: "string",
-          description: "Unique student identifier from the CRM backend.",
+          description: "The student's aiKey (the short slug identifier, e.g. 'john-smith-abc123').",
         },
       },
       required: ["studentId"],
@@ -79,7 +79,8 @@ module.exports = {
         },
         status: {
           type: "string",
-          description: "New status value such as 'completed' or 'pending'.",
+          enum: ["open", "done"],
+          description: "Backend task status. Use 'open' for pending/active tasks, 'done' for completed tasks.",
         },
         notes: {
           type: "string",

@@ -51,8 +51,12 @@ billingRouter.get('/stripe/onboarding-link', async (req: Request, res: Response)
 // GET /api/billing/invoices
 billingRouter.get('/invoices', async (req: Request, res: Response) => {
   try {
-    const firmId = req.context!.firmId;
-    const rows = await invoicesService.listInvoices(req.db, firmId);
+    const { firmId, role, userId } = req.context!;
+    // Students are restricted to their own invoices; admins may filter by studentId optionally
+    const studentId = role === 'student'
+      ? userId
+      : (req.query.studentId as string | undefined);
+    const rows = await invoicesService.listInvoices(req.db, firmId, studentId);
     res.json({ success: true, invoices: rows });
   } catch (err) { svcError(res, err); }
 });
@@ -60,8 +64,11 @@ billingRouter.get('/invoices', async (req: Request, res: Response) => {
 // GET /api/billing/invoices/:id
 billingRouter.get('/invoices/:id', async (req: Request, res: Response) => {
   try {
-    const firmId = req.context!.firmId;
+    const { firmId, role, userId } = req.context!;
     const inv = await invoicesService.getInvoice(req.db, firmId, req.params.id);
+    if (role === 'student' && inv.student_id !== userId) {
+      return res.status(403).json({ success: false, message: 'Forbidden' });
+    }
     res.json({ success: true, invoice: inv });
   } catch (err) { svcError(res, err); }
 });
@@ -181,8 +188,11 @@ billingRouter.get('/retainers/templates', (_req: Request, res: Response) => {
 // GET /api/billing/retainers
 billingRouter.get('/retainers', async (req: Request, res: Response) => {
   try {
-    const firmId = req.context!.firmId;
-    const studentId = req.query.studentId as string | undefined;
+    const { firmId, role, userId } = req.context!;
+    // Students are restricted to their own retainers; admins may filter by studentId optionally
+    const studentId = role === 'student'
+      ? userId
+      : (req.query.studentId as string | undefined);
     const rows = await retainersService.listRetainers(req.db, firmId, studentId);
     res.json({ success: true, retainers: rows });
   } catch (err) { svcError(res, err); }
@@ -191,8 +201,11 @@ billingRouter.get('/retainers', async (req: Request, res: Response) => {
 // GET /api/billing/retainers/:id
 billingRouter.get('/retainers/:id', async (req: Request, res: Response) => {
   try {
-    const firmId = req.context!.firmId;
+    const { firmId, role, userId } = req.context!;
     const agreement = await retainersService.getRetainer(req.db, firmId, req.params.id);
+    if (role === 'student' && agreement.student_id !== userId) {
+      return res.status(403).json({ success: false, message: 'Forbidden' });
+    }
     res.json({ success: true, retainer: agreement });
   } catch (err) { svcError(res, err); }
 });

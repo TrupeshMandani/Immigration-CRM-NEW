@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import {
   S3Client,
   PutObjectCommand,
@@ -217,9 +217,12 @@ export async function listRetainers(
   firmId: string,
   studentId?: string,
 ): Promise<RetainerAgreement[]> {
-  const rows = await dbClient
+  return dbClient
     .select()
     .from(retainerAgreements)
-    .where(eq(retainerAgreements.firm_id, firmId));
-  return studentId ? rows.filter((r) => r.student_id === studentId) : rows;
+    .where(
+      studentId
+        ? and(eq(retainerAgreements.firm_id, firmId), eq(retainerAgreements.student_id, studentId))
+        : eq(retainerAgreements.firm_id, firmId),
+    );
 }

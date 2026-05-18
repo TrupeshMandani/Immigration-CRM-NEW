@@ -7,7 +7,7 @@ const { getAuthHeader, getFirmId } = require("../utils/authContext");
 const rawBaseUrl =
   process.env.CRM_API_URL ||
   process.env.BACKEND_URL ||
-  "http://localhost:4000/api";
+  "http://localhost:5000/api";
 const trimmedBase = rawBaseUrl.replace(/\/$/, "");
 const BASE_URL = trimmedBase.endsWith("/api")
   ? trimmedBase
