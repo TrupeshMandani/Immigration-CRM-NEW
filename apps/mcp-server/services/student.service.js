@@ -1,44 +1,8 @@
-const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
-const { BACKEND_SERVICE_TOKEN } = require("../config/backend");
-const { getAuthHeader, getFirmId } = require("../utils/authContext");
+const httpClient = require("../utils/httpClient");
 
-const rawBaseUrl =
-  process.env.CRM_API_URL ||
-  process.env.BACKEND_URL ||
-  "http://localhost:5000/api";
-const trimmedBase = rawBaseUrl.replace(/\/$/, "");
-const BASE_URL = trimmedBase.endsWith("/api")
-  ? trimmedBase
-  : `${trimmedBase}/api`;
 const STUDENTS_BASE_PATH = "/students";
-
-const client = axios.create({
-  baseURL: BASE_URL,
-
-  timeout: 8000,
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-});
-
-client.interceptors.request.use(
-  (config) => {
-    config.headers = config.headers || {};
-    const authHeader = getAuthHeader() || (BACKEND_SERVICE_TOKEN ? `Bearer ${BACKEND_SERVICE_TOKEN}` : null);
-    if (authHeader) {
-      config.headers.Authorization = authHeader;
-    }
-    const firmId = getFirmId();
-    if (firmId) {
-      config.headers['X-Firm-Id'] = firmId;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 const ensureValue = (value, name) => {
   if (!value) {
@@ -64,7 +28,7 @@ const buildStudentPath = (studentId, suffix = "") => {
 const getStudentById = async (studentId) => {
   ensureValue(studentId, "studentId");
   try {
-    const res = await client.get(buildStudentPath(studentId));
+    const res = await httpClient.get(buildStudentPath(studentId));
     return res.data;
   } catch (error) {
     throw formatError(error, "Failed to fetch student.");
@@ -77,9 +41,7 @@ const searchStudents = async (query = "") => {
     if (typeof query === "string" && query.trim().length > 0) {
       params.search = query.trim();
     }
-    const res = await client.get(STUDENTS_BASE_PATH, {
-      params,
-    });
+    const res = await httpClient.get(STUDENTS_BASE_PATH, { params });
     return res.data;
   } catch (error) {
     throw formatError(error, "Failed to search students.");
@@ -89,7 +51,7 @@ const searchStudents = async (query = "") => {
 const getMissingDocuments = async (studentId) => {
   ensureValue(studentId, "studentId");
   try {
-    const res = await client.get(buildStudentPath(studentId, "/missing-documents"));
+    const res = await httpClient.get(buildStudentPath(studentId, "/missing-documents"));
     return res.data;
   } catch (error) {
     throw formatError(error, "Failed to fetch missing documents.");
@@ -99,7 +61,7 @@ const getMissingDocuments = async (studentId) => {
 const getStudentTasks = async (studentId) => {
   ensureValue(studentId, "studentId");
   try {
-    const res = await client.get(buildStudentPath(studentId, "/tasks"));
+    const res = await httpClient.get(buildStudentPath(studentId, "/tasks"));
     return res.data;
   } catch (error) {
     throw formatError(error, "Failed to fetch student tasks.");
@@ -123,13 +85,10 @@ const createStudentTask = async (studentId, payload = {}) => {
       if (!fs.existsSync(payload.attachmentPath)) {
         throw new Error(`Attachment not found at ${payload.attachmentPath}`);
       }
-      formData.append(
-        "attachment",
-        fs.createReadStream(payload.attachmentPath)
-      );
+      formData.append("attachment", fs.createReadStream(payload.attachmentPath));
     }
 
-    const res = await client.post(buildStudentPath(studentId, "/tasks"), formData, {
+    const res = await httpClient.post(buildStudentPath(studentId, "/tasks"), formData, {
       headers: formData.getHeaders(),
     });
     return res.data;
@@ -146,7 +105,7 @@ const updateStudentTask = async (studentId, taskId, updates = {}) => {
   }
 
   try {
-    const res = await client.patch(
+    const res = await httpClient.patch(
       buildStudentPath(studentId, `/tasks/${encodeURIComponent(taskId)}`),
       updates
     );
@@ -160,7 +119,7 @@ const deleteStudentTask = async (studentId, taskId) => {
   ensureValue(studentId, "studentId");
   ensureValue(taskId, "taskId");
   try {
-    const res = await client.delete(
+    const res = await httpClient.delete(
       buildStudentPath(studentId, `/tasks/${encodeURIComponent(taskId)}`)
     );
     return res.data;
@@ -173,9 +132,7 @@ const updateStudentStage = async (studentId, newStage) => {
   ensureValue(studentId, "studentId");
   ensureValue(newStage, "newStage");
   try {
-    const res = await client.patch(buildStudentPath(studentId, "/stage"), {
-      newStage,
-    });
+    const res = await httpClient.patch(buildStudentPath(studentId, "/stage"), { newStage });
     return res.data;
   } catch (error) {
     throw formatError(error, "Failed to update student stage.");
@@ -186,9 +143,7 @@ const addNote = async (studentId, noteText) => {
   ensureValue(studentId, "studentId");
   ensureValue(noteText, "noteText");
   try {
-    const res = await client.post(buildStudentPath(studentId, "/notes"), {
-      noteText,
-    });
+    const res = await httpClient.post(buildStudentPath(studentId, "/notes"), { noteText });
     return res.data;
   } catch (error) {
     throw formatError(error, "Failed to add note.");
@@ -198,7 +153,7 @@ const addNote = async (studentId, noteText) => {
 const getStudentOverview = async (studentId) => {
   ensureValue(studentId, "studentId");
   try {
-    const res = await client.get(buildStudentPath(studentId, "/overview"));
+    const res = await httpClient.get(buildStudentPath(studentId, "/overview"));
     return res.data;
   } catch (error) {
     throw formatError(error, "Failed to fetch student overview.");

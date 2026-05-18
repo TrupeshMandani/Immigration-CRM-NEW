@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useRef, useState } from "react";
 import { ShimmeringText } from "@/components/ui/shadcn-io/shimmering-text";
-import { mcpAPI } from "../../services/mcpAPI";
 import { Paperclip, X, FileText } from "lucide-react";
 import MessageRenderer from "./MessageRenderer";
 import { uploadTempFile } from "../../services/ai.service";
@@ -110,9 +109,9 @@ const ChatComponent = () => {
   const handleFileClick = async (fileName) => {
     try {
       const token = localStorage.getItem("token");
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
-      
-      const response = await fetch(`${API_URL}/api/ai/documents/url?fileName=${encodeURIComponent(fileName)}`, {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+
+      const response = await fetch(`${API_URL}/ai/documents/url?fileName=${encodeURIComponent(fileName)}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },

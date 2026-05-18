@@ -1,3 +1,8 @@
+// NOTIFICATION PIPELINE — TASK-BASED
+// This bell reads from GET /api/tasks?scope=notifications and marks items read via
+// POST /api/tasks/notifications/read. It surfaces actionable task items (doc reviews,
+// assignments) — NOT the Postgres `notifications` table used by the Notifications inbox.
+// See: src/pages/admin/Notifications.jsx for the other pipeline.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";

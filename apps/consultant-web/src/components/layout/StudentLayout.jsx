@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useSocket } from "../../hooks/useSocket.jsx";
 import Button from "../common/Button";
 import studentTaskService from "../../services/studentTaskService";
 
@@ -25,13 +24,6 @@ const navItems = [
     to: "/student/documents",
     icon: FolderIcon,
     matchPrefixes: ["/student/documents"],
-    requiresActive: true,
-  },
-  {
-    label: "Messages",
-    to: "/student/messages",
-    icon: ChatIcon,
-    matchPrefixes: ["/student/messages"],
     requiresActive: true,
   },
   {
@@ -148,25 +140,6 @@ function UniversityIcon(props) {
   );
 }
 
-function ChatIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M21 11.5a8.5 8.5 0 01-8.5 8.5 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 018.5-8.5 8.5 8.5 0 018.5 8.5z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"
-      />
-    </svg>
-  );
-}
-
 function TasksIcon(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
@@ -211,8 +184,6 @@ const StudentLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const socketContext = useSocket() || {};
-  const { unreadTotal = 0 } = socketContext;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [taskAlert, setTaskAlert] = useState(false);
 
@@ -318,11 +289,6 @@ const StudentLayout = ({ children }) => {
         >
           <Icon className="h-4 w-4 flex-shrink-0" />
           <span className="flex-1 text-left">{item.label}</span>
-          {item.to === "/student/messages" && unreadTotal > 0 && (
-            <span className="ml-auto inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary-200 px-2 text-[11px] font-semibold text-primary-900">
-              {unreadTotal > 99 ? "99+" : unreadTotal}
-            </span>
-          )}
           {showTaskBadge && (
             <span className="ml-auto h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-primary-900" />
           )}

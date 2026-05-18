@@ -12,14 +12,14 @@ const env = require('../../config/env');
 const { getAdminNotificationEmails } = require('../../utils/adminRecipients');
 const { generateAiKey } = require('../../utils/generateAiKey');
 const { sendStudentInviteEmail } = require('./student.invite');
-const { extractProfileWithAI } = require('../../AI/ai-file-extract/extract.service');
+const { extractProfileWithAI } = require('../ai/extract.service');
 const { prioritizeFields } = require('../../AI/ai-file-extract/field-priority');
 const { upsertStudent, mergePassportDetails, normalizePassportDate } = require('./student.service');
 const {
   buildRequiredDocFileName,
   guessExtension,
 } = require('../../utils/fileName');
-const { verifyDocumentType } = require('../../AI/ai-document-verify/verification.service');
+const { verifyDocumentType } = require('../ai/verification.service');
 const { createAIVerificationTask } = require('../tasks/tasks.service');
 const { send: sendNotification } = require('../notifications/notifications.service');
 
@@ -892,15 +892,17 @@ const processRequiredDocumentUpload = async ({ student, slug, defData, file, upl
     extension,
   });
 
+  const aiContext = { firmId: student.firm_id, relatedEntityType: 'student', relatedEntityId: student.id };
+
   let extractedProfile = null;
   if (!skipExtraction && defData.aiExtractionEnabled) {
-    try { extractedProfile = await extractProfileWithAI([file]); } catch (e) { console.error('AI extraction failed:', e); }
+    try { extractedProfile = await extractProfileWithAI([file], aiContext); } catch (e) { console.error('AI extraction failed:', e); }
   }
 
   let verificationResult = { status: 'pending', confidence: 0, detectedType: '', reason: 'Verification skipped', checkedAt: new Date() };
   if (!skipVerification) {
     try {
-      verificationResult = await verifyDocumentType({ expectedType: defData.name, filePath: file.path, mimeType: file.mimetype });
+      verificationResult = await verifyDocumentType({ expectedType: defData.name, filePath: file.path, mimeType: file.mimetype }, aiContext);
     } catch (e) { console.error('AI document verification failed:', e); }
   }
 

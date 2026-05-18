@@ -1,3 +1,8 @@
+// NOTIFICATION PIPELINE — REST (Postgres `notifications` table)
+// This inbox reads from GET /api/notifications and marks items read via
+// POST /api/notifications/:id/read. It shows system-level notifications stored in
+// Postgres — NOT the task-scoped pipeline used by the NotificationBell.
+// See: src/components/admin/NotificationBell.jsx for the other pipeline.
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../components/layout/AdminLayout";

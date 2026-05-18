@@ -1,29 +1,7 @@
 import api from "./api";
 
 export const uploadService = {
-  // Upload documents with AI processing
-  uploadDocuments: async (files, aiKey, options = {}) => {
-    const formData = new FormData();
-
-    // Add files to FormData
-    files.forEach((file) => {
-      formData.append("files", file);
-    });
-
-    // Add aiKey to FormData
-    formData.append("aiKey", aiKey);
-
-    const response = await api.post("/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress: options.onUploadProgress,
-    });
-
-    return response.data;
-  },
-
-  // Get student files from Google Drive
+  // Get student files
   getStudentFiles: async (aiKey) => {
     const response = await api.get(`/students/${aiKey}/files`);
     return response.data;

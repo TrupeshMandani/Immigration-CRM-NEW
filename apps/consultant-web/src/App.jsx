@@ -5,7 +5,6 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
 import RouteGuard from "./components/auth/RouteGuard";
 import Loading from "./components/common/Loading";
 
@@ -58,56 +57,54 @@ const AdminRoutes = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-background">
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              {/* ── Public routes ─────────────────────────────────────────── */}
-              <Route path="/"          element={<Landing />} />
-              <Route path="/about"     element={<About />} />
-              <Route path="/services"  element={<Services />} />
-              <Route path="/pricing"   element={<Pricing />} />
-              <Route path="/contact"   element={<Contact />} />
-              <Route path="/faq"       element={<Faq />} />
-              <Route path="/login"     element={<Login />} />
-              <Route path="/register"  element={<Register />} />
-              <Route path="/403"       element={<Forbidden />} />
-              <Route path="/404"       element={<NotFound />} />
+    <Router>
+      <div className="min-h-screen bg-background">
+        <Suspense fallback={<PageFallback />}>
+          <Routes>
+            {/* ── Public routes ─────────────────────────────────────────── */}
+            <Route path="/"          element={<Landing />} />
+            <Route path="/about"     element={<About />} />
+            <Route path="/services"  element={<Services />} />
+            <Route path="/pricing"   element={<Pricing />} />
+            <Route path="/contact"   element={<Contact />} />
+            <Route path="/faq"       element={<Faq />} />
+            <Route path="/login"     element={<Login />} />
+            <Route path="/register"  element={<Register />} />
+            <Route path="/403"       element={<Forbidden />} />
+            <Route path="/404"       element={<NotFound />} />
 
-              {/* ── Student routes ────────────────────────────────────────── */}
-              <Route element={<StudentRoutes />}>
-                <Route path="/student/dashboard"               element={<StudentDashboard />} />
-                <Route path="/student/profile"                 element={<StudentProfile />} />
-                <Route path="/student/documents"               element={<StudentDocuments />} />
-                <Route path="/student/tasks"                   element={<StudentTasks />} />
-                <Route path="/student/change-password"         element={<ChangePassword />} />
-                <Route path="/student/university-recommendations" element={<UniversityRecommendation />} />
-                <Route path="/student/retainer"                element={<Retainer />} />
-                <Route path="/student/pay-invoice"             element={<PayInvoice />} />
-              </Route>
+            {/* ── Student routes ────────────────────────────────────────── */}
+            <Route element={<StudentRoutes />}>
+              <Route path="/student/dashboard"               element={<StudentDashboard />} />
+              <Route path="/student/profile"                 element={<StudentProfile />} />
+              <Route path="/student/documents"               element={<StudentDocuments />} />
+              <Route path="/student/tasks"                   element={<StudentTasks />} />
+              <Route path="/student/change-password"         element={<ChangePassword />} />
+              <Route path="/student/university-recommendations" element={<UniversityRecommendation />} />
+              <Route path="/student/retainer"                element={<Retainer />} />
+              <Route path="/student/pay-invoice"             element={<PayInvoice />} />
+            </Route>
 
-              {/* ── Admin routes ──────────────────────────────────────────── */}
-              <Route element={<AdminRoutes />}>
-                <Route path="/admin/dashboard"             element={<AdminDashboard />} />
-                <Route path="/admin/requests"              element={<ContactRequests />} />
-                <Route path="/admin/students/registered"   element={<RegisteredStudents />} />
-                <Route path="/admin/students"              element={<StudentList />} />
-                <Route path="/admin/student-profiles"      element={<StudentList />} />
-                <Route path="/admin/students/create"       element={<CreateStudent />} />
-                <Route path="/admin/students/:id"          element={<StudentDetail />} />
-                <Route path="/admin/tasks"                 element={<TasksPage />} />
-                <Route path="/admin/assistant"             element={<AIAssistantPage />} />
-                <Route path="/admin/notifications"         element={<NotificationsPage />} />
-              </Route>
+            {/* ── Admin routes ──────────────────────────────────────────── */}
+            <Route element={<AdminRoutes />}>
+              <Route path="/admin/dashboard"             element={<AdminDashboard />} />
+              <Route path="/admin/requests"              element={<ContactRequests />} />
+              <Route path="/admin/students/registered"   element={<RegisteredStudents />} />
+              <Route path="/admin/students"              element={<StudentList />} />
+              <Route path="/admin/student-profiles"      element={<StudentList />} />
+              <Route path="/admin/students/create"       element={<CreateStudent />} />
+              <Route path="/admin/students/:id"          element={<StudentDetail />} />
+              <Route path="/admin/tasks"                 element={<TasksPage />} />
+              <Route path="/admin/assistant"             element={<AIAssistantPage />} />
+              <Route path="/admin/notifications"         element={<NotificationsPage />} />
+            </Route>
 
-              {/* ── Catch-all ─────────────────────────────────────────────── */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            {/* ── Catch-all ─────────────────────────────────────────────── */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
           </Suspense>
         </div>
       </Router>
-    </AuthProvider>
   );
 }
 

@@ -1,4 +1,4 @@
-const { extractProfileWithAI } = require('../../AI/ai-file-extract/extract.service');
+const { extractProfileWithAI } = require('../ai/extract.service');
 const { uploadFileToS3, deleteLocalFile } = require('../s3/s3.service');
 const { upsertStudent } = require('../students/student.service');
 const { prioritizeFields } = require('../../AI/ai-file-extract/field-priority');
@@ -23,7 +23,8 @@ exports.handleUpload = async (req, res) => {
     const [student] = await db.select().from(students).where(eq(students.ai_key, aiKey)).limit(1);
     if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const profile = await extractProfileWithAI(files);
+    const aiContext = { firmId: student.firm_id, relatedEntityType: 'student', relatedEntityId: student.id };
+    const profile = await extractProfileWithAI(files, aiContext);
 
     const uploaded = [];
     const docInserts = [];

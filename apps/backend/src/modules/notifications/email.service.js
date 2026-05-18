@@ -1,8 +1,8 @@
 const nodemailer = require("nodemailer");
 
-// Email templates
+// Each template is a factory so ${data.*} interpolates against the actual data object.
 const emailTemplates = {
-  newMessage: {
+  newMessage: (data) => ({
     subject: "New Message - Immigration CRM",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -20,9 +20,9 @@ const emailTemplates = {
         </p>
       </div>
     `,
-  },
+  }),
 
-  documentUploaded: {
+  documentUploaded: (data) => ({
     subject: "Document Uploaded - Immigration CRM",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -41,9 +41,9 @@ const emailTemplates = {
         </p>
       </div>
     `,
-  },
+  }),
 
-  documentVerified: {
+  documentVerified: (data) => ({
     subject: "Document Verified - Immigration CRM",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -63,9 +63,9 @@ const emailTemplates = {
         </p>
       </div>
     `,
-  },
+  }),
 
-  documentRejected: {
+  documentRejected: (data) => ({
     subject: "Document Rejected - Immigration CRM",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -85,9 +85,9 @@ const emailTemplates = {
         </p>
       </div>
     `,
-  },
+  }),
 
-  applicationStatusUpdate: {
+  applicationStatusUpdate: (data) => ({
     subject: "Application Status Update - Immigration CRM",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -102,17 +102,15 @@ const emailTemplates = {
         </div>
         ${data.notes ? `<p><strong>Notes:</strong> ${data.notes}</p>` : ""}
         <p>You can view your application details and next steps in your dashboard.</p>
-        <a href="${
-          data.dashboardUrl
-        }" style="background-color: #1d4ed8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">View Application</a>
+        <a href="${data.dashboardUrl}" style="background-color: #1d4ed8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">View Application</a>
         <p style="margin-top: 20px; font-size: 12px; color: #6b7280;">
           This is an automated message from Immigration CRM. Please do not reply to this email.
         </p>
       </div>
     `,
-  },
+  }),
 
-  documentExpiring: {
+  documentExpiring: (data) => ({
     subject: "Document Expiring Soon - Immigration CRM",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -131,9 +129,9 @@ const emailTemplates = {
         </p>
       </div>
     `,
-  },
+  }),
 
-  newRequiredDocument: {
+  newRequiredDocument: (data) => ({
     subject: "New Document Required - Immigration CRM",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -145,25 +143,18 @@ const emailTemplates = {
           <p><strong>Category:</strong> ${data.category}</p>
           <p><strong>Priority:</strong> ${data.priority}</p>
           <p><strong>Due Date:</strong> ${data.dueDate}</p>
-          ${
-            data.description
-              ? `<p><strong>Description:</strong> ${data.description}</p>`
-              : ""
-          }
+          ${data.description ? `<p><strong>Description:</strong> ${data.description}</p>` : ""}
         </div>
         <p>Please log in to your dashboard and upload this document as soon as possible.</p>
-        <a href="${
-          data.uploadUrl
-        }" style="background-color: #1d4ed8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Upload Document</a>
+        <a href="${data.uploadUrl}" style="background-color: #1d4ed8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Upload Document</a>
         <p style="margin-top: 20px; font-size: 12px; color: #6b7280;">
           This is an automated message from Immigration CRM. Please do not reply to this email.
         </p>
       </div>
     `,
-  },
+  }),
 };
 
-// Create transporter
 const createTransporter = () => {
   return nodemailer.createTransporter({
     host: process.env.SMTP_HOST,
@@ -176,14 +167,14 @@ const createTransporter = () => {
   });
 };
 
-// Send email notification
 exports.sendEmailNotification = async (templateName, recipientEmail, data) => {
   try {
-    const template = emailTemplates[templateName];
-    if (!template) {
+    const templateFactory = emailTemplates[templateName];
+    if (!templateFactory) {
       throw new Error(`Email template '${templateName}' not found`);
     }
 
+    const template = templateFactory(data);
     const transporter = createTransporter();
 
     const mailOptions = {
@@ -203,7 +194,6 @@ exports.sendEmailNotification = async (templateName, recipientEmail, data) => {
   }
 };
 
-// Send bulk email notifications
 exports.sendBulkEmailNotifications = async (notifications) => {
   const results = [];
 
@@ -219,7 +209,6 @@ exports.sendBulkEmailNotifications = async (notifications) => {
   return results;
 };
 
-// Test email configuration
 exports.testEmailConfiguration = async () => {
   try {
     const transporter = createTransporter();

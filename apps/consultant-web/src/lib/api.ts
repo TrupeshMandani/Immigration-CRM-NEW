@@ -4,6 +4,16 @@ function getToken(): string | null {
   return localStorage.getItem("token");
 }
 
+function setToken(token: string): void {
+  localStorage.setItem("token", token);
+}
+
+function forceLogout(): void {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.location.href = "/login";
+}
+
 class ApiError extends Error {
   status: number;
   data: unknown;
@@ -16,30 +26,62 @@ class ApiError extends Error {
   }
 }
 
+// Single in-flight refresh promise shared across concurrent requests
+let refreshPromise: Promise<string> | null = null;
+
+async function tryRefresh(): Promise<string> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = fetch(`${BASE_URL}/auth/refresh`, {
+    method: "POST",
+    credentials: "include",
+  }).then(async (res) => {
+    if (!res.ok) throw new ApiError(res.status, "Refresh failed");
+    const body = await res.json();
+    setToken(body.token);
+    return body.token as string;
+  }).finally(() => {
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
+}
+
 async function request<T>(
   method: string,
   path: string,
   body?: unknown,
   options?: RequestInit
 ): Promise<T> {
-  const token = getToken();
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(options?.headers ?? {}),
+  const doFetch = (token: string | null) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers ?? {}),
+    };
+    return fetch(`${BASE_URL}${path}`, {
+      method,
+      headers,
+      credentials: "include",
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      ...options,
+    });
   };
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    ...options,
-  });
+  let res = await doFetch(getToken());
 
   if (res.status === 401) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "/login";
+    try {
+      const newToken = await tryRefresh();
+      res = await doFetch(newToken);
+    } catch {
+      forceLogout();
+      throw new ApiError(401, "Unauthorized");
+    }
+  }
+
+  if (res.status === 401) {
+    forceLogout();
     throw new ApiError(401, "Unauthorized");
   }
 
@@ -202,7 +244,7 @@ export const api = {
       return request<NotificationsResponse>("GET", `/notifications${qs}`);
     },
     markRead: (id: string) =>
-      request<Notification>("PATCH", `/notifications/${id}/read`),
+      request<Notification>("POST", `/notifications/${id}/read`),
     markAllRead: () => request<void>("POST", "/notifications/read-all"),
   },
 

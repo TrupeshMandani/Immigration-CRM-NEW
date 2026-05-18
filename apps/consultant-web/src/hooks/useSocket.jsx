@@ -50,14 +50,7 @@ export const SocketProvider = ({ children }) => {
     socketRef.current = instance;
     setSocket(instance);
 
-    const handleConnect = () => {
-      instance.emit("joinRoom", { userId: user._id, role: user.role });
-    };
-
-    instance.on("connect", handleConnect);
-
     return () => {
-      instance.off("connect", handleConnect);
       instance.disconnect();
       socketRef.current = null;
       setSocket(null);
