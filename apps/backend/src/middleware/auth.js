@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { db } = require('../db/postgres');
-const { users, students } = require('../db/schema');
+const { users, applicants } = require('../db/schema');
 const { eq } = require('drizzle-orm');
 
 const ACCESS_SECRET = () =>
@@ -30,17 +30,17 @@ const authenticateToken = async (req, res, next) => {
         .where(eq(users.id, decoded.id))
         .limit(1);
       user = row ?? null;
-    } else if (decoded.role === 'student') {
+    } else if (decoded.role === 'applicant') {
       const [row] = await db
         .select()
-        .from(students)
-        .where(eq(students.id, decoded.id))
+        .from(applicants)
+        .where(eq(applicants.id, decoded.id))
         .limit(1);
       if (row) {
         user = {
           ...row,
           _id: row.id,
-          role: 'student',
+          role: 'applicant',
           aiKey: row.ai_key,
           profile: row.profile_data,
           preferences: (row.state_data ?? {}).preferences ?? {},
@@ -81,11 +81,11 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
-const requireStudent = (req, res, next) => {
-  if (req.userRole !== 'student') {
-    return res.status(403).json({ message: 'Student access required' });
+const requireApplicant = (req, res, next) => {
+  if (req.userRole !== 'applicant') {
+    return res.status(403).json({ message: 'Applicant access required' });
   }
   next();
 };
 
-module.exports = { authenticateToken, requireAdmin, requireStudent };
+module.exports = { authenticateToken, requireAdmin, requireApplicant };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import StudentLayout from "../../components/layout/StudentLayout";
+import ApplicantLayout from "../../components/layout/ApplicantLayout";
 import {
   Card,
   CardHeader,
@@ -71,7 +71,7 @@ const Retainer = () => {
   };
 
   return (
-    <StudentLayout>
+    <ApplicantLayout>
       <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <div>
           <h1 className="text-3xl font-bold">Retainer Agreement</h1>
@@ -200,7 +200,7 @@ const Retainer = () => {
           </>
         )}
       </div>
-    </StudentLayout>
+    </ApplicantLayout>
   );
 };
 

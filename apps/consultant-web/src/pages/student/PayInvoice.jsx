@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import StudentLayout from "../../components/layout/StudentLayout";
+import ApplicantLayout from "../../components/layout/ApplicantLayout";
 import {
   Card,
   CardHeader,
@@ -83,7 +83,7 @@ const PayInvoice = () => {
   };
 
   return (
-    <StudentLayout>
+    <ApplicantLayout>
       <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <div>
           <h1 className="text-3xl font-bold">Invoices</h1>
@@ -210,7 +210,7 @@ const PayInvoice = () => {
           </div>
         )}
       </div>
-    </StudentLayout>
+    </ApplicantLayout>
   );
 };
 

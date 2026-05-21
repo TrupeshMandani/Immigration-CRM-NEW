@@ -1,7 +1,7 @@
 import { pgTable, text, integer, boolean, timestamp, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { firms } from './firms';
-import { students } from './students';
+import { applicants } from './applicants';
 import { users } from './users';
 import { invoices } from './invoices';
 
@@ -12,7 +12,7 @@ export const trustLedger = pgTable(
     firm_id: text('firm_id')
       .notNull()
       .references(() => firms.id, { onDelete: 'cascade' }),
-    student_id: text('student_id').references(() => students.id, { onDelete: 'set null' }),
+    applicant_id: text('applicant_id').references(() => applicants.id, { onDelete: 'set null' }),
     amount_cents: integer('amount_cents').notNull(),
     entry_type: text('entry_type').notNull(),
     related_invoice_id: text('related_invoice_id').references(() => invoices.id, {

@@ -70,7 +70,7 @@ webhookRouter.post(
 
               await tx.insert(trustLedger).values({
                 firm_id: inv.firm_id,
-                student_id: inv.student_id,
+                applicant_id: inv.applicant_id,
                 amount_cents: stripeInvoice.amount_paid,
                 entry_type: 'deposit',
                 related_invoice_id: inv.id,

@@ -1,7 +1,8 @@
 import { pgTable, text, boolean, jsonb, timestamp, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { firms } from './firms';
-import { students } from './students';
+import { applicants } from './applicants';
+import { cases } from './cases';
 import { documents } from './documents';
 import { users } from './users';
 
@@ -12,7 +13,7 @@ export const tasks = pgTable(
     firm_id: text('firm_id')
       .notNull()
       .references(() => firms.id, { onDelete: 'cascade' }),
-    student_id: text('student_id').references(() => students.id, {
+    applicant_id: text('applicant_id').references(() => applicants.id, {
       onDelete: 'set null',
     }),
     document_id: text('document_id').references(() => documents.id, {
@@ -43,6 +44,7 @@ export const tasks = pgTable(
     is_read: boolean('is_read').default(false),
     notification_muted: boolean('notification_muted').default(false),
     notification_deleted: boolean('notification_deleted').default(false),
+    case_id: text('case_id').references(() => cases.id, { onDelete: 'set null' }),
     created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
     updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow(),
   },

@@ -93,7 +93,7 @@ export interface CreateTaskInput {
   task_type?: TaskType;
   title: string;
   description?: string;
-  student_id?: string;
+  applicant_id?: string;
   document_id?: string;
   assigned_to?: string;
   created_by?: string;
@@ -129,7 +129,7 @@ export function formatTask(row: Task): TaskResponse {
     description: row.description ?? null,
     status: row.status,
     priority: meta.priority ?? 'medium',
-    studentId: row.student_id ?? null,
+    studentId: row.applicant_id ?? null,
     studentName: meta.studentName ?? null,
     studentAiKey: meta.studentAiKey ?? null,
     documentId: row.document_id ?? null,
@@ -252,7 +252,7 @@ export async function createTask(
     .insert(tasks)
     .values({
       firm_id: firmId,
-      student_id: input.student_id ?? null,
+      applicant_id: input.applicant_id ?? null,
       document_id: input.document_id ?? null,
       task_type: input.task_type ?? 'general',
       title: input.title,
@@ -343,7 +343,7 @@ export async function createAIVerificationTask(
       .insert(tasks)
       .values({
         firm_id: firmId,
-        student_id: studentId ?? null,
+        applicant_id: studentId ?? null,
         document_id: documentId,
         task_type: 'ai_verification',
         title: `Document needs manual verification`,

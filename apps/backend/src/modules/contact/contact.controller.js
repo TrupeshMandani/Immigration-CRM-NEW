@@ -1,5 +1,5 @@
 const { db } = require('../../db/postgres');
-const { students } = require('../../db/schema');
+const { applicants } = require('../../db/schema');
 const { eq, and, ne } = require('drizzle-orm');
 const { sendEmail } = require('../../utils/sendEmail');
 const { APP_BASE_URL } = require('../../config/env');
@@ -16,15 +16,15 @@ exports.submitContact = async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase();
     const firmId = DEFAULT_FIRM_ID();
 
-    const [existingPending] = await db.select({ id: students.id }).from(students)
-      .where(and(eq(students.email, normalizedEmail), eq(students.status, 'pending'), eq(students.firm_id, firmId)))
+    const [existingPending] = await db.select({ id: applicants.id }).from(applicants)
+      .where(and(eq(applicants.email, normalizedEmail), eq(applicants.status, 'pending'), eq(applicants.firm_id, firmId)))
       .limit(1);
     if (existingPending) {
       return res.status(400).json({ message: 'Contact request already submitted' });
     }
 
-    const [existingActive] = await db.select({ id: students.id }).from(students)
-      .where(and(eq(students.email, normalizedEmail), ne(students.status, 'closed'), eq(students.firm_id, firmId)))
+    const [existingActive] = await db.select({ id: applicants.id }).from(applicants)
+      .where(and(eq(applicants.email, normalizedEmail), ne(applicants.status, 'closed'), eq(applicants.firm_id, firmId)))
       .limit(1);
     if (existingActive) {
       return res.status(400).json({ message: 'An account with this email already exists. Please use the login option.' });
@@ -32,11 +32,11 @@ exports.submitContact = async (req, res) => {
 
     const nameParts = name.trim().split(' ');
     let aiKey = generateAiKey(nameParts[0] || name);
-    const collision = await db.select({ ai_key: students.ai_key }).from(students)
-      .where(eq(students.ai_key, aiKey)).limit(1);
+    const collision = await db.select({ ai_key: applicants.ai_key }).from(applicants)
+      .where(eq(applicants.ai_key, aiKey)).limit(1);
     if (collision.length) aiKey = `${aiKey}_${Math.random().toString(36).substr(2, 4)}`;
 
-    const [inserted] = await db.insert(students).values({
+    const [inserted] = await db.insert(applicants).values({
       firm_id: firmId,
       email: normalizedEmail,
       ai_key: aiKey,

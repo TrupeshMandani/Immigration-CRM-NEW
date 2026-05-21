@@ -3,10 +3,10 @@ const FormData = require("form-data");
 const fs = require("fs");
 const logger = require("../config/logger");
 
-const buildStudentPath = (aiKey, suffix = "") =>
-  `/students/${encodeURIComponent(aiKey)}${suffix}`;
+const buildApplicantPath = (aiKey, suffix = "") =>
+  `/applicants/${encodeURIComponent(aiKey)}${suffix}`;
 const buildRequiredDocsPath = (aiKey) =>
-  buildStudentPath(aiKey, "/required-documents");
+  buildApplicantPath(aiKey, "/required-documents");
 const buildRequiredDocPath = (aiKey, docId, suffix = "") =>
   `${buildRequiredDocsPath(aiKey)}/${encodeURIComponent(docId)}${suffix}`;
 
@@ -32,7 +32,7 @@ const cleanupTempFile = async (filePath) => {
 
 /**
  * Upload a document file for a student's required document using Smart Upload
- * @param {string} aiKey - Student's AI key
+ * @param {string} aiKey - Applicant's AI key
  * @param {string} documentType - Type of document (e.g., "Passport", "IELTS")
  * @param {string} filePath - Path to the file to upload
  * @returns {Promise<Object>} Upload result with file metadata
@@ -83,7 +83,7 @@ async function uploadDocument({ aiKey, documentType, filePath }) {
 
 /**
  * Get all documents for a student
- * @param {string} aiKey - Student's AI key
+ * @param {string} aiKey - Applicant's AI key
  * @returns {Promise<Object>} List of student documents with presigned URLs
  */
 async function getStudentDocuments({ aiKey }) {
@@ -92,7 +92,7 @@ async function getStudentDocuments({ aiKey }) {
       throw new Error("Missing required argument: aiKey");
     }
 
-    const response = await httpClient.get(buildStudentPath(aiKey, "/files"));
+    const response = await httpClient.get(buildApplicantPath(aiKey, "/files"));
 
     return {
       success: true,
@@ -107,7 +107,7 @@ async function getStudentDocuments({ aiKey }) {
 
 /**
  * Get a specific document by ID with presigned URL
- * @param {string} aiKey - Student's AI key
+ * @param {string} aiKey - Applicant's AI key
  * @param {string} docId - Required document ID
  * @param {string} fileId - File ID
  * @returns {Promise<Object>} Document with presigned URL
@@ -139,7 +139,7 @@ async function getDocumentById({ aiKey, docId, fileId }) {
 
 /**
  * Verify a document file (admin only)
- * @param {string} aiKey - Student's AI key
+ * @param {string} aiKey - Applicant's AI key
  * @param {string} docId - Required document ID
  * @param {string} fileId - File ID to verify
  * @param {boolean} verified - Verification status
@@ -183,7 +183,7 @@ async function verifyDocument({
 
 /**
  * Rename a document
- * @param {string} aiKey - Student's AI key
+ * @param {string} aiKey - Applicant's AI key
  * @param {string} documentId - Document ID
  * @param {string} newName - New document name
  * @returns {Promise<Object>} Rename result
@@ -197,7 +197,7 @@ async function renameDocument({ aiKey, documentId, newName }) {
     }
 
     const response = await httpClient.post(
-      `${buildStudentPath(aiKey, "/documents")}/${encodeURIComponent(
+      `${buildApplicantPath(aiKey, "/documents")}/${encodeURIComponent(
         documentId
       )}/rename`,
       { newName }
@@ -217,7 +217,7 @@ async function renameDocument({ aiKey, documentId, newName }) {
 
 /**
  * Get required documents for a student
- * @param {string} aiKey - Student's AI key
+ * @param {string} aiKey - Applicant's AI key
  * @returns {Promise<Object>} List of required documents with IDs
  */
 async function getRequiredDocuments({ aiKey }) {
@@ -240,7 +240,7 @@ async function getRequiredDocuments({ aiKey }) {
 
 /**
  * Delete a required document (document type, not a file)
- * @param {string} aiKey - Student's AI key
+ * @param {string} aiKey - Applicant's AI key
  * @param {string} documentId - Required document ID to delete (optional if documentName is provided)
  * @param {string} documentName - Document name to delete (e.g., "Passport") - will find ID automatically
  * @returns {Promise<Object>} Deletion result
@@ -375,7 +375,7 @@ async function classifyDocumentType({ text = "", images = [] }) {
 /**
  * Extract document information using AI
  * Note: Partial implementation - AI service exists but no dedicated HTTP route
- * @param {string} aiKey - Student's AI key
+ * @param {string} aiKey - Applicant's AI key
  * @param {string} documentId - Document ID
  * @returns {Promise<Object>} Extracted document information
  */
@@ -410,7 +410,7 @@ module.exports = {
       properties: {
         aiKey: {
           type: "string",
-          description: "Student's unique AI key identifier",
+          description: "Applicant's unique AI key identifier",
         },
         documentType: {
           type: "string",
@@ -434,7 +434,7 @@ module.exports = {
       properties: {
         aiKey: {
           type: "string",
-          description: "Student's unique AI key identifier",
+          description: "Applicant's unique AI key identifier",
         },
       },
       required: ["aiKey"],
@@ -449,7 +449,7 @@ module.exports = {
       properties: {
         aiKey: {
           type: "string",
-          description: "Student's unique AI key identifier",
+          description: "Applicant's unique AI key identifier",
         },
         docId: {
           type: "string",
@@ -472,7 +472,7 @@ module.exports = {
       properties: {
         aiKey: {
           type: "string",
-          description: "Student's unique AI key identifier",
+          description: "Applicant's unique AI key identifier",
         },
         docId: {
           type: "string",
@@ -503,7 +503,7 @@ module.exports = {
       properties: {
         aiKey: {
           type: "string",
-          description: "Student's unique AI key identifier",
+          description: "Applicant's unique AI key identifier",
         },
         documentId: {
           type: "string",
@@ -527,7 +527,7 @@ module.exports = {
       properties: {
         aiKey: {
           type: "string",
-          description: "Student's unique AI key identifier",
+          description: "Applicant's unique AI key identifier",
         },
       },
       required: ["aiKey"],
@@ -543,7 +543,7 @@ module.exports = {
       properties: {
         aiKey: {
           type: "string",
-          description: "Student's unique AI key identifier",
+          description: "Applicant's unique AI key identifier",
         },
         documentName: {
           type: "string",

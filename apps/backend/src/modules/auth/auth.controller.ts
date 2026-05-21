@@ -2,20 +2,20 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { db } from '../../db/postgres';
-import { users, students } from '../../db/schema';
+import { users, applicants } from '../../db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { generateAiKey } from '../../utils/generateAiKey';
 import { getAdminNotificationEmails } from '../../utils/adminRecipients';
 import { sendEmail } from '../../utils/sendEmail';
 import { getFirebaseAdmin } from '../../utils/firebaseAdmin';
-import { sendStudentInviteEmail } from '../students/student.invite';
+import { sendApplicantInviteEmail } from '../applicants/applicant.invite';
 import env from '../../config/env';
 
 interface LoginBody { username: string; password: string; }
 interface FirebaseLoginBody { idToken: string; }
 interface SendLoginLinkBody { email: string; }
 interface ChangePasswordBody { currentPassword: string; newPassword: string; }
-interface RegisterStudentBody { name: string; email: string; phone?: string; }
+interface RegisterApplicantBody { name: string; email: string; phone?: string; }
 interface RegisterAdminBody { username: string; email: string; password: string; }
 
 const getAppBaseUrl = () =>
@@ -80,13 +80,13 @@ export async function login(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const [student] = await db.select({ id: students.id }).from(students)
-      .where(and(eq(students.email, email), inArray(students.status, ['active', 'registered'])))
+    const [student] = await db.select({ id: applicants.id }).from(applicants)
+      .where(and(eq(applicants.email, email), inArray(applicants.status, ['active', 'registered'])))
       .limit(1);
 
     if (student) {
       res.status(403).json({
-        message: 'Students must sign in using the email link or Google option on the login page.',
+        message: 'Applicants must sign in using the email link or Google option on the login page.',
       });
       return;
     }
@@ -134,17 +134,17 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
       return;
     }
 
-    let [student] = await db.select().from(students)
-      .where(and(eq(students.email, email), eq(students.firm_id, firmId)))
+    let [student] = await db.select().from(applicants)
+      .where(and(eq(applicants.email, email), eq(applicants.firm_id, firmId)))
       .limit(1);
 
     if (!student) {
       let aiKey = generateAiKey(displayName || email);
-      const existing = await db.select({ ai_key: students.ai_key }).from(students)
-        .where(eq(students.ai_key, aiKey)).limit(1);
+      const existing = await db.select({ ai_key: applicants.ai_key }).from(applicants)
+        .where(eq(applicants.ai_key, aiKey)).limit(1);
       if (existing.length) aiKey = `${aiKey}_${Date.now().toString(36)}`;
 
-      const [created] = await db.insert(students).values({
+      const [created] = await db.insert(applicants).values({
         firm_id: firmId,
         email,
         ai_key: aiKey,
@@ -161,7 +161,7 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
       }
     }
 
-    const studentUser = { ...student, role: 'student' };
+    const studentUser = { ...student, role: 'applicant' };
     const token = generateToken(studentUser, firmId);
     setRefreshCookie(res, generateRefreshToken(studentUser, firmId));
 
@@ -172,7 +172,7 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
         id: student.id,
         username: student.email,
         email: student.email,
-        role: 'student',
+        role: 'applicant',
         aiKey: student.ai_key,
         status: student.status,
       },
@@ -198,8 +198,8 @@ export async function sendLoginLink(req: Request, res: Response): Promise<void> 
     const email = emailRaw.trim().toLowerCase();
     const firmId = DEFAULT_FIRM_ID();
 
-    const [student] = await db.select().from(students)
-      .where(and(eq(students.email, email), eq(students.firm_id, firmId)))
+    const [student] = await db.select().from(applicants)
+      .where(and(eq(applicants.email, email), eq(applicants.firm_id, firmId)))
       .limit(1);
 
     if (!student) {
@@ -217,7 +217,7 @@ export async function sendLoginLink(req: Request, res: Response): Promise<void> 
       ? `${student.first_name} ${student.last_name || ''}`.trim()
       : email.split('@')[0];
 
-    const invite = await sendStudentInviteEmail({ email, name });
+    const invite = await sendApplicantInviteEmail({ email, name });
     res.json({
       message: invite.emailSent
         ? 'Check your inbox for a secure login link.'
@@ -237,9 +237,9 @@ export async function changePassword(req: Request, res: Response): Promise<void>
     const { currentPassword, newPassword } = req.body as ChangePasswordBody;
     const user = req.user as { role: string; id: string; password_hash?: string };
 
-    if (user.role === 'student') {
+    if (user.role === 'applicant') {
       res.status(403).json({
-        message: 'Student accounts use passwordless authentication. Request a sign-in link instead.',
+        message: 'Applicant accounts use passwordless authentication. Request a sign-in link instead.',
       });
       return;
     }
@@ -268,14 +268,14 @@ export async function changePassword(req: Request, res: Response): Promise<void>
 // ─── registerStudent ──────────────────────────────────────────────────────────
 export async function registerStudent(req: Request, res: Response): Promise<void> {
   try {
-    const { name, email, phone } = (req.body ?? {}) as RegisterStudentBody;
+    const { name, email, phone } = (req.body ?? {}) as RegisterApplicantBody;
     if (!name || !email) { res.status(400).json({ message: 'Name and email are required.' }); return; }
 
     const normalizedEmail = email.trim().toLowerCase();
     const firmId = DEFAULT_FIRM_ID();
 
-    const [existingStudent] = await db.select({ id: students.id }).from(students)
-      .where(and(eq(students.email, normalizedEmail), eq(students.firm_id, firmId))).limit(1);
+    const [existingStudent] = await db.select({ id: applicants.id }).from(applicants)
+      .where(and(eq(applicants.email, normalizedEmail), eq(applicants.firm_id, firmId))).limit(1);
     if (existingStudent) {
       res.status(400).json({ message: 'An account with this email already exists.' });
       return;
@@ -289,12 +289,12 @@ export async function registerStudent(req: Request, res: Response): Promise<void
     }
 
     let aiKey = generateAiKey(name);
-    const collision = await db.select({ ai_key: students.ai_key }).from(students)
-      .where(eq(students.ai_key, aiKey)).limit(1);
+    const collision = await db.select({ ai_key: applicants.ai_key }).from(applicants)
+      .where(eq(applicants.ai_key, aiKey)).limit(1);
     if (collision.length) aiKey = `${aiKey}_${Date.now().toString(36)}`;
 
     const nameParts = name.trim().split(' ');
-    const [inserted] = await db.insert(students).values({
+    const [inserted] = await db.insert(applicants).values({
       firm_id: firmId,
       email: normalizedEmail,
       ai_key: aiKey,
@@ -318,7 +318,7 @@ export async function registerStudent(req: Request, res: Response): Promise<void
       console.error('Failed to send registration notification:', notifyError);
     }
 
-    const invite = await sendStudentInviteEmail({ email: normalizedEmail, name });
+    const invite = await sendApplicantInviteEmail({ email: normalizedEmail, name });
     res.status(201).json({
       message: invite.emailSent
         ? 'Registration successful. Check your email for the login link.'
@@ -327,7 +327,7 @@ export async function registerStudent(req: Request, res: Response): Promise<void
       loginLink: invite.loginLink,
     });
   } catch (error) {
-    console.error('Student registration error:', error);
+    console.error('Applicant registration error:', error);
     if ((error as { code?: string }).code === '23505') {
       res.status(400).json({ message: 'Email already in use.' });
       return;
@@ -396,10 +396,10 @@ export async function refresh(req: Request, res: Response): Promise<void> {
     const firmId = (decoded.firm_id as string | undefined) ?? DEFAULT_FIRM_ID();
     let user: UserLike | null = null;
 
-    if (decoded.role === 'student') {
-      const [row] = await db.select().from(students)
-        .where(eq(students.id, decoded.id as string)).limit(1);
-      if (row) user = { ...row, role: 'student' };
+    if (decoded.role === 'applicant') {
+      const [row] = await db.select().from(applicants)
+        .where(eq(applicants.id, decoded.id as string)).limit(1);
+      if (row) user = { ...row, role: 'applicant' };
     } else {
       const [row] = await db.select().from(users)
         .where(eq(users.id, decoded.id as string)).limit(1);

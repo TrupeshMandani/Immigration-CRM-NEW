@@ -32,7 +32,7 @@ import { sql as pgClient } from '../db/postgres';
 import { users } from '../db/schema/users';
 import { tenantContextMiddleware } from '../middleware/tenantContext';
 import { usersRouter } from '../modules/users/users.route';
-import { studentsRouter } from '../modules/students/students.routes';
+import { applicantsRouter } from '../modules/applicants/applicants.routes';
 import { documentsRouter } from '../modules/documents/documents.routes';
 import { tasksRouter } from '../modules/tasks/tasks.routes';
 import { notificationsRouter } from '../modules/notifications/notifications.routes';
@@ -74,7 +74,7 @@ app.use(express.json());
 
 // Stack: JWT stub → tenant context (opens RLS tx) → route handler
 app.use('/api/users', jwtAuthStub, tenantContextMiddleware, usersRouter);
-app.use('/api/students', jwtAuthStub, tenantContextMiddleware, studentsRouter);
+app.use('/api/students', jwtAuthStub, tenantContextMiddleware, applicantsRouter);
 app.use('/api/documents', jwtAuthStub, tenantContextMiddleware, documentsRouter);
 app.use('/api/tasks', jwtAuthStub, tenantContextMiddleware, tasksRouter);
 app.use('/api/notifications', jwtAuthStub, tenantContextMiddleware, notificationsRouter);

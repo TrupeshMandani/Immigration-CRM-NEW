@@ -1,5 +1,5 @@
 /**
- * One-shot ETL: copies Student documents from MongoDB into the Postgres
+ * One-shot ETL: copies Applicant documents from MongoDB into the Postgres
  * students table.
  *
  * Run:
@@ -21,7 +21,7 @@ import mongoose from 'mongoose';
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { sql as drizzleSql, eq } from 'drizzle-orm';
-import { students } from '../db/schema/students';
+import { applicants } from '../db/schema/applicants';
 
 const MONGODB_URI =
   process.env.MONGODB_URI ?? 'mongodb://localhost:27017/ImmigrationCRM';
@@ -44,7 +44,7 @@ const mongoSchema = new mongoose.Schema({
   profile: mongoose.Schema.Types.Mixed,
   preferences: mongoose.Schema.Types.Mixed,
 }, { timestamps: true });
-const MongoStudent = mongoose.model('Student', mongoSchema);
+const MongoStudent = mongoose.model('Applicant', mongoSchema);
 
 function splitName(full?: string): { first: string | null; last: string | null } {
   if (!full || !full.trim()) return { first: null, last: null };
@@ -66,7 +66,7 @@ async function main() {
 
   // Fetch all students from MongoDB
   const mongoStudents = await MongoStudent.find({}).lean();
-  console.log(`Found ${mongoStudents.length} MongoDB students.`);
+  console.log(`Found ${mongoStudents.length} MongoDB applicants.`);
 
   let inserted = 0;
   let skipped = 0;
@@ -82,9 +82,9 @@ async function main() {
 
     // Check if already migrated
     const existing = await db
-      .select({ id: students.id })
-      .from(students)
-      .where(eq(students.ai_key, aiKey))
+      .select({ id: applicants.id })
+      .from(applicants)
+      .where(eq(applicants.ai_key, aiKey))
       .limit(1);
 
     if (existing.length > 0) {
@@ -121,7 +121,7 @@ async function main() {
 
     try {
       // Insert without firm context (we bypass RLS by running as superuser icrm).
-      await db.insert(students).values({
+      await db.insert(applicants).values({
         firm_id: DEFAULT_FIRM_ID,
         email: email.toLowerCase(),
         first_name: first,

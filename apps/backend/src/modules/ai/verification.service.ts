@@ -4,7 +4,7 @@ import { extractTextFromFile } from './extract.service';
 
 // Lazy-loaded — only needed for PDF/image paths
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { pdfToImages } = require('../../AI/ai-file-extract/pdf-to-images');
+const { pdfToImages } = require('./utils/pdf-to-images');
 
 // ─── Prompts (verbatim from AI/ai-document-verify/verification.service.js) ────
 export const VERIFY_SYSTEM_PROMPT =

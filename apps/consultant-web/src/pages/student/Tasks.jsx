@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import StudentLayout from "../../components/layout/StudentLayout";
+import ApplicantLayout from "../../components/layout/ApplicantLayout";
 import {
   Card,
   CardContent,
@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "../../context/AuthContext";
-import studentTaskService from "../../services/studentTaskService";
+import applicantTaskService from "../../services/applicantTaskService";
 import { toast } from "sonner";
 import { Loader2, RefreshCw, Calendar, Clock, Paperclip } from "lucide-react";
 
@@ -37,7 +37,7 @@ const StudentTasks = () => {
     if (!aiKey) return;
     try {
       setLoading(true);
-      const list = await studentTaskService.list(aiKey, { markSeen: true });
+      const list = await applicantTaskService.list(aiKey, { markSeen: true });
       setTasks(list);
     } catch {
       toast.error("Unable to load tasks. Please try again.");
@@ -53,7 +53,7 @@ const StudentTasks = () => {
     const next = task.status === "completed" ? "pending" : "completed";
     setUpdatingTaskId(task.id);
     try {
-      const list = await studentTaskService.update(aiKey, task.id, { status: next });
+      const list = await applicantTaskService.update(aiKey, task.id, { status: next });
       setTasks(list);
     } catch {
       toast.error("Unable to update task status.");
@@ -65,7 +65,7 @@ const StudentTasks = () => {
   const handleDownload = async (task) => {
     if (!aiKey || !task?.id) return;
     try {
-      const url = await studentTaskService.attachmentUrl(aiKey, task.id);
+      const url = await applicantTaskService.attachmentUrl(aiKey, task.id);
       if (url) window.open(url, "_blank", "noopener,noreferrer");
     } catch {
       toast.error("Unable to download attachment.");
@@ -78,7 +78,7 @@ const StudentTasks = () => {
     if (!confirmed) return;
     setDeletingTaskId(task.id);
     try {
-      const list = await studentTaskService.delete(aiKey, task.id);
+      const list = await applicantTaskService.delete(aiKey, task.id);
       setTasks(list);
     } catch {
       toast.error("Unable to delete task.");
@@ -88,7 +88,7 @@ const StudentTasks = () => {
   };
 
   return (
-    <StudentLayout>
+    <ApplicantLayout>
       <div className="mx-auto w-full max-w-4xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div>
@@ -209,7 +209,7 @@ const StudentTasks = () => {
           </div>
         )}
       </div>
-    </StudentLayout>
+    </ApplicantLayout>
   );
 };
 

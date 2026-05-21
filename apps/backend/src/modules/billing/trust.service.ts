@@ -44,7 +44,7 @@ export async function recordDeposit(
     .insert(trustLedger)
     .values({
       firm_id: firmId,
-      student_id: params.studentId ?? null,
+      applicant_id: params.studentId ?? null,
       amount_cents: Math.abs(params.amountCents),
       entry_type: 'deposit',
       related_invoice_id: params.relatedInvoiceId ?? null,
@@ -66,7 +66,7 @@ export async function recordWithdrawal(
     .insert(trustLedger)
     .values({
       firm_id: firmId,
-      student_id: params.studentId ?? null,
+      applicant_id: params.studentId ?? null,
       amount_cents: -Math.abs(params.amountCents),
       entry_type: 'withdrawal',
       related_invoice_id: params.relatedInvoiceId ?? null,
@@ -89,7 +89,7 @@ export async function recordTransfer(
     .insert(trustLedger)
     .values({
       firm_id: firmId,
-      student_id: params.studentId ?? null,
+      applicant_id: params.studentId ?? null,
       amount_cents: -Math.abs(params.amountCents),
       entry_type: 'transfer_to_operating',
       related_invoice_id: params.relatedInvoiceId ?? null,

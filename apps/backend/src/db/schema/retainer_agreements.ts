@@ -1,7 +1,8 @@
 import { pgTable, text, integer, jsonb, timestamp, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { firms } from './firms';
-import { students } from './students';
+import { applicants } from './applicants';
+import { cases } from './cases';
 
 export const retainerAgreements = pgTable(
   'retainer_agreements',
@@ -10,9 +11,9 @@ export const retainerAgreements = pgTable(
     firm_id: text('firm_id')
       .notNull()
       .references(() => firms.id, { onDelete: 'cascade' }),
-    student_id: text('student_id')
+    applicant_id: text('applicant_id')
       .notNull()
-      .references(() => students.id, { onDelete: 'cascade' }),
+      .references(() => applicants.id, { onDelete: 'cascade' }),
     version: integer('version').notNull().default(1),
     template_key: text('template_key').notNull(),
     rendered_html: text('rendered_html'),
@@ -22,6 +23,7 @@ export const retainerAgreements = pgTable(
     pdf_s3_key: text('pdf_s3_key'),
     scope: jsonb('scope').notNull().default({}),
     status: text('status').notNull().default('draft'),
+    case_id: text('case_id').references(() => cases.id, { onDelete: 'set null' }),
     created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
   },
   (table) => [

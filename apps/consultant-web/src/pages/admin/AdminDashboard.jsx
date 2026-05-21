@@ -4,12 +4,12 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
 import Loading from "../../components/common/Loading";
-import { useStudents, usePendingContacts } from "../../hooks/useStudents";
+import { useApplicants, usePendingContacts } from "../../hooks/useApplicants";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
 
-  const { data: allStudents = [], isLoading: studentsLoading } = useStudents();
+  const { data: allStudents = [], isLoading: studentsLoading } = useApplicants();
   const { data: pendingContacts = [], isLoading: contactsLoading } = usePendingContacts();
 
   const loading = studentsLoading || contactsLoading;

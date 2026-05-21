@@ -76,5 +76,9 @@ export function startVerifyWorker() {
     console.error(`[ai-worker] job ${job?.id} failed:`, err.message);
   });
 
+  worker.on('error', (err) => {
+    console.error('[ai-worker] worker error:', err.message);
+  });
+
   return worker;
 }

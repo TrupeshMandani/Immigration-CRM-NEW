@@ -22,7 +22,7 @@ export const users = pgTable(
   },
   (table) => [
     unique('users_firm_email_unique').on(table.firm_id, table.email),
-    check('users_role_check', sql`role IN ('admin','senior','junior','student')`),
+    check('users_role_check', sql`role IN ('admin','senior','junior','applicant')`),
   ],
 );
 

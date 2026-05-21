@@ -19,7 +19,7 @@ import { eq } from 'drizzle-orm';
 import { db, withFirmContext } from '../../../db/postgres';
 import { firms } from '../../../db/schema/firms';
 import { documents } from '../../../db/schema/documents';
-import { createStudent } from '../../students/students.service';
+import { createStudent } from '../../students/applicants.service';
 
 // ---------------------------------------------------------------------------
 // Mock presigned URL generation — doesn't actually call AWS.
@@ -114,7 +114,7 @@ describe('documents service', () => {
           sizeBytes: 1024,
         }),
       ),
-    ).rejects.toThrow('Student not found');
+    ).rejects.toThrow('Applicant not found');
   });
 
   it('generateUploadUrl — Zod rejects invalid sizeBytes', async () => {
@@ -189,7 +189,7 @@ describe('documents service', () => {
     );
     expect(rows.length).toBeGreaterThan(0);
     for (const r of rows) {
-      expect(r.student_id).toBe(studentId);
+      expect(r.applicant_id).toBe(studentId);
       expect(r.firm_id).toBe(firmId);
     }
   });

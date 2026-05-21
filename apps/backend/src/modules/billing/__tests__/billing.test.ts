@@ -16,11 +16,11 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { db, withFirmContext } from '../../../db/postgres';
 import { firms } from '../../../db/schema/firms';
-import { students } from '../../../db/schema/students';
+import { applicants } from '../../../db/schema/applicants';
 import { invoices } from '../../../db/schema/invoices';
 import { trustLedger } from '../../../db/schema/trust_ledger';
 import { retainerAgreements } from '../../../db/schema/retainer_agreements';
-import { createStudent } from '../../students/students.service';
+import { createApplicant } from '../../applicants/applicants.service';
 
 // ─── Stripe mock ──────────────────────────────────────────────────────────────
 vi.mock('stripe', () => {
@@ -90,7 +90,7 @@ beforeAll(async () => {
   firmBId = firmB.id;
 
   const sA = await withFirmContext(firmAId, (tx) =>
-    createStudent(tx as typeof db, firmAId, {
+    createApplicant(tx as typeof db, firmAId, {
       email: `billing-student-a-${tag}@test.com`,
       first_name: 'Alice',
       last_name: 'Billing',
@@ -99,7 +99,7 @@ beforeAll(async () => {
   studentAId = sA.id;
 
   const sB = await withFirmContext(firmBId, (tx) =>
-    createStudent(tx as typeof db, firmBId, {
+    createApplicant(tx as typeof db, firmBId, {
       email: `billing-student-b-${tag}@test.com`,
       first_name: 'Bob',
       last_name: 'Billing',
@@ -129,7 +129,7 @@ describe('invoices service', () => {
 
     expect(inv.id).toBeTruthy();
     expect(inv.firm_id).toBe(firmAId);
-    expect(inv.student_id).toBe(studentAId);
+    expect(inv.applicant_id).toBe(studentAId);
     expect(inv.amount_cents).toBe(90000);
     expect(inv.status).toBe('draft');
     expect(inv.currency).toBe('CAD');

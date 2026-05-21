@@ -54,12 +54,27 @@ app.use((err, req, res, next) => {
 });
 
 // BullMQ workers — skipped in test environments (no live Redis needed).
+// Pre-check Redis so a missing Redis instance degrades gracefully instead of crashing.
 if (process.env.NODE_ENV !== 'test') {
-  const { startHashingWorker } = require('./modules/documents/documents.worker');
-  startHashingWorker();
-
-  const { startVerifyWorker } = require('./modules/ai/ai.worker');
-  startVerifyWorker();
+  const IORedis = require('ioredis');
+  const redisProbe = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
+    lazyConnect: true,
+    connectTimeout: 3000,
+    maxRetriesPerRequest: 0,
+    retryStrategy: () => null, // don't retry the probe
+  });
+  redisProbe.connect()
+    .then(() => {
+      redisProbe.disconnect();
+      const { startHashingWorker } = require('./modules/documents/documents.worker');
+      startHashingWorker();
+      const { startVerifyWorker } = require('./modules/ai/ai.worker');
+      startVerifyWorker();
+      console.log('[workers] Redis OK — document hashing + AI verify workers started');
+    })
+    .catch((err) => {
+      console.warn('[workers] Redis unavailable — async workers disabled. Start Redis to enable AI verification and document hashing.', err.message);
+    });
 }
 
 

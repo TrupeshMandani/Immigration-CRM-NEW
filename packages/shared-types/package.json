@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     "./students": "./students.ts",
+    "./applicants": "./applicants.ts",
     "./documents": "./documents.ts",
     "./mcp": "./mcp.ts"
   },

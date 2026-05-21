@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { and, eq } from 'drizzle-orm';
 import { db } from '../../db/postgres';
 import { invoices, type Invoice, type InvoiceLineItem } from '../../db/schema/invoices';
-import { students } from '../../db/schema/students';
+import { applicants } from '../../db/schema/applicants';
 import { firmStripeAccounts } from '../../db/schema/firm_stripe_accounts';
 
 type DbClient = typeof db;
@@ -38,7 +38,7 @@ export async function createInvoice(
     .insert(invoices)
     .values({
       firm_id: firmId,
-      student_id: studentId,
+      applicant_id: studentId,
       retainer_id: options?.retainerId ?? null,
       amount_cents: totalCents,
       status: 'draft',
@@ -67,10 +67,10 @@ export async function sendInvoice(
 
   const [student] = await dbClient
     .select()
-    .from(students)
-    .where(eq(students.id, inv.student_id))
+    .from(applicants)
+    .where(eq(applicants.id, inv.applicant_id))
     .limit(1);
-  if (!student) notFound('Student not found');
+  if (!student) notFound('Applicant not found');
 
   const [stripeAcct] = await dbClient
     .select()
@@ -165,7 +165,7 @@ export async function listInvoices(
     .from(invoices)
     .where(
       studentId
-        ? and(eq(invoices.firm_id, firmId), eq(invoices.student_id, studentId))
+        ? and(eq(invoices.firm_id, firmId), eq(invoices.applicant_id, studentId))
         : eq(invoices.firm_id, firmId),
     );
 }

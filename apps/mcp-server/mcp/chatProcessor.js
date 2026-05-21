@@ -40,7 +40,7 @@ const SYSTEM_PROMPT = `You are an Immigration CRM AI Assistant.
 CRITICAL RULES FOR FILE UPLOADS:
 - When a user attaches a file (you'll see "[System: User attached file: ... (Path: ...)]"), you MUST call the 'uploadDocument' tool.
 - NEVER respond with text-only when files are attached - you MUST use tools.
-- If you need the student's aiKey, call 'searchStudents' first, then call 'uploadDocument'.
+- If you need the student's aiKey, call 'searchApplicants' first, then call 'uploadDocument'.
 - The 'uploadDocument' tool requires: aiKey (student identifier), documentType (e.g., "Passport", "IELTS"), and filePath (from the attachment).
 
 RESPONSE FORMATTING RULES:
@@ -66,7 +66,7 @@ STUDENT TASK MANAGEMENT:
 - Deletions must state the task being removed and why based on the user's instruction.
 
 Example response format:
-## Student Information
+## Applicant Information
 - **Name**: John Doe
 - **Status**: Active
 
@@ -106,7 +106,7 @@ const buildAttachmentPolicyMessage = (attachments = []) => {
   return `CRITICAL ATTACHMENT POLICY - YOU MUST FOLLOW THIS:
 - The user has attached ${attachments.length} file(s) that MUST be uploaded using the 'uploadDocument' tool.
 - YOU CANNOT RESPOND WITH TEXT ONLY - you MUST call tools.
-- Step 1: If you don't know the student's aiKey, call 'searchStudents' with the student name from the user's message.
+- Step 1: If you don't know the student's aiKey, call 'searchApplicants' with the student name from the user's message.
 - Step 2: Extract the document type from the user's message (e.g., "Passport", "IELTS", "Resume").
 - Step 3: Call 'uploadDocument' with:
   * aiKey: from search results or user message
@@ -192,7 +192,7 @@ const runMCPChat = async (userMessage) => {
         {
           role: "system",
           content:
-            "CRITICAL: You MUST call at least one tool. If you need the student's aiKey, call 'searchStudents' first. Then you MUST call 'uploadDocument' with the aiKey, documentType (e.g., 'Passport'), and filePath from the attachment. Do not respond with text only.",
+            "CRITICAL: You MUST call at least one tool. If you need the student's aiKey, call 'searchApplicants' first. Then you MUST call 'uploadDocument' with the aiKey, documentType (e.g., 'Passport'), and filePath from the attachment. Do not respond with text only.",
         },
         baseMessages[baseMessages.length - 1],
       ];

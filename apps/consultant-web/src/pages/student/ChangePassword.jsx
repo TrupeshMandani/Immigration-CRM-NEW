@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import StudentLayout from "../../components/layout/StudentLayout";
+import ApplicantLayout from "../../components/layout/ApplicantLayout";
 import {
   Card,
   CardHeader,
@@ -54,7 +54,7 @@ const ChangePassword = () => {
   };
 
   return (
-    <StudentLayout>
+    <ApplicantLayout>
       <div className="mx-auto w-full max-w-lg px-4 py-10 sm:px-6 lg:px-8">
         <Card>
           <CardHeader>
@@ -121,7 +121,7 @@ const ChangePassword = () => {
           </CardFooter>
         </Card>
       </div>
-    </StudentLayout>
+    </ApplicantLayout>
   );
 };
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import StudentLayout from "../../components/layout/StudentLayout";
+import ApplicantLayout from "../../components/layout/ApplicantLayout";
 import {
   Card,
   CardHeader,
@@ -191,7 +191,7 @@ const UniversityRecommendation = () => {
   }, [filters]);
 
   return (
-    <StudentLayout>
+    <ApplicantLayout>
       <div className="space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -435,7 +435,7 @@ const UniversityRecommendation = () => {
           </div>
         )}
       </div>
-    </StudentLayout>
+    </ApplicantLayout>
   );
 };
 

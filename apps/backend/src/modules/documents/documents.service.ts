@@ -9,7 +9,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { db } from '../../db/postgres';
 import { documents, type Document } from '../../db/schema/documents';
-import { students } from '../../db/schema/students';
+import { applicants } from '../../db/schema/applicants';
 import { hashingQueue } from './hashing.queue';
 import { verifyQueue } from '../ai/verify.queue';
 import {
@@ -51,13 +51,13 @@ export async function generateUploadUrl(
 
   // Resolve the student's aiKey so the S3 key follows the existing convention.
   const [student] = await dbClient
-    .select({ ai_key: students.ai_key })
-    .from(students)
-    .where(eq(students.id, parsed.studentId))
+    .select({ ai_key: applicants.ai_key })
+    .from(applicants)
+    .where(eq(applicants.id, parsed.studentId))
     .limit(1);
 
   if (!student) {
-    throw Object.assign(new Error('Student not found'), { statusCode: 404 });
+    throw Object.assign(new Error('Applicant not found'), { statusCode: 404 });
   }
 
   const fileId = randomUUID();
@@ -70,7 +70,7 @@ export async function generateUploadUrl(
     .insert(documents)
     .values({
       firm_id: firmId,
-      student_id: parsed.studentId,
+      applicant_id: parsed.studentId,
       document_type: parsed.documentType,
       s3_key: s3Key,
       s3_bucket: bucket,
@@ -135,7 +135,7 @@ export async function finalizeUpload(
   await verifyQueue.add('verify', {
     documentId: doc.id,
     firmId,
-    studentId: doc.student_id,
+    studentId: doc.applicant_id,
     s3Key: doc.s3_key,
     s3Bucket: doc.s3_bucket,
     documentType: doc.document_type ?? 'Document',
@@ -202,7 +202,7 @@ export async function listStudentDocuments(
   return dbClient
     .select()
     .from(documents)
-    .where(eq(documents.student_id, studentId))
+    .where(eq(documents.applicant_id, studentId))
     .orderBy(documents.created_at);
 }
 

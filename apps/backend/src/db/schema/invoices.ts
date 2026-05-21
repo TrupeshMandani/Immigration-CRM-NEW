@@ -1,7 +1,8 @@
 import { pgTable, text, integer, jsonb, timestamp, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { firms } from './firms';
-import { students } from './students';
+import { applicants } from './applicants';
+import { cases } from './cases';
 import { retainerAgreements } from './retainer_agreements';
 
 export interface InvoiceLineItem {
@@ -17,9 +18,9 @@ export const invoices = pgTable(
     firm_id: text('firm_id')
       .notNull()
       .references(() => firms.id, { onDelete: 'cascade' }),
-    student_id: text('student_id')
+    applicant_id: text('applicant_id')
       .notNull()
-      .references(() => students.id, { onDelete: 'cascade' }),
+      .references(() => applicants.id, { onDelete: 'cascade' }),
     retainer_id: text('retainer_id').references(() => retainerAgreements.id, {
       onDelete: 'set null',
     }),
@@ -32,6 +33,7 @@ export const invoices = pgTable(
     paid_at: timestamp('paid_at', { withTimezone: true }),
     due_at: timestamp('due_at', { withTimezone: true }),
     line_items: jsonb('line_items').$type<InvoiceLineItem[]>().notNull().default([]),
+    case_id: text('case_id').references(() => cases.id, { onDelete: 'set null' }),
     created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
   },
   (table) => [

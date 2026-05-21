@@ -8,7 +8,7 @@ import { classifyDocument } from './classifier.service';
 
 // Lazy-loaded to avoid startup cost; pdfToImages is heavy.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { pdfToImages } = require('../../AI/ai-file-extract/pdf-to-images');
+const { pdfToImages } = require('./utils/pdf-to-images');
 
 // ─── Prompt (verbatim from AI/ai.service.js) ──────────────────────────────────
 export const EXTRACT_SYSTEM_PROMPT_BASE = `You are an expert immigration document analyst.

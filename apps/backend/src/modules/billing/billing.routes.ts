@@ -53,7 +53,7 @@ billingRouter.get('/invoices', async (req: Request, res: Response) => {
   try {
     const { firmId, role, userId } = req.context!;
     // Students are restricted to their own invoices; admins may filter by studentId optionally
-    const studentId = role === 'student'
+    const studentId = role === 'applicant'
       ? userId
       : (req.query.studentId as string | undefined);
     const rows = await invoicesService.listInvoices(req.db, firmId, studentId);
@@ -66,7 +66,7 @@ billingRouter.get('/invoices/:id', async (req: Request, res: Response) => {
   try {
     const { firmId, role, userId } = req.context!;
     const inv = await invoicesService.getInvoice(req.db, firmId, req.params.id);
-    if (role === 'student' && inv.student_id !== userId) {
+    if (role === 'applicant' && inv.applicant_id !== userId) {
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
     res.json({ success: true, invoice: inv });
@@ -190,7 +190,7 @@ billingRouter.get('/retainers', async (req: Request, res: Response) => {
   try {
     const { firmId, role, userId } = req.context!;
     // Students are restricted to their own retainers; admins may filter by studentId optionally
-    const studentId = role === 'student'
+    const studentId = role === 'applicant'
       ? userId
       : (req.query.studentId as string | undefined);
     const rows = await retainersService.listRetainers(req.db, firmId, studentId);
@@ -203,7 +203,7 @@ billingRouter.get('/retainers/:id', async (req: Request, res: Response) => {
   try {
     const { firmId, role, userId } = req.context!;
     const agreement = await retainersService.getRetainer(req.db, firmId, req.params.id);
-    if (role === 'student' && agreement.student_id !== userId) {
+    if (role === 'applicant' && agreement.applicant_id !== userId) {
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
     res.json({ success: true, retainer: agreement });

@@ -10,7 +10,7 @@ import {
   retainerAgreements,
   type RetainerAgreement,
 } from '../../db/schema/retainer_agreements';
-import { students } from '../../db/schema/students';
+import { applicants } from '../../db/schema/applicants';
 
 type DbClient = typeof db;
 
@@ -64,10 +64,10 @@ export async function createDraft(
 ): Promise<RetainerAgreement> {
   const [student] = await dbClient
     .select()
-    .from(students)
-    .where(eq(students.id, studentId))
+    .from(applicants)
+    .where(eq(applicants.id, studentId))
     .limit(1);
-  if (!student) notFound('Student not found');
+  if (!student) notFound('Applicant not found');
 
   const source = readTemplate(templateKey);
   const renderedHtml = renderTemplate(source, {
@@ -82,7 +82,7 @@ export async function createDraft(
     .insert(retainerAgreements)
     .values({
       firm_id: firmId,
-      student_id: studentId,
+      applicant_id: studentId,
       template_key: templateKey,
       rendered_html: renderedHtml,
       scope,
@@ -222,7 +222,7 @@ export async function listRetainers(
     .from(retainerAgreements)
     .where(
       studentId
-        ? and(eq(retainerAgreements.firm_id, firmId), eq(retainerAgreements.student_id, studentId))
+        ? and(eq(retainerAgreements.firm_id, firmId), eq(retainerAgreements.applicant_id, studentId))
         : eq(retainerAgreements.firm_id, firmId),
     );
 }

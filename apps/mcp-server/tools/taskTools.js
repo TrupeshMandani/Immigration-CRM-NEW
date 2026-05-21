@@ -3,7 +3,7 @@ const {
   createStudentTask,
   updateStudentTask,
   deleteStudentTask,
-} = require("../services/student.service");
+} = require("../services/applicant.service");
 
 module.exports = {
   getTasksForStudent: {
@@ -11,15 +11,15 @@ module.exports = {
     args: {
       type: "object",
       properties: {
-        studentId: {
+        applicantId: {
           type: "string",
           description: "The student's aiKey (the short slug identifier, e.g. 'john-smith-abc123').",
         },
       },
-      required: ["studentId"],
+      required: ["applicantId"],
     },
-    run: async ({ studentId }) => {
-      return await getStudentTasks(studentId);
+    run: async ({ applicantId }) => {
+      return await getStudentTasks(applicantId);
     },
   },
 
@@ -29,7 +29,7 @@ module.exports = {
     args: {
       type: "object",
       properties: {
-        studentId: {
+        applicantId: {
           type: "string",
           description: "Unique student identifier (aiKey) from the CRM backend.",
         },
@@ -51,10 +51,10 @@ module.exports = {
             "Absolute path to a local file to attach (optional; file must exist).",
         },
       },
-      required: ["studentId", "title"],
+      required: ["applicantId", "title"],
     },
-    run: async ({ studentId, title, description, dueDate, attachmentPath }) => {
-      return await createStudentTask(studentId, {
+    run: async ({ applicantId, title, description, dueDate, attachmentPath }) => {
+      return await createStudentTask(applicantId, {
         title,
         description,
         dueDate,
@@ -69,9 +69,9 @@ module.exports = {
     args: {
       type: "object",
       properties: {
-        studentId: {
+        applicantId: {
           type: "string",
-          description: "Student identifier (aiKey).",
+          description: "Applicant identifier (aiKey).",
         },
         taskId: {
           type: "string",
@@ -87,10 +87,10 @@ module.exports = {
           description: "Optional notes recorded alongside the update.",
         },
       },
-      required: ["studentId", "taskId", "status"],
+      required: ["applicantId", "taskId", "status"],
     },
-    run: async ({ studentId, taskId, status, notes }) => {
-      return await updateStudentTask(studentId, taskId, {
+    run: async ({ applicantId, taskId, status, notes }) => {
+      return await updateStudentTask(applicantId, taskId, {
         status,
         notes,
       });
@@ -103,19 +103,19 @@ module.exports = {
     args: {
       type: "object",
       properties: {
-        studentId: {
+        applicantId: {
           type: "string",
-          description: "Student identifier (aiKey).",
+          description: "Applicant identifier (aiKey).",
         },
         taskId: {
           type: "string",
           description: "Task ID to delete.",
         },
       },
-      required: ["studentId", "taskId"],
+      required: ["applicantId", "taskId"],
     },
-    run: async ({ studentId, taskId }) => {
-      return await deleteStudentTask(studentId, taskId);
+    run: async ({ applicantId, taskId }) => {
+      return await deleteStudentTask(applicantId, taskId);
     },
   },
 };

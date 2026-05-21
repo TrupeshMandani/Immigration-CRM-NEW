@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import StudentLayout from "../../components/layout/StudentLayout";
+import ApplicantLayout from "../../components/layout/ApplicantLayout";
 import {
   Card,
   CardHeader,
@@ -33,7 +33,7 @@ const Documents = () => {
   };
 
   return (
-    <StudentLayout>
+    <ApplicantLayout>
       <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
         <div>
           <h1 className="text-3xl font-bold">My Documents</h1>
@@ -134,7 +134,7 @@ const Documents = () => {
           </Card>
         </div>
       </div>
-    </StudentLayout>
+    </ApplicantLayout>
   );
 };
 

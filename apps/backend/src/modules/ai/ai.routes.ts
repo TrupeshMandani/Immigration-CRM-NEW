@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import axios from 'axios';
 import { eq } from 'drizzle-orm';
 import { documents } from '../../db/schema/documents';
-import { students } from '../../db/schema/students';
+import { applicants } from '../../db/schema/applicants';
 import { verifyQueue } from './verify.queue';
 import { generateUniversityListFromProfile } from './recommendation.service';
 
@@ -36,7 +36,7 @@ aiRouter.post('/verify-document/:documentId', async (req: Request, res: Response
     await verifyQueue.add('verify', {
       documentId: doc.id,
       firmId,
-      studentId: doc.student_id,
+      studentId: doc.applicant_id,
       s3Key: doc.s3_key,
       s3Bucket: doc.s3_bucket,
       documentType: doc.document_type ?? 'Document',
@@ -86,16 +86,16 @@ aiRouter.post('/recommendations/:studentId', async (req: Request, res: Response)
 
     const [student] = await req.db
       .select()
-      .from(students)
-      .where(eq(students.id, studentId))
+      .from(applicants)
+      .where(eq(applicants.id, studentId))
       .limit(1);
 
-    if (!student) return res.status(404).json({ message: 'Student not found' });
+    if (!student) return res.status(404).json({ message: 'Applicant not found' });
 
     const profile = (student.profile_data ?? {}) as Record<string, unknown>;
     const result = await generateUniversityListFromProfile(profile, {
       firmId,
-      relatedEntityType: 'student',
+      relatedEntityType: 'applicant',
       relatedEntityId: studentId,
     });
 

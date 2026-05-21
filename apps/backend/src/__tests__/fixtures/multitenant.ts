@@ -17,8 +17,8 @@ import { inArray } from 'drizzle-orm';
 import { db, withFirmContext } from '../../db/postgres';
 import { firms, type Firm } from '../../db/schema/firms';
 import { users, type User } from '../../db/schema/users';
-import { createStudent } from '../../modules/students/students.service';
-import type { Student } from '../../db/schema/students';
+import { createApplicant } from '../../modules/applicants/applicants.service';
+import type { Applicant } from '../../db/schema/applicants';
 import { documents, type Document } from '../../db/schema/documents';
 import { tasks, type Task } from '../../db/schema/tasks';
 import { notifications, type Notification } from '../../db/schema/notifications';
@@ -42,8 +42,8 @@ export interface TwoFirmFixture {
   firmB: Firm;
   userA: User;
   userB: User;
-  studentA: Student;
-  studentB: Student;
+  studentA: Applicant;
+  studentB: Applicant;
   /** One seeded document for studentA — no real S3 object, just DB metadata. */
   documentA: Document;
   /** One seeded document for studentB. */
@@ -110,17 +110,17 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
   );
 
   const studentA = await seedInFirm(firmA.id, (tx) =>
-    createStudent(tx as typeof db, firmA.id, {
+    createApplicant(tx as typeof db, firmA.id, {
       email: `student-a-${tag}@ct.test`,
-      first_name: 'Student',
+      first_name: 'Applicant',
       last_name: 'Alpha',
     }),
   );
 
   const studentB = await seedInFirm(firmB.id, (tx) =>
-    createStudent(tx as typeof db, firmB.id, {
+    createApplicant(tx as typeof db, firmB.id, {
       email: `student-b-${tag}@ct.test`,
-      first_name: 'Student',
+      first_name: 'Applicant',
       last_name: 'Beta',
     }),
   );
@@ -131,7 +131,7 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .insert(documents)
       .values({
         firm_id: firmA.id,
-        student_id: studentA.id,
+        applicant_id: studentA.id,
         document_type: 'passport',
         s3_key: `${studentA.ai_key}/documents/passport/test-a.pdf`,
         s3_bucket: 'test-bucket',
@@ -147,7 +147,7 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .insert(documents)
       .values({
         firm_id: firmB.id,
-        student_id: studentB.id,
+        applicant_id: studentB.id,
         document_type: 'passport',
         s3_key: `${studentB.ai_key}/documents/passport/test-b.pdf`,
         s3_bucket: 'test-bucket',
@@ -163,7 +163,7 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .insert(tasks)
       .values({
         firm_id: firmA.id,
-        student_id: studentA.id,
+        applicant_id: studentA.id,
         task_type: 'general',
         title: `CT Task A ${tag}`,
         status: 'open',
@@ -177,7 +177,7 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .insert(tasks)
       .values({
         firm_id: firmB.id,
-        student_id: studentB.id,
+        applicant_id: studentB.id,
         task_type: 'general',
         title: `CT Task B ${tag}`,
         status: 'open',

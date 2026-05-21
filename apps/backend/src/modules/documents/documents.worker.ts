@@ -42,5 +42,9 @@ export function startHashingWorker() {
     console.error(`[hashing-worker] job ${job?.id} failed:`, err.message);
   });
 
+  worker.on('error', (err) => {
+    console.error('[hashing-worker] worker error:', err.message);
+  });
+
   return worker;
 }

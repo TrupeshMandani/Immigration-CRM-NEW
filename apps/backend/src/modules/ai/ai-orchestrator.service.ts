@@ -20,7 +20,7 @@ export interface OAIMessage {
 
 export interface AIJobContext {
   firmId: string;
-  relatedEntityType: 'document' | 'student' | 'case';
+  relatedEntityType: 'document' | 'applicant' | 'case';
   relatedEntityId: string;
 }
 

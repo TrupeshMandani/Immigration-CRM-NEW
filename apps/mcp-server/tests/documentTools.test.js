@@ -95,7 +95,7 @@ describe("Document Tools Module", () => {
 
       expect(result.success).toBe(true);
       expect(httpClient.post).toHaveBeenCalledWith(
-        "/students/test-key/required-documents/files",
+        "/applicants/test-key/required-documents/files",
         expect.any(Object),
         expect.objectContaining({
           headers: expect.any(Object),
@@ -131,7 +131,7 @@ describe("Document Tools Module", () => {
       expect(result.success).toBe(true);
       expect(result.files).toHaveLength(2);
       expect(result.totalFiles).toBe(2);
-      expect(httpClient.get).toHaveBeenCalledWith("/students/test-key/files");
+      expect(httpClient.get).toHaveBeenCalledWith("/applicants/test-key/files");
     });
   });
 
@@ -159,7 +159,7 @@ describe("Document Tools Module", () => {
       expect(result.success).toBe(true);
       expect(result.url).toBe("https://s3.example.com/signed-url");
       expect(httpClient.get).toHaveBeenCalledWith(
-        "/students/test-key/required-documents/doc-123/files/file-456/url"
+        "/applicants/test-key/required-documents/doc-123/files/file-456/url"
       );
     });
   });
@@ -189,7 +189,7 @@ describe("Document Tools Module", () => {
 
       expect(result.success).toBe(true);
       expect(httpClient.post).toHaveBeenCalledWith(
-        "/students/test-key/required-documents/doc-123/files/file-456/verify",
+        "/applicants/test-key/required-documents/doc-123/files/file-456/verify",
         { verified: true, notes: "Document looks good" }
       );
     });
@@ -215,7 +215,7 @@ describe("Document Tools Module", () => {
 
       expect(result.success).toBe(true);
       expect(httpClient.post).toHaveBeenCalledWith(
-        "/students/test-key/documents/doc-123/rename",
+        "/applicants/test-key/documents/doc-123/rename",
         { newName: "new-passport.pdf" }
       );
     });
@@ -240,7 +240,7 @@ describe("Document Tools Module", () => {
 
       expect(result.success).toBe(true);
       expect(httpClient.delete).toHaveBeenCalledWith(
-        "/students/test-key/required-documents/doc-123"
+        "/applicants/test-key/required-documents/doc-123"
       );
     });
   });
