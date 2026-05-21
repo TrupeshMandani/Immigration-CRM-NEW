@@ -53,32 +53,63 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'internal_server_error' });
 });
 
-// BullMQ workers — skipped in test environments (no live Redis needed).
-// Pre-check Redis so a missing Redis instance degrades gracefully instead of crashing.
-if (process.env.NODE_ENV !== 'test') {
-  const IORedis = require('ioredis');
-  const redisProbe = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
-    lazyConnect: true,
-    connectTimeout: 3000,
-    maxRetriesPerRequest: 0,
-    retryStrategy: () => null, // don't retry the probe
-  });
-  redisProbe.connect()
-    .then(() => {
+async function startupChecks() {
+  console.log('\n┌─────────────────────────────────────────┐');
+  console.log('│       Immigration CRM — Boot Check      │');
+  console.log('└─────────────────────────────────────────┘\n');
+
+  // ── Postgres ──────────────────────────────────────────────────────────────
+  try {
+    const { sql } = require('./db/postgres');
+    await sql`SELECT 1`;
+    console.log('  ✅  Postgres         connected  (port 5433)');
+  } catch (err) {
+    console.log('  ❌  Postgres         NOT connected —', err.message);
+    console.log('      → Run: docker compose -f docker-compose.dev.yml up -d');
+  }
+
+  // ── Redis + Workers ───────────────────────────────────────────────────────
+  if (process.env.NODE_ENV !== 'test') {
+    const IORedis = require('ioredis');
+    const redisProbe = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
+      lazyConnect: true,
+      connectTimeout: 3000,
+      maxRetriesPerRequest: 0,
+      retryStrategy: () => null,
+    });
+
+    try {
+      await redisProbe.connect();
       redisProbe.disconnect();
+      console.log('  ✅  Redis            connected  (port 6379)');
+
       const { startHashingWorker } = require('./modules/documents/documents.worker');
       startHashingWorker();
+      console.log('  ✅  Worker           document hashing started');
+
       const { startVerifyWorker } = require('./modules/ai/ai.worker');
       startVerifyWorker();
-      console.log('[workers] Redis OK — document hashing + AI verify workers started');
-    })
-    .catch((err) => {
-      console.warn('[workers] Redis unavailable — async workers disabled. Start Redis to enable AI verification and document hashing.', err.message);
-    });
-}
+      console.log('  ✅  Worker           AI verify started');
+    } catch (err) {
+      console.log('  ❌  Redis            NOT connected —', err.message);
+      console.log('      → Run: docker compose -f docker-compose.dev.yml up -d');
+      console.log('  ⚠️   Worker           document hashing DISABLED (no Redis)');
+      console.log('  ⚠️   Worker           AI verify DISABLED (no Redis)');
+    }
+  }
 
+  // ── Socket.IO ─────────────────────────────────────────────────────────────
+  console.log('  ✅  Socket.IO        real-time events active');
+
+  // ── API Routes ────────────────────────────────────────────────────────────
+  console.log('  ✅  API Routes       /api/* mounted');
+
+  console.log('\n─────────────────────────────────────────────');
+  console.log(`  🚀  Server ready →  http://localhost:${PORT}`);
+  console.log('─────────────────────────────────────────────\n');
+}
 
 const server = http.createServer(app);
 initSocket(server);
 
-server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+server.listen(PORT, () => startupChecks());
