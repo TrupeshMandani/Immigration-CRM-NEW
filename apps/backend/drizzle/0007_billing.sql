@@ -27,7 +27,7 @@ CREATE POLICY tenant_isolation ON firm_stripe_accounts
 CREATE TABLE IF NOT EXISTS retainer_agreements (
   id               TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
   firm_id          TEXT NOT NULL REFERENCES firms(id) ON DELETE CASCADE,
-  student_id       TEXT NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+  applicant_id       TEXT NOT NULL REFERENCES applicants(id) ON DELETE CASCADE,
   version          INTEGER NOT NULL DEFAULT 1,
   template_key     TEXT NOT NULL,
   rendered_html    TEXT,
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS retainer_agreements (
   created_at       TIMESTAMPTZ DEFAULT NOW()
 );
 --> statement-breakpoint
-CREATE INDEX IF NOT EXISTS retainer_agreements_firm_student_idx
-  ON retainer_agreements (firm_id, student_id);
+CREATE INDEX IF NOT EXISTS retainer_agreements_firm_applicant_idx
+  ON retainer_agreements (firm_id, applicant_id);
 --> statement-breakpoint
 GRANT SELECT, INSERT, UPDATE, DELETE ON retainer_agreements TO icrm_app;
 --> statement-breakpoint
@@ -59,7 +59,7 @@ CREATE POLICY tenant_isolation ON retainer_agreements
 CREATE TABLE IF NOT EXISTS invoices (
   id                        TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
   firm_id                   TEXT NOT NULL REFERENCES firms(id) ON DELETE CASCADE,
-  student_id                TEXT NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+  applicant_id                TEXT NOT NULL REFERENCES applicants(id) ON DELETE CASCADE,
   retainer_id               TEXT REFERENCES retainer_agreements(id) ON DELETE SET NULL,
   amount_cents              INTEGER NOT NULL,
   currency                  TEXT NOT NULL DEFAULT 'CAD',
@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS invoices (
   created_at                TIMESTAMPTZ DEFAULT NOW()
 );
 --> statement-breakpoint
-CREATE INDEX IF NOT EXISTS invoices_firm_student_idx
-  ON invoices (firm_id, student_id);
+CREATE INDEX IF NOT EXISTS invoices_firm_applicant_idx
+  ON invoices (firm_id, applicant_id);
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS invoices_stripe_invoice_id_idx
   ON invoices (stripe_invoice_id)
@@ -96,7 +96,7 @@ CREATE POLICY tenant_isolation ON invoices
 CREATE TABLE IF NOT EXISTS trust_ledger (
   id                      TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
   firm_id                 TEXT NOT NULL REFERENCES firms(id) ON DELETE CASCADE,
-  student_id              TEXT REFERENCES students(id) ON DELETE SET NULL,
+  applicant_id              TEXT REFERENCES applicants(id) ON DELETE SET NULL,
   amount_cents            INTEGER NOT NULL,
   entry_type              TEXT NOT NULL
     CHECK (entry_type IN ('deposit','withdrawal','transfer_to_operating','refund')),

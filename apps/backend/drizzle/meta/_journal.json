@@ -22,6 +22,13 @@
       "when": 1778357956824,
       "tag": "0002_organic_trish_tilby",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779393891927,
+      "tag": "0003_fast_hellfire_club",
+      "breakpoints": true
     }
   ]
 }
