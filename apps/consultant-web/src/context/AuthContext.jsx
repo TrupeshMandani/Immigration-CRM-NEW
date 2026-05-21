@@ -111,7 +111,7 @@ export const AuthProvider = ({ children }) => {
 
   const isAuthenticated = !!user && !!token;
   const isAdmin = user?.role === "admin";
-  const isStudent = user?.role === "student";
+  const isApplicant = user?.role === "applicant";
 
   const value = {
     user,
@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }) => {
     loginWithFirebaseToken,
     isAuthenticated,
     isAdmin,
-    isStudent,
+    isApplicant,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -51,11 +51,11 @@ const Login = () => {
 
       if (authUser.role === "admin") {
         navigate("/admin/dashboard", { replace: true });
-      } else if (authUser.role === "student") {
+      } else if (authUser.role === "applicant") {
         if (authUser.isFirstLogin) {
-          navigate("/student/change-password", { replace: true });
+          navigate("/applicant/change-password", { replace: true });
         } else {
-          navigate("/student/profile", { replace: true });
+          navigate("/applicant/dashboard", { replace: true });
         }
       }
     },

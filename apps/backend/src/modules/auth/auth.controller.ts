@@ -50,10 +50,20 @@ const setRefreshCookie = (res: Response, refreshToken: string) =>
     path: '/api/auth/refresh',
   });
 
+const log = (emoji: string, msg: string, extra?: unknown) => {
+  const ts = new Date().toTimeString().slice(0, 8);
+  if (extra !== undefined) {
+    console.log(`  ${emoji} [auth ${ts}] ${msg}`, extra);
+  } else {
+    console.log(`  ${emoji} [auth ${ts}] ${msg}`);
+  }
+};
+
 // ─── login ────────────────────────────────────────────────────────────────────
 export async function login(req: Request, res: Response): Promise<void> {
   try {
     const { username, password } = req.body as LoginBody;
+    log('🔑', `Admin login attempt → ${username}`);
     if (!username || !password) {
       res.status(400).json({ message: 'Username and password required' });
       return;
@@ -68,8 +78,12 @@ export async function login(req: Request, res: Response): Promise<void> {
 
     if (admin) {
       const valid = await bcrypt.compare(password, admin.password_hash ?? '');
-      if (!valid) { res.status(401).json({ message: 'Invalid credentials' }); return; }
-
+      if (!valid) {
+        log('❌', `Admin login failed — wrong password for ${email}`);
+        res.status(401).json({ message: 'Invalid credentials' });
+        return;
+      }
+      log('✅', `Admin login success → ${email} (role: ${admin.role})`);
       const token = generateToken({ ...admin, role: admin.role ?? 'admin' }, firmId);
       setRefreshCookie(res, generateRefreshToken({ ...admin, role: admin.role ?? 'admin' }, firmId));
       res.json({
@@ -101,8 +115,10 @@ export async function login(req: Request, res: Response): Promise<void> {
 // ─── firebaseLogin ────────────────────────────────────────────────────────────
 export async function firebaseLogin(req: Request, res: Response): Promise<void> {
   try {
+    log('🔥', 'Firebase login request received');
     const firebaseAdmin = getFirebaseAdmin();
     if (!firebaseAdmin) {
+      log('❌', 'Firebase Admin SDK not configured — check FIREBASE_* env vars');
       res.status(500).json({ message: 'Firebase authentication is not configured.' });
       return;
     }
@@ -112,6 +128,7 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
 
     const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
     const email = decoded.email?.toLowerCase();
+    log('🔍', `Firebase token verified → ${email} (provider: ${decoded.firebase?.sign_in_provider})`);
     if (!email) { res.status(400).json({ message: 'Firebase user is missing an email address.' }); return; }
 
     if (decoded.email_verified === false) {
@@ -139,6 +156,7 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
       .limit(1);
 
     if (!student) {
+      log('➕', `New applicant — auto-creating account for ${email}`);
       let aiKey = generateAiKey(displayName || email);
       const existing = await db.select({ ai_key: applicants.ai_key }).from(applicants)
         .where(eq(applicants.ai_key, aiKey)).limit(1);
@@ -161,6 +179,7 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
       }
     }
 
+    log('✅', `Firebase login success → ${email} (applicant id: ${student.id})`);
     const studentUser = { ...student, role: 'applicant' };
     const token = generateToken(studentUser, firmId);
     setRefreshCookie(res, generateRefreshToken(studentUser, firmId));
@@ -178,6 +197,7 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
       },
     });
   } catch (error) {
+    log('❌', 'Firebase login error:', (error as Error).message);
     console.error('Firebase login error:', error);
     if ((error as { code?: string }).code === 'auth/invalid-id-token') {
       res.status(401).json({ message: 'Invalid Firebase token.' });
@@ -191,6 +211,7 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
 export async function sendLoginLink(req: Request, res: Response): Promise<void> {
   try {
     const emailRaw = (req.body as SendLoginLinkBody)?.email;
+    log('📧', `Login link requested for → ${emailRaw}`);
     if (!emailRaw || typeof emailRaw !== 'string') {
       res.status(400).json({ message: 'Email address is required.' });
       return;
@@ -218,6 +239,7 @@ export async function sendLoginLink(req: Request, res: Response): Promise<void> 
       : email.split('@')[0];
 
     const invite = await sendApplicantInviteEmail({ email, name });
+    log(invite.emailSent ? '✅' : '⚠️', `Login link ${invite.emailSent ? 'sent' : 'generated but email FAILED'} → ${email}`);
     res.json({
       message: invite.emailSent
         ? 'Check your inbox for a secure login link.'
@@ -226,6 +248,7 @@ export async function sendLoginLink(req: Request, res: Response): Promise<void> 
       loginLink: invite.loginLink,
     });
   } catch (error) {
+    log('❌', 'Send login link error:', (error as Error).message);
     console.error('Send login link error:', error);
     res.status(500).json({ message: 'Unable to send the login link right now.' });
   }
