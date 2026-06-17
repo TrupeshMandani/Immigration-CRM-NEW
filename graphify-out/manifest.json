@@ -1,39 +1,51 @@
 {
-  "/Volumes/Trupesh/Immigration-CRM/packages/shared-types/students.ts": {
-    "mtime": 1778357570.931297,
-    "hash": "724f2d9e9ea56f4db512113b577fa5ea"
+  "/Volumes/Trupesh/Immigration-CRM/packages/shared-types/documents.js": {
+    "mtime": 1781734601.8214836,
+    "hash": "6deebea792472e1d8eb0eea0b8a853d8"
   },
   "/Volumes/Trupesh/Immigration-CRM/packages/shared-types/applicants.ts": {
-    "mtime": 1779305918.7547548,
-    "hash": "546082b384ca4933df24706babe6acfb"
+    "mtime": 1779409157.1939864,
+    "hash": "46cf0404c8013ef98efe4db1fe6d1a74"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/packages/shared-types/cases.js": {
+    "mtime": 1781734601.9849093,
+    "hash": "6f097a906a97259e87a4f219a4a99769"
   },
   "/Volumes/Trupesh/Immigration-CRM/packages/shared-types/mcp.ts": {
-    "mtime": 1778741965.8687863,
-    "hash": "0155a9d1679fdb834d4c73c3a4d10733"
+    "mtime": 1779410944.1919093,
+    "hash": "1664b85adb81e67a3c3606e39bcccd33"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/packages/shared-types/applicants.js": {
+    "mtime": 1781734601.8264472,
+    "hash": "c0c21fb9b448654031189f900fe37812"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/packages/shared-types/cases.ts": {
+    "mtime": 1781731985.112733,
+    "hash": "0b942857d748e855488c5f2caad101e2"
   },
   "/Volumes/Trupesh/Immigration-CRM/packages/shared-types/documents.ts": {
-    "mtime": 1779054368.2929845,
-    "hash": "e6f1efc9f6e1056395ea5d5b281238bb"
+    "mtime": 1779409157.1963973,
+    "hash": "281e1b5288ca6569bc79eabc887b9227"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/index.js": {
     "mtime": 1773571900.0,
     "hash": "a65c48fa8b1f674d17bc646e62046ef8"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/tools/taskTools.js": {
-    "mtime": 1779392632.806865,
-    "hash": "946227d847767e1efb42ca1b1494fafe"
+    "mtime": 1779409157.180504,
+    "hash": "293f71055f4733985de1bd0d72c1afe2"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/tools/_toolRegistry.js": {
     "mtime": 1773571901.0,
     "hash": "a1d785917dfd4325395cfec787b24fd1"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/tools/applicantTools.js": {
-    "mtime": 1779392632.8034983,
-    "hash": "77ea459aa195183df5c47775ebbc4c75"
+    "mtime": 1779409157.1791925,
+    "hash": "2484bb470a4f3a5e48195cea001a0078"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/tools/documentTools.js": {
-    "mtime": 1779392632.805375,
-    "hash": "f52ac456c799d4c87b862882498210a8"
+    "mtime": 1779410949.3820236,
+    "hash": "62d3eb7e7716834fbe6c9e3278ddb214"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/tools/emailTools.js": {
     "mtime": 1773571900.0,
@@ -56,16 +68,16 @@
     "hash": "146f7a330f7a87c945ace6501df08344"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/tests/applicantTools.test.js": {
-    "mtime": 1779392632.810997,
-    "hash": "c3f666d1b0a71cf3c162b164c1388aeb"
+    "mtime": 1779410951.093909,
+    "hash": "32b0d2ad8db9a74260cc339efdb9563c"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/tests/documentTools.test.js": {
-    "mtime": 1779392632.8126,
-    "hash": "88a9a2807af8f31c7a5871ab3c5a8e87"
+    "mtime": 1779410951.0939035,
+    "hash": "dcd0756575dc15f1ed48399f622ca1ec"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/tests/taskTools.test.js": {
-    "mtime": 1779392632.814632,
-    "hash": "67e7e0982acc0718c22a64e3f3022ca7"
+    "mtime": 1779409157.1783912,
+    "hash": "e9b4e544b085f79b225c97b10d548244"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/utils/authContext.js": {
     "mtime": 1778742008.868494,
@@ -80,11 +92,11 @@
     "hash": "6512c5e245e13ea18a163553d1bfd8fc"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/mcp/chatProcessor.js": {
-    "mtime": 1779392632.8087366,
-    "hash": "6bfa45b8d7b1c86b7b8eb1f40dd91490"
+    "mtime": 1779409157.1716692,
+    "hash": "f7cfb0274d4a47daba46f9d6d873e2c0"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/controllers/chat.controller.js": {
-    "mtime": 1778742054.716208,
+    "mtime": 1778742054.716207,
     "hash": "a147e6d5f81ddae844e4b37441bb9bff"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/routes/chat.routes.js": {
@@ -96,8 +108,8 @@
     "hash": "f7d36980402b91fa621d217b64b4f4b7"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/services/applicant.service.js": {
-    "mtime": 1779392632.8022938,
-    "hash": "8d2418817953e08aba8748655c569dec"
+    "mtime": 1779409157.1758099,
+    "hash": "708f75aa478afcb8c0287c9cae341897"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/services/mcp.service.js": {
     "mtime": 1773571900.0,
@@ -124,28 +136,28 @@
     "hash": "ed7ceeb9657cb233151b812adb12ffdc"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/App.jsx": {
-    "mtime": 1779392851.1048455,
-    "hash": "d3f997ff3e3826958c576af763385620"
+    "mtime": 1781732760.5221186,
+    "hash": "c076a59238fda89fde97da72e8dbdb9f"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/context/AuthContext.jsx": {
     "mtime": 1779402775.9219806,
     "hash": "6ed1d019164e8872fb07d01b269595bd"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/context/NotificationContext.jsx": {
-    "mtime": 1779392851.1147413,
-    "hash": "e3b300923aab53b48ba44d6c49023810"
+    "mtime": 1779409518.1478744,
+    "hash": "83e623d92cf910021f779508beaad4cd"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/utils/requiredDocs.js": {
     "mtime": 1779392851.1186593,
     "hash": "a3d4feb8581124e5039e5100a85ed2d0"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/utils/ProtectedRoute.jsx": {
-    "mtime": 1779392851.1227334,
-    "hash": "0699e1ebd9cf740f00442047d3b3fbd4"
+    "mtime": 1779409157.168954,
+    "hash": "8c1c39db0e8ea0d37f5cbd5a7769515d"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/utils/fileName.js": {
-    "mtime": 1779392851.1270351,
-    "hash": "0488769104f6c21b073ff9c857cbdc28"
+    "mtime": 1779409157.1696389,
+    "hash": "d68e5ec20ec21333ed1888b8178feb68"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/styles/theme.js": {
     "mtime": 1779392851.1310906,
@@ -268,8 +280,8 @@
     "hash": "9c82b9e71e7107048a0255867099e151"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/chat/ChatComponent.jsx": {
-    "mtime": 1779392851.4761815,
-    "hash": "05983da1b735f4ae034413ed49814940"
+    "mtime": 1779409518.1594794,
+    "hash": "8b7d5cc22539e825ed847fa992c317ed"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/chat/MessageRenderer.jsx": {
     "mtime": 1779392851.4803674,
@@ -280,72 +292,52 @@
     "hash": "8f393b437cdd81147b250110ae8caaa7"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/layout/AdminLayout.jsx": {
-    "mtime": 1779392851.4899182,
-    "hash": "dda649e0755f3fb1b2061524d6723ca2"
+    "mtime": 1781732771.7697017,
+    "hash": "7153db0a4c016646a2a8b3f9b892470b"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/layout/Footer.jsx": {
-    "mtime": 1779392851.4952343,
-    "hash": "96fd83e61046fff061190d0de4b0f285"
+    "mtime": 1779409157.1044803,
+    "hash": "26d5d11b60dea2f450ce8f77db507f9d"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/layout/AppSplitterLayout.jsx": {
     "mtime": 1779392851.499715,
     "hash": "516c47e6a59a53fc52aff5f3d732f94b"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/layout/Navbar.jsx": {
-    "mtime": 1779392851.504082,
-    "hash": "d63d44ea55671f62f68129441c5fe28d"
+    "mtime": 1779409157.1068754,
+    "hash": "1f0c8ae84b2db0684e0f6572fa83de2a"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/layout/ApplicantLayout.jsx": {
-    "mtime": 1779392851.5094407,
-    "hash": "46adf067ee5cfc3738e369eba4a942d4"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/student/ApplicantJourneyFlow.jsx": {
-    "mtime": 1779392851.5154138,
-    "hash": "339dcd9217016bcbbdd0763c4cee6171"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/student/RequiredDocuments.jsx": {
-    "mtime": 1779392851.5210874,
-    "hash": "83c5ec685159a88a2149966f2a276232"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/student/DocumentManager.jsx": {
-    "mtime": 1779392851.5268881,
-    "hash": "df305fb319cfb3a1cfc4e2b2c8a119b5"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/student/UploadConfirmationModal.jsx": {
-    "mtime": 1779392851.531471,
-    "hash": "6603a54e7162c1492ecba8f6fb9397bb"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/student/DocumentUpload.jsx": {
-    "mtime": 1779392851.5357637,
-    "hash": "ab33ded26e1c40b714cbe419a746b417"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/student/ProfileFieldDisplay.jsx": {
-    "mtime": 1779392851.5398872,
-    "hash": "5a567ef2efe76aae5b190efa1346556a"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/student/UploadedFilesModal.jsx": {
-    "mtime": 1779392851.544268,
-    "hash": "284b81325a1172eafc1bc6d81de70a1e"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/student/DocumentViewer.jsx": {
-    "mtime": 1779392851.5485687,
-    "hash": "fc9229cdcae6a75e00b4f5a5f2b8d51c"
+    "mtime": 1779409518.135074,
+    "hash": "7350a7c4d098d15a55c7173f97f511b9"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/admin/ApplicantCard.jsx": {
-    "mtime": 1779392851.5527909,
-    "hash": "79a0df07adcfacc469e682d93cfa8a2f"
+    "mtime": 1779409509.4755673,
+    "hash": "b0878513549b8dda6ec61a1fe58996c3"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/admin/CaseStatusBadge.jsx": {
+    "mtime": 1781732587.1896951,
+    "hash": "f32bc419aad8d32371d2e399a6503a2e"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/admin/CaseTypeBadge.jsx": {
+    "mtime": 1781732594.7707274,
+    "hash": "f3665aa2ce820659a59b42722f0a05a5"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/admin/RequiredDocumentsAdmin.jsx": {
-    "mtime": 1779392851.5586522,
-    "hash": "fd43782158a979efa4015c62de46860e"
+    "mtime": 1779409528.9854524,
+    "hash": "f21df9fe7e65e1157237569613dc1036"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/admin/CaseCard.jsx": {
+    "mtime": 1781732607.8526378,
+    "hash": "62769d7867418844a98aa2d14ae945ba"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/admin/NotificationBell.jsx": {
-    "mtime": 1779392851.5633142,
-    "hash": "d29fb0adf8bcf12ffdabaac8c31e7924"
+    "mtime": 1779409513.541896,
+    "hash": "366fb33fff515288fafab2089ad2ea99"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/admin/ApplicantListItem.jsx": {
-    "mtime": 1779392851.567389,
-    "hash": "87cae05a0cc5f92b109ccf873ee17560"
+    "mtime": 1779409512.0329049,
+    "hash": "1a1fed415db6b1491cf2f7cdf5de823d"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/common/VerificationBadge.jsx": {
     "mtime": 1779392851.5715642,
@@ -356,7 +348,7 @@
     "hash": "8c7beee527563d486a411416b1d7c185"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/common/ErrorBoundary.jsx": {
-    "mtime": 1779392851.5803316,
+    "mtime": 1779392851.580331,
     "hash": "79937e7ef984db90c729d7dd8552e67a"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/common/Toast.jsx": {
@@ -383,8 +375,40 @@
     "mtime": 1779392851.6049693,
     "hash": "d26af479517a3a8c2fb7c794db5fd1c8"
   },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/applicant/ApplicantJourneyFlow.jsx": {
+    "mtime": 1779409157.1089938,
+    "hash": "1a6dc7c64cea968782b0a38551f5190a"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/applicant/RequiredDocuments.jsx": {
+    "mtime": 1779409518.1698365,
+    "hash": "21fcdb9c2752591b0d22f05b2d3460b3"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/applicant/DocumentManager.jsx": {
+    "mtime": 1779409518.1772776,
+    "hash": "b0c5e8b7632cf3fe089904c0a4363c98"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/applicant/UploadConfirmationModal.jsx": {
+    "mtime": 1779392851.531471,
+    "hash": "6603a54e7162c1492ecba8f6fb9397bb"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/applicant/DocumentUpload.jsx": {
+    "mtime": 1779409518.1643307,
+    "hash": "13c3851f05feaf53761d8b7d13d63da6"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/applicant/ProfileFieldDisplay.jsx": {
+    "mtime": 1779392851.5398872,
+    "hash": "5a567ef2efe76aae5b190efa1346556a"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/applicant/UploadedFilesModal.jsx": {
+    "mtime": 1779392851.544268,
+    "hash": "284b81325a1172eafc1bc6d81de70a1e"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/components/applicant/DocumentViewer.jsx": {
+    "mtime": 1779392851.5485687,
+    "hash": "fc9229cdcae6a75e00b4f5a5f2b8d51c"
+  },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/firebase/config.js": {
-    "mtime": 1779392851.1349285,
+    "mtime": 1779392851.134928,
     "hash": "73cd6f89db3b013d532280d0fe97406a"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/hooks/useNotifications.js": {
@@ -392,7 +416,7 @@
     "hash": "a039461d7e39589979b279b55cec9d14"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/hooks/useSocket.jsx": {
-    "mtime": 1779392851.1434312,
+    "mtime": 1779392851.143431,
     "hash": "9f6553f1e9e51f513da7d921fe873f44"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/hooks/useTasks.js": {
@@ -400,32 +424,36 @@
     "hash": "1ad465f32031f9b02d112d20ebfa5315"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/hooks/useApplicants.js": {
-    "mtime": 1779392851.151559,
-    "hash": "063b8557210fa326e584d6b9f6fc5d74"
+    "mtime": 1779409157.1207056,
+    "hash": "9d41f88320550f27da64c764090bf8c3"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/hooks/useCases.js": {
+    "mtime": 1781732574.6001847,
+    "hash": "e75d09ebcb01d1733e5f72f189a07f0e"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/hooks/useRole.jsx": {
-    "mtime": 1779392851.15587,
-    "hash": "475566a7db3cd4977550e0ad3a72944b"
+    "mtime": 1779409157.1223645,
+    "hash": "092931300557536355ac3e20e73e84c3"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/hooks/useViewMode.js": {
     "mtime": 1779392851.1602793,
     "hash": "71b9f1d69547c4aa2a01fb7d1d1df8e9"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/lib/api.ts": {
-    "mtime": 1779392851.1648378,
-    "hash": "f529c4812556956dc554bc1092d5c647"
+    "mtime": 1781732563.464308,
+    "hash": "38cfbff742836df080f88fb64d8f1d1a"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/lib/utils.js": {
     "mtime": 1779392851.1686418,
     "hash": "83545aa57e5a38a104b53d08868db698"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/Landing.jsx": {
-    "mtime": 1779392851.1731956,
-    "hash": "7029dae453fb1bf2fe1dfcaeb72e11c7"
+    "mtime": 1779409518.1425645,
+    "hash": "fa9b11984f9a5e7f1b599786f15ca152"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/Forbidden.jsx": {
-    "mtime": 1779392851.1774583,
-    "hash": "30d07d2da2eefef3aa0387403d102f04"
+    "mtime": 1779409157.1239564,
+    "hash": "a1a9ea423567b8b8905f93ebee277b2f"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/About.jsx": {
     "mtime": 1779392851.1816156,
@@ -440,16 +468,16 @@
     "hash": "5e8dc7fa71caf10492158bf83043d775"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/Login.jsx": {
-    "mtime": 1779402766.3000808,
-    "hash": "4abeebb1e8b35217f8bdb7fc91da1d08"
+    "mtime": 1779409524.6921053,
+    "hash": "c81792dc3da88f60016645b86e962919"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/Pricing.jsx": {
     "mtime": 1779392851.1999404,
     "hash": "667d160bc23db623fa714be3493e26b5"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/Register.jsx": {
-    "mtime": 1779392851.2041502,
-    "hash": "2cce91f5052b60af214e909238b0b6ea"
+    "mtime": 1779409528.990584,
+    "hash": "505ed746c332a5492b2359edf587b6e6"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/Services.jsx": {
     "mtime": 1779392851.2099535,
@@ -459,101 +487,113 @@
     "mtime": 1779392851.2173426,
     "hash": "3e7aa5a5adc886728c2f357dd5a22c2f"
   },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/student/Documents.jsx": {
-    "mtime": 1779392851.2727535,
-    "hash": "e4029f0ed409e7aea1fe92182d595958"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/student/PayInvoice.jsx": {
-    "mtime": 1779392851.277013,
-    "hash": "a99d8636fd58448c8fae0f67e26f6a71"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/student/ApplicantProfile.jsx": {
-    "mtime": 1779392851.2820652,
-    "hash": "a520e8a086e04c281042fda2456eea31"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/student/UniversityRecommendations.jsx": {
-    "mtime": 1779392851.2873666,
-    "hash": "3b4b977377abe06248bd4cda1c73ffd7"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/student/Tasks.jsx": {
-    "mtime": 1779392851.2924514,
-    "hash": "76eac4bd50ad549385f4b9354287d745"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/student/ApplicantDashboard.jsx": {
-    "mtime": 1779392851.2968235,
-    "hash": "da8420337219a3b33f4be9879b869314"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/student/Retainer.jsx": {
-    "mtime": 1779392851.3010657,
-    "hash": "c6a139d3a99fd365a4d2eae1e6a781a6"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/student/ChangePassword.jsx": {
-    "mtime": 1779392851.3054936,
-    "hash": "be89d4c3b46e288a070c483f4b574a61"
-  },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/ContactRequests.jsx": {
-    "mtime": 1779392851.3101528,
-    "hash": "c207caa63ac4a1fd48488113983ad5ae"
+    "mtime": 1779409543.1464968,
+    "hash": "b8d10162b3122acb644ae8409e630cce"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/Notifications.jsx": {
-    "mtime": 1779392851.3163729,
-    "hash": "ee78fb1f513e88b79b273ce6af03ab1a"
+    "mtime": 1779409157.1448588,
+    "hash": "15e2e1de7b5d5c92c0dc5122f5214d3e"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/CreateApplicant.jsx": {
-    "mtime": 1779392851.3218935,
-    "hash": "e57d3ebd39489c4bd9f94092c5511ed9"
+    "mtime": 1779409543.1471407,
+    "hash": "fe8a768bd5f480de547c93c3b0dc57e6"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/AdminDashboard.jsx": {
-    "mtime": 1779392851.3270504,
-    "hash": "73842c9538a6e99889a65c069ec30c3e"
+    "mtime": 1779409513.5245235,
+    "hash": "19b1b0dcd80857605161f70934bb7194"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/CreateCase.jsx": {
+    "mtime": 1781732681.780059,
+    "hash": "a7db9b1c0357d55ff1a8bed48daf88d5"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/ApplicantList.jsx": {
-    "mtime": 1779392851.3318315,
-    "hash": "8dd4f9738e52e076fd2f2a7e2dc5c1eb"
+    "mtime": 1779409506.5810869,
+    "hash": "d91a436f2e7014f5372bfd143a58fd10"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/CaseDetail.jsx": {
+    "mtime": 1781732741.6433704,
+    "hash": "962c1da6703625b9b3dc058a5011f8df"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/ApplicantDetail.jsx": {
-    "mtime": 1779392851.3378344,
-    "hash": "fcc1eaed49f102902b59481b0fc32757"
+    "mtime": 1779409537.6848326,
+    "hash": "708a230927b365950e1f8ffdfd26a3b6"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/Tasks.jsx": {
-    "mtime": 1779392851.343393,
-    "hash": "9a15f12c866a85cb2f10d6c93809bce1"
+    "mtime": 1779409513.531801,
+    "hash": "12770865cedd377a917a3051dec70e0f"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/RegisteredApplicants.jsx": {
-    "mtime": 1779392851.3477025,
-    "hash": "f68fb9d097a9b9f82105bacfe211958a"
+    "mtime": 1779409502.1549916,
+    "hash": "709ab77533a1e48c7f8dffe54448564b"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/CaseList.jsx": {
+    "mtime": 1781732650.3355567,
+    "hash": "c9ec0f2db155169ce35374086b442128"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/admin/AIAssistant.jsx": {
     "mtime": 1779392851.351596,
     "hash": "f876caa0ba1050904e50e6d16c0b9bfa"
   },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/applicant/Documents.jsx": {
+    "mtime": 1779409470.353545,
+    "hash": "cf4ccdce788a0512cc7c8972397a84a5"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/applicant/PayInvoice.jsx": {
+    "mtime": 1779409518.1844614,
+    "hash": "b438ca1b535915369bde5d7706681b80"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/applicant/ApplicantProfile.jsx": {
+    "mtime": 1779409516.8275177,
+    "hash": "5289936c48063a9d4b92bdce93c75426"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/applicant/UniversityRecommendations.jsx": {
+    "mtime": 1779410951.5071802,
+    "hash": "c7a07e00b5e8ead6db3f2e3110117791"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/applicant/Tasks.jsx": {
+    "mtime": 1779409516.836747,
+    "hash": "ef41bdeb43707d5d2bb0e048d60634bb"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/applicant/ApplicantDashboard.jsx": {
+    "mtime": 1779409516.831916,
+    "hash": "980a17039d16ddee77862b8bfc6d6296"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/applicant/Retainer.jsx": {
+    "mtime": 1779392851.3010657,
+    "hash": "c6a139d3a99fd365a4d2eae1e6a781a6"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/pages/applicant/ChangePassword.jsx": {
+    "mtime": 1779409157.1525927,
+    "hash": "ae780e47a2822180320ae9bcfc2984bb"
+  },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/services/billingService.js": {
-    "mtime": 1779392851.2222605,
-    "hash": "ed6de3e7eb511301d0b34e1c0eaefb5d"
+    "mtime": 1779409157.1637425,
+    "hash": "ecbf4fee5c31302b0f7f8be5c8478021"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/services/mcpAPI.js": {
     "mtime": 1779392851.2267838,
     "hash": "e9a58fb39c92576a937f0810c47ae999"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/services/recommendationService.js": {
-    "mtime": 1779392851.2308383,
-    "hash": "20b8500791c9bbf047692d038ca2c1f9"
+    "mtime": 1779409157.1644557,
+    "hash": "d6171742e84ed81fb3dcd415b286ea91"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/services/applicantTaskService.js": {
-    "mtime": 1779392851.2351475,
-    "hash": "e6ee9726191194af364b9c2b6be93684"
+    "mtime": 1779409157.1553936,
+    "hash": "78a66e57ed1529ba189c51603ed53f72"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/services/ai.service.js": {
-    "mtime": 1779392851.2399523,
-    "hash": "7bd2a40a87677289220a62c7813b31e1"
+    "mtime": 1779409157.1539223,
+    "hash": "09c7348b27db5441b3db8c5a50d67da7"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/services/requireDocService.js": {
-    "mtime": 1779392851.2450113,
-    "hash": "2a9a29b3082216480b5b003f724b1401"
+    "mtime": 1779409157.167209,
+    "hash": "57112ac22e6e81b1c73ee3168c71776c"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/services/authService.js": {
-    "mtime": 1779392851.2498052,
-    "hash": "fdc3d226a1495dfa7b361841757d63a0"
+    "mtime": 1779409157.1587808,
+    "hash": "2ce3efabe67a520074995626d919732f"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/services/taskService.js": {
     "mtime": 1779392851.2545533,
@@ -568,8 +608,8 @@
     "hash": "4c61304807e2adb39f2021e80fd79143"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/src/services/uploadService.js": {
-    "mtime": 1779392851.2681432,
-    "hash": "22ed4f40ce4a0d79994cb0205c3037fb"
+    "mtime": 1779409157.168275,
+    "hash": "a048e5ed7c5b587234d1ee6b325458be"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/drizzle.config.ts": {
     "mtime": 1778177794.5980675,
@@ -580,7 +620,7 @@
     "hash": "1b9576fbebaef10461141a9c5ea24658"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/index.js": {
-    "mtime": 1779402012.1109943,
+    "mtime": 1779402012.110994,
     "hash": "65d6af66059c20f3536f753fda333a3c"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/middleware/tenantContext.ts": {
@@ -588,7 +628,7 @@
     "hash": "937d3fcfa4ec1a6bcf2be286272641ff"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/middleware/auth.js": {
-    "mtime": 1779306052.91957,
+    "mtime": 1779306052.919569,
     "hash": "ec0076b26bf5bc9fd8ba7e31936b6a6e"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/middleware/index.ts": {
@@ -608,40 +648,40 @@
     "hash": "75c73fe7e31d26824c6fa4e1987fb38f"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/utils/generateAiKey.js": {
-    "mtime": 1773571900.0,
-    "hash": "65987b0921794d2b1d5855afd58272a5"
+    "mtime": 1779409157.080903,
+    "hash": "21656064c388223ceb9a234a8cf471a6"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/utils/firebaseAdmin.js": {
     "mtime": 1773571901.0,
     "hash": "e1b28c11b04acb72e3072f20626f05d2"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/utils/fileName.js": {
-    "mtime": 1778783624.2099297,
-    "hash": "a24d280f295a249b245d0013faec0aae"
+    "mtime": 1779409157.07957,
+    "hash": "f045dda0ae0086990ed2477b28b97b5e"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/utils/adminRecipients.js": {
-    "mtime": 1779306108.479657,
+    "mtime": 1779306108.479656,
     "hash": "3fa7c3768b0252effd85847557481228"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/__tests__/cross-tenant.test.ts": {
-    "mtime": 1779392877.6366148,
-    "hash": "5741923eae0812b95f38487a4aabd652"
+    "mtime": 1779409156.9858284,
+    "hash": "deb8b01f47d01c13020ef94bf5e60c23"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/__tests__/fixtures/multitenant.ts": {
-    "mtime": 1779392877.6355152,
-    "hash": "a431145541d766e337b17a28af3b6dbc"
+    "mtime": 1779409491.1519315,
+    "hash": "2e85893b63af6760391180cbe4be1280"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/AI/ai-recommendation/recommendation.route.js": {
-    "mtime": 1774552976.3080935,
-    "hash": "fb991d755560a543c24f352ab767cd0d"
+    "mtime": 1779409156.9849749,
+    "hash": "85ee821eda85f2f2f56941ac8728bc68"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/AI/ai-recommendation/recommendation.controller.js": {
-    "mtime": 1779306088.442743,
-    "hash": "721101106a56277c2cc69eab7536ba59"
+    "mtime": 1779409492.7045422,
+    "hash": "093a3e6e1a8fa4950cdf143e233c9637"
   },
-  "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/scripts/etl-students-mongo-to-pg.ts": {
-    "mtime": 1779306108.485664,
-    "hash": "b345a8f1d7d6f171e1368f4733e0678b"
+  "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/scripts/etl-applicants-mongo-to-pg.ts": {
+    "mtime": 1779409496.1237445,
+    "hash": "43b52139aab141ace179e17f7b05bddd"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/scripts/seed-default-firm.ts": {
     "mtime": 1779306108.498506,
@@ -652,8 +692,8 @@
     "hash": "1573c087488a69aab50fb984995fd29a"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/migrate.ts": {
-    "mtime": 1778780586.811607,
-    "hash": "e9b2e66e6903fa1cc3aab81df2dc3540"
+    "mtime": 1781732259.741728,
+    "hash": "a3049a8b722814004586e972f9e1c97d"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/postgres.ts": {
     "mtime": 1778354766.8110344,
@@ -662,10 +702,6 @@
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/trust_ledger.ts": {
     "mtime": 1779305824.5947251,
     "hash": "f02792d85ea53693ad8a7acad00352a6"
-  },
-  "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/students.ts": {
-    "mtime": 1778357899.0767353,
-    "hash": "592aa3f47d1cd65b1b298999b7c9e466"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/applicants.ts": {
     "mtime": 1779305798.8969498,
@@ -684,32 +720,36 @@
     "hash": "762d10f64ec43faaf9c013b0e066df14"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/cases.ts": {
-    "mtime": 1779393020.4548242,
-    "hash": "1ae115188bab2d412005863b9b8713b2"
+    "mtime": 1781732278.1871822,
+    "hash": "06d997fc0fc33cba45e382a2242bffa7"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/case_events.ts": {
+    "mtime": 1781731948.1523025,
+    "hash": "77655a58d7fd32d7fbff9ee65f2e7b30"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/documents.ts": {
-    "mtime": 1779393033.2460344,
-    "hash": "358a9ad4437173f14f1888f4a1683cf7"
+    "mtime": 1779409156.9886463,
+    "hash": "6d04237c8122cd17a91e6f37d5b01d27"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/users.ts": {
     "mtime": 1779305803.6457994,
     "hash": "0b0cf1451a1cef852f99d63ca41effef"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/index.ts": {
-    "mtime": 1779393065.478829,
-    "hash": "bed5b76ecd9899619479cb46e5028d95"
+    "mtime": 1781731960.5284915,
+    "hash": "26911eba58b050f1c0db3391266fc4d7"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/retainer_agreements.ts": {
     "mtime": 1779393059.2238402,
     "hash": "37e64806c96b279d82b2789c0beea835"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/tasks.ts": {
-    "mtime": 1779393055.7728336,
-    "hash": "2b1861793f622386315d349a3e7dae8a"
+    "mtime": 1779409156.9894373,
+    "hash": "5ea5eac5691a1b1bb74a65e7d39c0acd"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/ai_jobs.ts": {
-    "mtime": 1778736684.6719584,
-    "hash": "28877a3daa49cbaaffc9c6671a07e5b8"
+    "mtime": 1779409156.9877996,
+    "hash": "1bbc08946c37adbfd8392b9aea2f764b"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/db/schema/firm_stripe_accounts.ts": {
     "mtime": 1778780485.9762588,
@@ -720,8 +760,8 @@
     "hash": "d9610cf9eb797c965c5a55873dbd2b19"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/s3/s3.service.js": {
-    "mtime": 1773571901.0,
-    "hash": "06c6fe6afffb3ea27e2d98780d722559"
+    "mtime": 1779409157.073981,
+    "hash": "617a28c9498d598cde84cb45470d9133"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/contact/contact.route.js": {
     "mtime": 1773571900.0,
@@ -732,52 +772,64 @@
     "hash": "7940f0389303cb558f59dbc7ab5e564f"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/tasks/tasks.service.ts": {
-    "mtime": 1779306107.4345894,
-    "hash": "5c46d096aa1c1ae607d809923c06d15a"
+    "mtime": 1779410949.3820004,
+    "hash": "9a9087d9f78e79a4f0efbf987e1f8689"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/tasks/tasks.routes.ts": {
-    "mtime": 1778738602.5807219,
-    "hash": "ddf10488b121ce5a3e7ec7f1d194ec2a"
+    "mtime": 1779409157.0754104,
+    "hash": "daac53cb45b3db9bf1a7c3d8f649e950"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/auth/auth.controller.ts": {
-    "mtime": 1779402843.4578762,
-    "hash": "d838a76fb95a08aad430ccf61367d636"
+    "mtime": 1779409157.0185409,
+    "hash": "dbfb115bf9e49dce0774da15e1b502ec"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/auth/auth.route.ts": {
-    "mtime": 1779055287.7701247,
-    "hash": "c66e869d964ba72fd777b0f8dd5394bd"
+    "mtime": 1779409157.020923,
+    "hash": "8dd3d3b42a744f3d624bc2635a325eeb"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/applicants/applicant.service.js": {
-    "mtime": 1779305987.6056392,
-    "hash": "17cfef3b94ac09d61bccca2bbfb89aff"
+    "mtime": 1779409157.0089405,
+    "hash": "c004f59a005a007035b2d58dc9946113"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/applicants/applicant.route.js": {
-    "mtime": 1779305987.6053503,
-    "hash": "dd57b709ac32e87883fd20a901812f5e"
+    "mtime": 1779409157.004675,
+    "hash": "b63cc513e151aaadf8697e5697927cd2"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/applicants/applicants.routes.ts": {
-    "mtime": 1779306018.7578027,
-    "hash": "46574656bbf8e66eab18293a22813372"
+    "mtime": 1779409157.010662,
+    "hash": "79b50464c8f65632450dd9ab206bae9d"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/applicants/applicants.service.ts": {
-    "mtime": 1779305987.6063373,
-    "hash": "43829f0c7078c7ed5dc8bfdf496f6859"
+    "mtime": 1779409157.014219,
+    "hash": "f8a5a920642c53a67cf8e2ec0d08a79d"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/applicants/applicant.invite.js": {
-    "mtime": 1779305988.605037,
-    "hash": "78a38c00854e0b524d63228739feda34"
+    "mtime": 1779409157.00199,
+    "hash": "e66eb605a9d675ff676df8bf72bd941e"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/applicants/applicant.controller.js": {
-    "mtime": 1779305988.604626,
-    "hash": "fe84166202dac46cded80af979e4068d"
+    "mtime": 1779409490.848682,
+    "hash": "226c941c7eed1767b90e9e3d9897b7d0"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/applicants/__tests__/applicants.service.test.ts": {
-    "mtime": 1779305987.608262,
-    "hash": "58f2670a23589c5685f4e826e50ec1b4"
+    "mtime": 1779409156.9941022,
+    "hash": "2c2732064534fc5e7b5b7c132885d0e3"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/cases/cases.routes.ts": {
+    "mtime": 1781732143.0039904,
+    "hash": "9bb1a8eab9e52891c7d008bc7a19fde0"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/cases/cases.service.ts": {
+    "mtime": 1781732041.85102,
+    "hash": "7d92d974215c213b444db524e8d04256"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/cases/__tests__/cases.service.test.ts": {
+    "mtime": 1781732329.8696616,
+    "hash": "66ac8133baba3dab4bcdd7034d876ae1"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/ai/ai.routes.ts": {
-    "mtime": 1779306108.44748,
-    "hash": "f6181022a5f558e1fda9c2065afd42c7"
+    "mtime": 1779409487.7201424,
+    "hash": "bf88e0e93393c8677bf9771cb799e06c"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/ai/classifier.service.ts": {
     "mtime": 1778737208.7512572,
@@ -788,12 +840,12 @@
     "hash": "7761833301fc91ac9e2c15d73c934eff"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/ai/recommendation.service.ts": {
-    "mtime": 1778737286.3388782,
-    "hash": "9e3b3d4c97bbb5cb2bd05adf6c2686fc"
+    "mtime": 1779409556.299674,
+    "hash": "27fc5d0a4138940e8cbad17992b13e1f"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/ai/verify.queue.ts": {
-    "mtime": 1778738635.3536184,
-    "hash": "a5955ff97f9877a0ea3f6723cd1c758a"
+    "mtime": 1779409156.99331,
+    "hash": "c910aecf7d7c2c77d8c2cba0f1c4d1a1"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/ai/extract.service.ts": {
     "mtime": 1779302951.587411,
@@ -804,15 +856,15 @@
     "hash": "db5eff7f864983b1ea0e04c7d9f2fe69"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/ai/ai.worker.ts": {
-    "mtime": 1779393284.2946403,
-    "hash": "6d2c24c1046f66bcb5b6dd73d8323364"
+    "mtime": 1779409156.9917583,
+    "hash": "ba89f8876c6cdc8077d46aa3dee094b6"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/ai/utils/field-priority.js": {
     "mtime": 1779302942.4081345,
     "hash": "d692b17e38208727205c429d5bd81a26"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/ai/utils/pdf-to-images.js": {
-    "mtime": 1779302943.405684,
+    "mtime": 1779302943.405683,
     "hash": "58c39eec8fbd955ba91c39cc8f8e993e"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/ai/__tests__/ai-orchestrator.test.ts": {
@@ -824,7 +876,7 @@
     "hash": "2adbccc64a3424f269abe869a1ada657"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/documents/documents.worker.ts": {
-    "mtime": 1779393296.8789752,
+    "mtime": 1779393296.878975,
     "hash": "75d7af691e71cb52d663d1e3c5ab91ef"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/documents/hashing.queue.ts": {
@@ -832,20 +884,20 @@
     "hash": "0a8200bb7d0f61901bdd47a03b8f78bb"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/documents/documents.service.ts": {
-    "mtime": 1779306107.421715,
-    "hash": "74b9298e4afd8b213ec16e021227a5dd"
+    "mtime": 1779409157.0671284,
+    "hash": "7d44b6b2dbf7c97e03abf877736eaffe"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/documents/documents.routes.ts": {
-    "mtime": 1778360160.8226786,
-    "hash": "b3db72232faab413ea1b4c546a7fb81b"
+    "mtime": 1779409157.0576777,
+    "hash": "742fe6c2614517a2b48962b0c936acb7"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/documents/__tests__/documents.service.test.ts": {
-    "mtime": 1779306107.5896301,
-    "hash": "482e43152542782258c1ffa71e040e31"
+    "mtime": 1779409157.054114,
+    "hash": "fbe238d65da46a21f59611b892863fe3"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/notifications/email.service.js": {
-    "mtime": 1779147036.993889,
-    "hash": "fe892154b65fabd6153cf6c4edf85773"
+    "mtime": 1779409157.0692458,
+    "hash": "06cacc5ee043df6875f3b7a20d3345c0"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/notifications/notifications.routes.ts": {
     "mtime": 1778740025.7357216,
@@ -856,8 +908,8 @@
     "hash": "c888de826204283147a89442dc9527b7"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/billing/billing.routes.ts": {
-    "mtime": 1779306107.4152598,
-    "hash": "d7a338ca00fc041afd157e054c7585e5"
+    "mtime": 1779409485.7558537,
+    "hash": "6deeab6441f590b4f5b3658ac3729648"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/billing/stripe.service.ts": {
     "mtime": 1779306107.398259,
@@ -868,24 +920,24 @@
     "hash": "653193d438a726bf19f188575f117c12"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/billing/invoices.service.ts": {
-    "mtime": 1779306107.3853238,
-    "hash": "7bb7740c1976c5f1f396d651c07b244e"
+    "mtime": 1779409157.0270498,
+    "hash": "01db86d432e20c2b6a897b973e470cc4"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/billing/retainers.service.ts": {
-    "mtime": 1779306107.3917549,
-    "hash": "0a7e76709fcb711780dd0c6cee39b34c"
+    "mtime": 1779409157.0312479,
+    "hash": "2bd3561b3ea10ee7db27263ff1b0a7a0"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/billing/trust.service.ts": {
-    "mtime": 1779306107.403995,
-    "hash": "13cc36b1f81673a1fedcfd6bd49c512a"
+    "mtime": 1779409157.052053,
+    "hash": "252dc8429541a289007b89111e3231cc"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/modules/billing/__tests__/billing.test.ts": {
-    "mtime": 1779392959.2566106,
-    "hash": "b377c5b237054eb395aea0ce6f4658ed"
+    "mtime": 1779409157.0222452,
+    "hash": "bd54cb231fdb9492351f93c0e734a3cd"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/routes/index.js": {
-    "mtime": 1779306029.8203285,
-    "hash": "b3009c014f51400a03781f7f11777208"
+    "mtime": 1781732083.070046,
+    "hash": "0e205e858a7969687f56426904721118"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/src/routes/file.routes.js": {
     "mtime": 1773571901.0,
@@ -903,9 +955,9 @@
     "mtime": 1778739819.3122792,
     "hash": "4a3af2f5c73775b6052950b6083613b8"
   },
-  "/Volumes/Trupesh/Immigration-CRM/apps/backend/drizzle/0003_rls_students_documents.sql": {
-    "mtime": 1779394120.2941856,
-    "hash": "685a182bdaca0ee83dcf204abcbe7f36"
+  "/Volumes/Trupesh/Immigration-CRM/apps/backend/drizzle/0009_cases_matter_number_scope.sql": {
+    "mtime": 1781732254.6463592,
+    "hash": "97f518333fe18febf6456c03b97c04d9"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/drizzle/0001_fuzzy_inertia.sql": {
     "mtime": 1778354499.8929543,
@@ -915,13 +967,21 @@
     "mtime": 1779394091.9394789,
     "hash": "be737f70eb981639faf59e77dda2e2f4"
   },
+  "/Volumes/Trupesh/Immigration-CRM/apps/backend/drizzle/0008_cases_module.sql": {
+    "mtime": 1781730896.8614628,
+    "hash": "65b29175180cf0395aed46effbd9fdfc"
+  },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/drizzle/0007_billing.sql": {
     "mtime": 1779394272.3095264,
     "hash": "f707d84d8e41e8ed254ce73da73361dc"
   },
+  "/Volumes/Trupesh/Immigration-CRM/apps/backend/drizzle/0003_rls_applicants_documents.sql": {
+    "mtime": 1779394120.2941856,
+    "hash": "685a182bdaca0ee83dcf204abcbe7f36"
+  },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/drizzle/0005_tasks.sql": {
-    "mtime": 1778738460.6704137,
-    "hash": "2307a2a080bdce0743817dbd38893ac7"
+    "mtime": 1779409458.1877327,
+    "hash": "5ccdabf10f40fa3a40489368b6361d24"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/drizzle/0002_rls_users.sql": {
     "mtime": 1778354755.7845771,
@@ -952,8 +1012,8 @@
     "hash": "2f56cbf24aff50e17308cafc56079b88"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/app/layout.tsx": {
-    "mtime": 1773577625.0,
-    "hash": "cce6bac41e320fff31470db6a75557c2"
+    "mtime": 1779410953.699891,
+    "hash": "e7e118f5b7f9fd1f18c6f91e946bdb42"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/app/page.tsx": {
     "mtime": 1766720152.0,
@@ -968,8 +1028,8 @@
     "hash": "48b315f733316a63ae7d643515ae27cb"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/app/colleges/page.tsx": {
-    "mtime": 1773581812.0,
-    "hash": "cc349f16be76722f96d406e0fed0888b"
+    "mtime": 1779410955.4659057,
+    "hash": "7dfb69574c31853e755f79a32a8703ec"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/app/about/page.tsx": {
     "mtime": 1766130726.0,
@@ -984,16 +1044,16 @@
     "hash": "8f397e544f2687e58656e4f892fdac4d"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/app/success-stories/page.tsx": {
-    "mtime": 1766130726.0,
-    "hash": "26bf3793c81a77e9d354adf0ef567635"
+    "mtime": 1779410955.2382007,
+    "hash": "d7563d1e28d955a19155c50fa3f97823"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/app/services/page.tsx": {
-    "mtime": 1766704727.0,
-    "hash": "cae2640d46ccde7a68dcaf3667fae20d"
+    "mtime": 1779410955.2382436,
+    "hash": "d35ed237a9e24abd2582bb3062a576ef"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/config/site.ts": {
-    "mtime": 1773571900.0,
-    "hash": "ea4714d17891202ced4586faf779a8fa"
+    "mtime": 1779410953.4802887,
+    "hash": "e109cabc061cb29f3505b142a7a5d20b"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/components/ui/interactive-grid-pattern.tsx": {
     "mtime": 1773579531.0,
@@ -1072,8 +1132,8 @@
     "hash": "911b6d02b59be9aacebfdcae1de24424"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/components/hero/hero.tsx": {
-    "mtime": 1773576056.0,
-    "hash": "b7a029437b000f37673a8a23108040e2"
+    "mtime": 1779410955.4666042,
+    "hash": "91eef765e4669051925ce4fb4d522e2a"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/lib/colleges.ts": {
     "mtime": 1773571900.0,
@@ -1084,8 +1144,8 @@
     "hash": "d9837f38cc05303254571985e3164050"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/lib/constants.ts": {
-    "mtime": 1773571900.0,
-    "hash": "d6a7dcc65516e5b846b20b38450c45c3"
+    "mtime": 1779410955.4661305,
+    "hash": "b929f88f554310bc6c6a7e0aa723a638"
   },
   "/Volumes/Trupesh/Immigration-CRM/docker-compose.dev.yml": {
     "mtime": 1778177789.0762029,
@@ -1104,8 +1164,8 @@
     "hash": "13e2b80e36b604e2a5aababa6d93fedd"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/mcp-server/DOCUMENT_TOOLS_TESTING_GUIDE.md": {
-    "mtime": 1773571900.0,
-    "hash": "c0bca861e585acbb7575f896f3a39426"
+    "mtime": 1779409564.5723581,
+    "hash": "82e4261158da679ac355507635b7292e"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/consultant-web/index.html": {
     "mtime": 1773571900.0,
@@ -1128,8 +1188,8 @@
     "hash": "63f331033cea7087a9aa2257a8e3fa3e"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/backend/docs/documents-api-changes.md": {
-    "mtime": 1778360236.2744827,
-    "hash": "61d5ef4209578342f03cf0ea9b7b5452"
+    "mtime": 1779409156.9829044,
+    "hash": "0e802e0324f48f146c9fde96ffb9558b"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/README.md": {
     "mtime": 1773571900.0,
