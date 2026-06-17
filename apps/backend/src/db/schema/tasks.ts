@@ -38,7 +38,7 @@ export const tasks = pgTable(
     verification_history: jsonb('verification_history').default(
       sql`'[]'::jsonb`,
     ),
-    // Flexible bag: priority, verificationStatus, studentName, fileId, etc.
+    // Flexible bag: priority, verificationStatus, applicantName, fileId, etc.
     metadata: jsonb('metadata').default(sql`'{}'::jsonb`),
     // Notification controls (kept for Prompt 13 — do not remove)
     is_read: boolean('is_read').default(false),

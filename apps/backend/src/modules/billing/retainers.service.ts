@@ -58,22 +58,22 @@ function readTemplate(templateKey: string): string {
 export async function createDraft(
   dbClient: DbClient,
   firmId: string,
-  studentId: string,
+  applicantId: string,
   templateKey: string,
   scope: Record<string, unknown>,
 ): Promise<RetainerAgreement> {
-  const [student] = await dbClient
+  const [applicant] = await dbClient
     .select()
     .from(applicants)
-    .where(eq(applicants.id, studentId))
+    .where(eq(applicants.id, applicantId))
     .limit(1);
-  if (!student) notFound('Applicant not found');
+  if (!applicant) notFound('Applicant not found');
 
   const source = readTemplate(templateKey);
   const renderedHtml = renderTemplate(source, {
     firmId,
-    studentName: [student.first_name, student.last_name].filter(Boolean).join(' '),
-    studentEmail: student.email,
+    applicantName: [applicant.first_name, applicant.last_name].filter(Boolean).join(' '),
+    applicantEmail: applicant.email,
     date: new Date().toLocaleDateString('en-CA'),
     ...Object.fromEntries(Object.entries(scope).map(([k, v]) => [k, String(v)])),
   });
@@ -82,7 +82,7 @@ export async function createDraft(
     .insert(retainerAgreements)
     .values({
       firm_id: firmId,
-      applicant_id: studentId,
+      applicant_id: applicantId,
       template_key: templateKey,
       rendered_html: renderedHtml,
       scope,
@@ -95,7 +95,7 @@ export async function createDraft(
 
 // ─── sendForSignature ─────────────────────────────────────────────────────────
 // Marks the retainer as 'sent' and returns a signature link the caller can
-// email to the student. Actual email delivery reuses the backend sendEmail util.
+// email to the applicant. Actual email delivery reuses the backend sendEmail util.
 export async function sendForSignature(
   dbClient: DbClient,
   firmId: string,
@@ -215,14 +215,14 @@ export async function getRetainer(
 export async function listRetainers(
   dbClient: DbClient,
   firmId: string,
-  studentId?: string,
+  applicantId?: string,
 ): Promise<RetainerAgreement[]> {
   return dbClient
     .select()
     .from(retainerAgreements)
     .where(
-      studentId
-        ? and(eq(retainerAgreements.firm_id, firmId), eq(retainerAgreements.applicant_id, studentId))
+      applicantId
+        ? and(eq(retainerAgreements.firm_id, firmId), eq(retainerAgreements.applicant_id, applicantId))
         : eq(retainerAgreements.firm_id, firmId),
     );
 }

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../common/Button";
 
-const ApplicantListItem = ({ student }) => {
+const ApplicantListItem = ({ applicant }) => {
   const navigate = useNavigate();
 
   const getStatusColor = (status) => {
@@ -33,7 +33,7 @@ const ApplicantListItem = ({ student }) => {
   };
 
   const handleNavigate = () => {
-    navigate(`/admin/students/${student._id}`);
+    navigate(`/admin/applicants/${applicant._id}`);
   };
 
   const handleKeyDown = (event) => {
@@ -59,45 +59,45 @@ const ApplicantListItem = ({ student }) => {
         <div className="flex items-center space-x-4">
           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
             <span className="text-sm font-semibold text-blue-600">
-              {student.contactInfo?.name?.charAt(0) ||
-                student.username?.charAt(0) ||
-                "S"}
+              {applicant.contactInfo?.name?.charAt(0) ||
+                applicant.username?.charAt(0) ||
+                "A"}
             </span>
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-3">
               <h3 className="text-sm font-semibold text-gray-900 truncate">
-                {student.contactInfo?.name ||
-                  student.username ||
-                  "Unknown Student"}
+                {applicant.contactInfo?.name ||
+                  applicant.username ||
+                  "Unknown Applicant"}
               </h3>
               <span
                 className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                  student.status
+                  applicant.status
                 )}`}
               >
-                {student.status?.toUpperCase() || "ACTIVE"}
+                {applicant.status?.toUpperCase() || "ACTIVE"}
               </span>
-              {student.priority && (
+              {applicant.priority && (
                 <span
                   className={`text-xs font-medium ${getPriorityColor(
-                    student.priority
+                    applicant.priority
                   )}`}
                 >
-                  {student.priority.toUpperCase()}
+                  {applicant.priority.toUpperCase()}
                 </span>
               )}
             </div>
             <div className="flex items-center space-x-4 mt-1">
-              <p className="text-sm text-gray-600">{student.email}</p>
-              {student.contactInfo?.phone && (
+              <p className="text-sm text-gray-600">{applicant.email}</p>
+              {applicant.contactInfo?.phone && (
                 <p className="text-sm text-gray-600">
-                  {student.contactInfo.phone}
+                  {applicant.contactInfo.phone}
                 </p>
               )}
               <p className="text-sm text-gray-500">
-                ID: {student.studentId || "N/A"}
+                ID: {applicant.aiKey || applicant._id || "N/A"}
               </p>
             </div>
           </div>
@@ -106,11 +106,11 @@ const ApplicantListItem = ({ student }) => {
         <div className="flex items-center space-x-4">
           <div className="text-right">
             <p className="text-sm text-gray-600">
-              Joined: {new Date(student.createdAt).toLocaleDateString()}
+              Joined: {new Date(applicant.createdAt).toLocaleDateString()}
             </p>
-            {student.applications && student.applications.length > 0 && (
+            {applicant.applications && applicant.applications.length > 0 && (
               <p className="text-xs text-gray-500">
-                {student.applications.length} Application(s)
+                {applicant.applications.length} Application(s)
               </p>
             )}
           </div>

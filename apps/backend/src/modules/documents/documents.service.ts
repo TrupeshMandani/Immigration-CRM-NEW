@@ -49,28 +49,28 @@ export async function generateUploadUrl(
 ): Promise<{ uploadUrl: string; documentId: string; s3Key: string; contentType: string }> {
   const parsed = GenerateUploadUrlSchema.parse(input);
 
-  // Resolve the student's aiKey so the S3 key follows the existing convention.
-  const [student] = await dbClient
+  // Resolve the applicant's aiKey so the S3 key follows the existing convention.
+  const [applicant] = await dbClient
     .select({ ai_key: applicants.ai_key })
     .from(applicants)
-    .where(eq(applicants.id, parsed.studentId))
+    .where(eq(applicants.id, parsed.applicantId))
     .limit(1);
 
-  if (!student) {
+  if (!applicant) {
     throw Object.assign(new Error('Applicant not found'), { statusCode: 404 });
   }
 
   const fileId = randomUUID();
   const sanitizedName = parsed.fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
   const typeSegment = parsed.documentType ?? 'general';
-  const s3Key = `${student.ai_key}/documents/${typeSegment}/${fileId}-${sanitizedName}`;
+  const s3Key = `${applicant.ai_key}/documents/${typeSegment}/${fileId}-${sanitizedName}`;
   const bucket = BUCKET();
 
   const [doc] = await dbClient
     .insert(documents)
     .values({
       firm_id: firmId,
-      applicant_id: parsed.studentId,
+      applicant_id: parsed.applicantId,
       document_type: parsed.documentType,
       s3_key: s3Key,
       s3_bucket: bucket,
@@ -135,7 +135,7 @@ export async function finalizeUpload(
   await verifyQueue.add('verify', {
     documentId: doc.id,
     firmId,
-    studentId: doc.applicant_id,
+    applicantId: doc.applicant_id,
     s3Key: doc.s3_key,
     s3Bucket: doc.s3_bucket,
     documentType: doc.document_type ?? 'Document',
@@ -192,17 +192,17 @@ export async function getDownloadUrl(
 }
 
 // ---------------------------------------------------------------------------
-// listStudentDocuments
-// Returns all documents for a student visible to the current firm (via RLS).
+// listApplicantDocuments
+// Returns all documents for an applicant visible to the current firm (via RLS).
 // ---------------------------------------------------------------------------
-export async function listStudentDocuments(
+export async function listApplicantDocuments(
   dbClient: DbClient,
-  studentId: string,
+  applicantId: string,
 ): Promise<Document[]> {
   return dbClient
     .select()
     .from(documents)
-    .where(eq(documents.applicant_id, studentId))
+    .where(eq(documents.applicant_id, applicantId))
     .orderBy(documents.created_at);
 }
 

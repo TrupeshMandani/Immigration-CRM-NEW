@@ -74,7 +74,7 @@ app.use(express.json());
 
 // Stack: JWT stub → tenant context (opens RLS tx) → route handler
 app.use('/api/users', jwtAuthStub, tenantContextMiddleware, usersRouter);
-app.use('/api/students', jwtAuthStub, tenantContextMiddleware, applicantsRouter);
+app.use('/api/applicants', jwtAuthStub, tenantContextMiddleware, applicantsRouter);
 app.use('/api/documents', jwtAuthStub, tenantContextMiddleware, documentsRouter);
 app.use('/api/tasks', jwtAuthStub, tenantContextMiddleware, tasksRouter);
 app.use('/api/notifications', jwtAuthStub, tenantContextMiddleware, notificationsRouter);
@@ -137,12 +137,12 @@ describe('Cross-tenant isolation: GET /api/users', () => {
 });
 
 // ---------------------------------------------------------------------------
-// GET /api/students  [Postgres + RLS — active since Prompt 09]
+// GET /api/applicants  [Postgres + RLS — active since Prompt 09]
 // ---------------------------------------------------------------------------
-describe('Cross-tenant isolation: GET /api/students', () => {
-  it('Firm A token → 200 with only Firm A students', async () => {
+describe('Cross-tenant isolation: GET /api/applicants', () => {
+  it('Firm A token → 200 with only Firm A applicants', async () => {
     const res = await request(app)
-      .get('/api/students')
+      .get('/api/applicants')
       .set('Authorization', `Bearer ${fixture.jwtA}`);
 
     expect(res.status).toBe(200);
@@ -153,18 +153,18 @@ describe('Cross-tenant isolation: GET /api/students', () => {
     }
   });
 
-  it('Firm A token → contains NO Firm B students', async () => {
+  it('Firm A token → contains NO Firm B applicants', async () => {
     const res = await request(app)
-      .get('/api/students')
+      .get('/api/applicants')
       .set('Authorization', `Bearer ${fixture.jwtA}`);
 
     const firmIds: string[] = res.body.map((r: { firm_id: string }) => r.firm_id);
     expect(firmIds).not.toContain(fixture.firmB.id);
   });
 
-  it('Firm B token → 200 with only Firm B students', async () => {
+  it('Firm B token → 200 with only Firm B applicants', async () => {
     const res = await request(app)
-      .get('/api/students')
+      .get('/api/applicants')
       .set('Authorization', `Bearer ${fixture.jwtB}`);
 
     expect(res.status).toBe(200);
@@ -174,18 +174,18 @@ describe('Cross-tenant isolation: GET /api/students', () => {
   });
 
   it('No token → 401', async () => {
-    const res = await request(app).get('/api/students');
+    const res = await request(app).get('/api/applicants');
     expect(res.status).toBe(401);
   });
 });
 
 // ---------------------------------------------------------------------------
-// GET /api/documents/student/:studentId  [Postgres + RLS — active since Prompt 10]
+// GET /api/documents/applicant/:applicantId  [Postgres + RLS — active since Prompt 10]
 // ---------------------------------------------------------------------------
-describe('Cross-tenant isolation: GET /api/documents/student/:id', () => {
+describe('Cross-tenant isolation: GET /api/documents/applicant/:id', () => {
   it('Firm A token → 200 with only Firm A documents', async () => {
     const res = await request(app)
-      .get(`/api/documents/student/${fixture.studentA.id}`)
+      .get(`/api/documents/applicant/${fixture.applicantA.id}`)
       .set('Authorization', `Bearer ${fixture.jwtA}`);
 
     expect(res.status).toBe(200);
@@ -197,19 +197,19 @@ describe('Cross-tenant isolation: GET /api/documents/student/:id', () => {
   });
 
   it('Firm A token → contains NO Firm B documents', async () => {
-    // Try to read Firm B student's documents with Firm A token.
+    // Try to read Firm B applicant's documents with Firm A token.
     // RLS will return [] because firm_id doesn't match.
     const res = await request(app)
-      .get(`/api/documents/student/${fixture.studentB.id}`)
+      .get(`/api/documents/applicant/${fixture.applicantB.id}`)
       .set('Authorization', `Bearer ${fixture.jwtA}`);
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(0); // Firm B student is invisible to Firm A
+    expect(res.body).toHaveLength(0); // Firm B applicant is invisible to Firm A
   });
 
   it('No token → 401', async () => {
     const res = await request(app).get(
-      `/api/documents/student/${fixture.studentA.id}`,
+      `/api/documents/applicant/${fixture.applicantA.id}`,
     );
     expect(res.status).toBe(401);
   });
@@ -229,7 +229,7 @@ describe('Cross-tenant isolation: GET /api/tasks', () => {
     expect(Array.isArray(res.body.tasks)).toBe(true);
     expect(res.body.tasks.length).toBeGreaterThan(0);
 
-    // Every task returned must belong to Firm A's student or document
+    // Every task returned must belong to Firm A's applicant or document
     // (tasks don't expose firm_id directly, but we can check the seeded task id)
     const ids: string[] = res.body.tasks.map((t: { id: string }) => t.id);
     expect(ids).toContain(fixture.taskA.id);

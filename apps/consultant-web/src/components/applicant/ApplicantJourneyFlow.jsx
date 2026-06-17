@@ -113,7 +113,7 @@ function JourneyStep({ step, isActive, isCompleted }) {
   );
 }
 
-export default function StudentJourneyWorkflowPro({
+export default function ApplicantJourneyWorkflowPro({
   currentStep = 1,
   completedSteps = [],
 }) {

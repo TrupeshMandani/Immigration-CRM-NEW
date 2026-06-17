@@ -5,8 +5,8 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
 import Loading from "../../components/common/Loading";
-import DocumentViewer from "../../components/student/DocumentViewer";
-import { studentService } from "../../services/authService";
+import DocumentViewer from "../../components/applicant/DocumentViewer";
+import { applicantService } from "../../services/authService";
 import { uploadService } from "../../services/uploadService";
 import applicantTaskService from "../../services/applicantTaskService";
 import { withDisplayName } from "../../utils/fileName";
@@ -16,7 +16,7 @@ import ConfirmDialog from "../../components/common/ConfirmDialog";
 
 const EMPTY_CONTACT = { name: "", email: "", phone: "", message: "" };
 
-const StudentDetailSectionNav = ({ sections, currentHash }) => (
+const ApplicantDetailSectionNav = ({ sections, currentHash }) => (
   <div className="border-b border-gray-200 bg-white p-1 rounded-xl shadow-sm">
     <div className="flex flex-col gap-3">
       <div className="-m-1 flex flex-wrap gap-2  overflow-x-auto px-4 py-3 sm:-m-3 sm:px-6 lg:px-8">
@@ -42,12 +42,12 @@ const StudentDetailSectionNav = ({ sections, currentHash }) => (
   </div>
 );
 
-const StudentDetail = () => {
+const ApplicantDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { token } = useAuth();
   const location = useLocation();
-  const [student, setStudent] = useState(null);
+  const [applicant, setApplicant] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -66,14 +66,14 @@ const StudentDetail = () => {
   const [recommendationMessage, setRecommendationMessage] = useState("");
   const [recommendationError, setRecommendationError] = useState(false);
   const [recommendationSource, setRecommendationSource] = useState("openai");
-  const studentId = student?._id;
-  const studentAiKey = student?.aiKey;
-  const [confirmDeleteStudent, setConfirmDeleteStudent] = useState(false);
+  const applicantId = applicant?._id;
+  const applicantAiKey = applicant?.aiKey;
+  const [confirmDeleteApplicant, setConfirmDeleteApplicant] = useState(false);
   const [confirmDeleteDoc, setConfirmDeleteDoc] = useState({
     open: false,
     doc: null,
   });
-  const [studentTasks, setStudentTasks] = useState([]);
+  const [applicantTasks, setApplicantTasks] = useState([]);
   const [tasksLoading, setTasksLoading] = useState(false);
   const [taskError, setTaskError] = useState("");
   const [creatingTask, setCreatingTask] = useState(false);
@@ -105,28 +105,28 @@ const StudentDetail = () => {
     [location.search]
   );
   const requestedDocumentId = queryParams.get("docId");
-  const fetchStudentTasks = useCallback(async () => {
-    if (!studentAiKey) return;
+  const fetchApplicantTasks = useCallback(async () => {
+    if (!applicantAiKey) return;
     try {
       setTasksLoading(true);
-      const list = await applicantTaskService.list(studentAiKey);
-      setStudentTasks(list);
+      const list = await applicantTaskService.list(applicantAiKey);
+      setApplicantTasks(list);
       setTaskError("");
     } catch (err) {
-      console.error("Failed to load student tasks:", err);
+      console.error("Failed to load applicant tasks:", err);
       setTaskError("Unable to load tasks.");
     } finally {
       setTasksLoading(false);
     }
-  }, [studentAiKey]);
+  }, [applicantAiKey]);
 
   useEffect(() => {
-    if (studentAiKey) {
-      fetchStudentTasks();
+    if (applicantAiKey) {
+      fetchApplicantTasks();
     }
-  }, [studentAiKey, fetchStudentTasks]);
+  }, [applicantAiKey, fetchApplicantTasks]);
   const profileEntries = useMemo(() => {
-    if (!student?.profile || !Object.keys(student.profile).length) {
+    if (!applicant?.profile || !Object.keys(applicant.profile).length) {
       return [];
     }
 
@@ -195,7 +195,7 @@ const StudentDetail = () => {
       return value ?? "Not provided";
     };
 
-    return Object.entries(student.profile)
+    return Object.entries(applicant.profile)
       .sort(([keyA], [keyB]) => {
         const priorityA = priorityMap[keyA] || 999;
         const priorityB = priorityMap[keyB] || 999;
@@ -209,7 +209,7 @@ const StudentDetail = () => {
         label: formatLabel(key),
         value: formatValue(value),
       }));
-  }, [student?.profile]);
+  }, [applicant?.profile]);
 
   const normalizeDocument = (file, index = 0) => {
     const withName = withDisplayName(file, `Document ${index + 1}`);
@@ -235,12 +235,12 @@ const StudentDetail = () => {
   };
 
   const refreshRecommendations = useCallback(async () => {
-    if (!studentId || !token) {
+    if (!applicantId || !token) {
       return;
     }
 
     try {
-      const data = await getRecommendations(studentId, token);
+      const data = await getRecommendations(applicantId, token);
       setRecommendations(data.universities || []);
       setRecommendationSource(data.source || "openai");
       if (typeof data.recommendationEnabled === "boolean") {
@@ -262,10 +262,10 @@ const StudentDetail = () => {
       );
       setRecommendationSource("openai");
     }
-  }, [studentId, token]);
+  }, [applicantId, token]);
 
   useEffect(() => {
-    const fetchStudent = async () => {
+    const fetchApplicant = async () => {
       try {
         setLoading(true);
         setError("");
@@ -274,8 +274,8 @@ const StudentDetail = () => {
         setRecommendations([]);
         setRecommendationEnabled(false);
 
-        const data = await studentService.getStudentById(id);
-        setStudent(data);
+        const data = await applicantService.getApplicantById(id);
+        setApplicant(data);
         setStatus(data.status || "pending");
         setContactInfo({ ...EMPTY_CONTACT, ...data.contactInfo });
         const initialEnabled =
@@ -288,7 +288,7 @@ const StudentDetail = () => {
 
         if (data.aiKey) {
           try {
-            const filesResponse = await studentService.getStudentFiles(
+            const filesResponse = await applicantService.getApplicantFiles(
               data.aiKey
             );
             const formatted = (filesResponse.files || []).map((file, index) =>
@@ -296,23 +296,23 @@ const StudentDetail = () => {
             );
             setDocuments(formatted);
           } catch (docsError) {
-            console.error("Failed to load student documents:", docsError);
+            console.error("Failed to load applicant documents:", docsError);
             setDocuments([]);
           }
         } else {
           setDocuments([]);
         }
       } catch (err) {
-        console.error("Failed to load student:", err);
+        console.error("Failed to load applicant:", err);
         setError(
-          err.response?.data?.message || "Unable to load student details."
+          err.response?.data?.message || "Unable to load applicant details."
         );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStudent();
+    fetchApplicant();
   }, [id]);
 
   useEffect(() => {
@@ -329,24 +329,24 @@ const StudentDetail = () => {
 
   const handleSave = async (event) => {
     event.preventDefault();
-    if (!student) return;
+    if (!applicant) return;
 
     setSaving(true);
     setError("");
 
     try {
-      await studentService.updateStudent(student._id, {
+      await applicantService.updateApplicant(applicant._id, {
         status,
         contactInfo,
       });
-      const refreshed = await studentService.getStudentById(student._id);
-      setStudent(refreshed);
+      const refreshed = await applicantService.getApplicantById(applicant._id);
+      setApplicant(refreshed);
       setStatus(refreshed.status || status);
       setContactInfo({ ...EMPTY_CONTACT, ...refreshed.contactInfo });
     } catch (err) {
-      console.error("Failed to update student:", err);
+      console.error("Failed to update applicant:", err);
       setError(
-        err.response?.data?.message || "Failed to update student details."
+        err.response?.data?.message || "Failed to update applicant details."
       );
     } finally {
       setSaving(false);
@@ -354,22 +354,22 @@ const StudentDetail = () => {
   };
 
   const handleDelete = async () => {
-    setConfirmDeleteStudent(true);
+    setConfirmDeleteApplicant(true);
   };
 
-  const doDeleteStudent = async () => {
-    setConfirmDeleteStudent(false);
-    if (!student) return;
+  const doDeleteApplicant = async () => {
+    setConfirmDeleteApplicant(false);
+    if (!applicant) return;
     try {
-      await studentService.deleteStudent(student._id);
-      navigate("/admin/student-profiles", { replace: true });
+      await applicantService.deleteApplicant(applicant._id);
+      navigate("/admin/applicants", { replace: true });
     } catch (err) {
-      console.error("Failed to delete student:", err);
-      setError(err.response?.data?.message || "Failed to delete student.");
+      console.error("Failed to delete applicant:", err);
+      setError(err.response?.data?.message || "Failed to delete applicant.");
     }
   };
 
-  const cancelDeleteStudent = () => setConfirmDeleteStudent(false);
+  const cancelDeleteApplicant = () => setConfirmDeleteApplicant(false);
 
   const handleDocumentClick = (document) => {
     hideContextMenu();
@@ -427,7 +427,7 @@ const StudentDetail = () => {
     try {
       setLoading(true);
       const response = await uploadService.renameDocument(
-        student.aiKey,
+        applicant.aiKey,
         doc.id,
         newName.trim()
       );
@@ -455,7 +455,7 @@ const StudentDetail = () => {
 
     try {
       setLoading(true);
-      await uploadService.deleteDocument(student.aiKey, doc.id);
+      await uploadService.deleteDocument(applicant.aiKey, doc.id);
       setDocuments((prev) => {
         const filtered = prev.filter(
           (item) =>
@@ -477,8 +477,8 @@ const StudentDetail = () => {
       setError("");
       setTimeout(async () => {
         try {
-          const filesResponse = await uploadService.getStudentFiles(
-            student.aiKey
+          const filesResponse = await uploadService.getApplicantFiles(
+            applicant.aiKey
           );
           const formatted = (filesResponse.files || []).map((file, index) =>
             normalizeDocument(file, index)
@@ -516,20 +516,20 @@ const StudentDetail = () => {
 
   const handleCreateTask = async (event) => {
     event.preventDefault();
-    if (!studentAiKey || !taskForm.title.trim()) {
+    if (!applicantAiKey || !taskForm.title.trim()) {
       setTaskError("Task title is required.");
       return;
     }
     setCreatingTask(true);
     setTaskError("");
     try {
-      const list = await applicantTaskService.create(studentAiKey, {
+      const list = await applicantTaskService.create(applicantAiKey, {
         title: taskForm.title.trim(),
         description: taskForm.description,
         dueDate: taskForm.dueDate,
         attachment: taskForm.attachment,
       });
-      setStudentTasks(list);
+      setApplicantTasks(list);
       setTaskForm({
         title: "",
         description: "",
@@ -545,9 +545,9 @@ const StudentDetail = () => {
   };
 
   const handleDownloadTaskAttachment = async (task) => {
-    if (!studentAiKey || !task?.id) return;
+    if (!applicantAiKey || !task?.id) return;
     try {
-      const url = await applicantTaskService.attachmentUrl(studentAiKey, task.id);
+      const url = await applicantTaskService.attachmentUrl(applicantAiKey, task.id);
       if (url) {
         window.open(url, "_blank", "noopener,noreferrer");
       }
@@ -558,14 +558,14 @@ const StudentDetail = () => {
   };
 
   const handleDeleteTask = async (task) => {
-    if (!studentAiKey || !task?.id) return;
+    if (!applicantAiKey || !task?.id) return;
     const confirmed = window.confirm("Delete this task?");
     if (!confirmed) return;
     setTaskDeletingId(task.id);
     setTaskError("");
     try {
-      const list = await applicantTaskService.delete(studentAiKey, task.id);
-      setStudentTasks(list);
+      const list = await applicantTaskService.delete(applicantAiKey, task.id);
+      setApplicantTasks(list);
     } catch (error) {
       console.error("Failed to delete task:", error);
       setTaskError(error?.response?.data?.message || "Unable to delete task.");
@@ -578,25 +578,25 @@ const StudentDetail = () => {
     return (
       <AdminLayout>
         <div className="flex h-96 items-center justify-center">
-          <Loading size="lg" text="Loading student details..." />
+          <Loading size="lg" text="Loading applicant details..." />
         </div>
       </AdminLayout>
     );
   }
 
-  if (!student) {
+  if (!applicant) {
     return (
       <AdminLayout>
         <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
           <Card>
             <Card.Body>
               <p className="text-center text-gray-600">
-                Student not found.{" "}
+                Applicant not found.{" "}
                 <Link
-                  to="/admin/students"
+                  to="/admin/applicants"
                   className="text-primary hover:text-blue-700"
                 >
-                  Return to students
+                  Return to applicants
                 </Link>
                 .
               </p>
@@ -610,7 +610,7 @@ const StudentDetail = () => {
   return (
     <AdminLayout
       topbar={
-        <StudentDetailSectionNav
+        <ApplicantDetailSectionNav
           sections={sectionLinks}
           currentHash={currentHash}
         />
@@ -619,18 +619,18 @@ const StudentDetail = () => {
       <div className="mx-auto max-w-6xl space-y-8 px-4  sm:px-6 lg:px-8">
         <section id="overview">
           <Link
-            to="/admin/students"
+            to="/admin/applicants"
             className="text-sm font-medium text-primary hover:text-blue-700"
           >
-            ← Back to students
+            ← Back to applicants
           </Link>
           <h1 className="mt-3 text-3xl font-bold text-gray-900">
-            {student.contactInfo?.name || student.username || "Unnamed Student"}
+            {applicant.contactInfo?.name || applicant.username || "Unnamed Applicant"}
           </h1>
           <p className="mt-1 text-sm text-gray-600">
             Created on{" "}
-            {student.createdAt
-              ? new Date(student.createdAt).toLocaleDateString()
+            {applicant.createdAt
+              ? new Date(applicant.createdAt).toLocaleDateString()
               : "Unknown"}
           </p>
         </section>
@@ -672,7 +672,7 @@ const StudentDetail = () => {
                       Username
                     </label>
                     <input
-                      value={student.username || "Not assigned"}
+                      value={applicant.username || "Not assigned"}
                       readOnly
                       className="mt-2 w-full rounded-md border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-600 shadow-sm"
                     />
@@ -716,7 +716,7 @@ const StudentDetail = () => {
                       AI Key
                     </label>
                     <input
-                      value={student.aiKey || "Not generated"}
+                      value={applicant.aiKey || "Not generated"}
                       readOnly
                       className="mt-2 w-full rounded-md border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-600 shadow-sm"
                     />
@@ -733,7 +733,7 @@ const StudentDetail = () => {
                     value={contactInfo.message}
                     onChange={handleContactChange}
                     className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    placeholder="Add or update notes about this student..."
+                    placeholder="Add or update notes about this applicant..."
                   />
                 </div>
 
@@ -758,25 +758,25 @@ const StudentDetail = () => {
             <Card.Body className="space-y-4 text-sm text-gray-600">
               <div className="flex justify-between">
                 <span className="font-medium text-gray-900">Status</span>
-                <span className="capitalize">{student.status}</span>
+                <span className="capitalize">{applicant.status}</span>
               </div>
               <div className="flex justify-between">
                 <span className="font-medium text-gray-900">
                   First Login Pending
                 </span>
-                <span>{student.isFirstLogin ? "Yes" : "No"}</span>
+                <span>{applicant.isFirstLogin ? "Yes" : "No"}</span>
               </div>
               <div>
                 <span className="font-medium text-gray-900">Email</span>
                 <p className="mt-1 break-all">
-                  {student.email || "Not assigned"}
+                  {applicant.email || "Not assigned"}
                 </p>
               </div>
               <div>
                 <span className="font-medium text-gray-900">Last Updated</span>
                 <p className="mt-1">
-                  {student.updatedAt
-                    ? new Date(student.updatedAt).toLocaleString()
+                  {applicant.updatedAt
+                    ? new Date(applicant.updatedAt).toLocaleString()
                     : "Unknown"}
                 </p>
               </div>
@@ -784,7 +784,7 @@ const StudentDetail = () => {
                 <span className="font-medium text-gray-900">
                   Profile Complete
                 </span>
-                <span>{student.profileComplete ? "Yes" : "No"}</span>
+                <span>{applicant.profileComplete ? "Yes" : "No"}</span>
               </div>
             </Card.Body>
           </Card>
@@ -797,7 +797,7 @@ const StudentDetail = () => {
                 AI University Recommendations
               </h2>
               <p className="text-sm text-gray-500">
-                Manage automated university suggestions for this student.
+                Manage automated university suggestions for this applicant.
               </p>
             </Card.Header>
             <Card.Body className="space-y-4">
@@ -871,12 +871,12 @@ const StudentDetail = () => {
                   </div>
                 ) : (
                   <p className="text-sm text-gray-500">
-                    No recommendations available for this student yet.
+                    No recommendations available for this applicant yet.
                   </p>
                 )
               ) : (
                 <p className="text-sm text-gray-500">
-                  Recommendations are currently disabled for this student.
+                  Recommendations are currently disabled for this applicant.
                 </p>
               )}
             </Card.Body>
@@ -920,7 +920,7 @@ const StudentDetail = () => {
             </Card.Header>
             <Card.Body>
               <RequiredDocumentsAdmin
-                aiKey={student.aiKey}
+                aiKey={applicant.aiKey}
                 autoOpenDocumentId={requestedDocumentId}
               />
             </Card.Body>
@@ -931,9 +931,9 @@ const StudentDetail = () => {
           <Card>
             <Card.Header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Student Tasks</h2>
+                <h2 className="text-xl font-semibold">Applicant Tasks</h2>
                 <p className="text-sm text-gray-500">
-                  Assign custom follow-ups or reminders for this student.
+                  Assign custom follow-ups or reminders for this applicant.
                 </p>
               </div>
             </Card.Header>
@@ -1012,9 +1012,9 @@ const StudentDetail = () => {
                   <div className="py-6">
                     <Loading size="sm" text="Loading tasks..." />
                   </div>
-                ) : studentTasks.length ? (
+                ) : applicantTasks.length ? (
                   <div className="mt-4 space-y-4">
-                    {studentTasks.map((task) => (
+                    {applicantTasks.map((task) => (
                       <div
                         key={task.id}
                         className="rounded-2xl border border-gray-200 bg-gray-50 p-4 shadow-sm"
@@ -1078,7 +1078,7 @@ const StudentDetail = () => {
                   </div>
                 ) : (
                   <p className="mt-4 text-sm text-gray-500">
-                    No tasks have been assigned to this student yet.
+                    No tasks have been assigned to this applicant yet.
                   </p>
                 )}
               </div>
@@ -1122,7 +1122,7 @@ const StudentDetail = () => {
                 </div>
               ) : (
                 <p className="text-sm text-gray-500">
-                  No documents available yet. Uploads completed by the student
+                  No documents available yet. Uploads completed by the applicant
                   will appear here automatically.
                 </p>
               )}
@@ -1135,15 +1135,15 @@ const StudentDetail = () => {
             <Card.Body className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-red-600">
-                  Delete Student
+                  Delete Applicant
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Removing a student will revoke their access and delete their
-                  record.
+                  Removing an applicant will revoke their access and delete
+                  their record.
                 </p>
               </div>
               <Button variant="danger" onClick={handleDelete}>
-                Delete Student
+                Delete Applicant
               </Button>
             </Card.Body>
           </Card>
@@ -1192,13 +1192,13 @@ const StudentDetail = () => {
       )}
 
       <ConfirmDialog
-        open={confirmDeleteStudent}
-        title="Delete student?"
-        description="Are you sure you want to delete this student? This action cannot be undone."
+        open={confirmDeleteApplicant}
+        title="Delete applicant?"
+        description="Are you sure you want to delete this applicant? This action cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
-        onConfirm={doDeleteStudent}
-        onCancel={cancelDeleteStudent}
+        onConfirm={doDeleteApplicant}
+        onCancel={cancelDeleteApplicant}
       />
 
       <ConfirmDialog
@@ -1206,7 +1206,7 @@ const StudentDetail = () => {
         title="Delete document?"
         description={
           confirmDeleteDoc.doc
-            ? `Are you sure you want to delete "${confirmDeleteDoc.doc.name}" for this student?`
+            ? `Are you sure you want to delete "${confirmDeleteDoc.doc.name}" for this applicant?`
             : "Are you sure you want to delete this document?"
         }
         confirmText="Delete"
@@ -1218,4 +1218,4 @@ const StudentDetail = () => {
   );
 };
 
-export default StudentDetail;
+export default ApplicantDetailPage;

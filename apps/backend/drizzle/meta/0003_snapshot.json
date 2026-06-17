@@ -1633,8 +1633,8 @@
       },
       "isRLSEnabled": false
     },
-    "public.students": {
-      "name": "students",
+    "public.applicants": {
+      "name": "applicants",
       "schema": "",
       "columns": {
         "id": {
@@ -1725,9 +1725,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "students_firm_id_firms_id_fk": {
-          "name": "students_firm_id_firms_id_fk",
-          "tableFrom": "students",
+        "applicants_firm_id_firms_id_fk": {
+          "name": "applicants_firm_id_firms_id_fk",
+          "tableFrom": "applicants",
           "tableTo": "firms",
           "columnsFrom": [
             "firm_id"
@@ -1738,9 +1738,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "students_assigned_to_users_id_fk": {
-          "name": "students_assigned_to_users_id_fk",
-          "tableFrom": "students",
+        "applicants_assigned_to_users_id_fk": {
+          "name": "applicants_assigned_to_users_id_fk",
+          "tableFrom": "applicants",
           "tableTo": "users",
           "columnsFrom": [
             "assigned_to"
@@ -1754,15 +1754,15 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "students_ai_key_unique": {
-          "name": "students_ai_key_unique",
+        "applicants_ai_key_unique": {
+          "name": "applicants_ai_key_unique",
           "nullsNotDistinct": false,
           "columns": [
             "ai_key"
           ]
         },
-        "students_firm_email_unique": {
-          "name": "students_firm_email_unique",
+        "applicants_firm_email_unique": {
+          "name": "applicants_firm_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "firm_id",
@@ -1772,12 +1772,12 @@
       },
       "policies": {},
       "checkConstraints": {
-        "students_status_check": {
-          "name": "students_status_check",
+        "applicants_status_check": {
+          "name": "applicants_status_check",
           "value": "status IN ('pending','registered','active','closed')"
         },
-        "students_stage_check": {
-          "name": "students_stage_check",
+        "applicants_stage_check": {
+          "name": "applicants_stage_check",
           "value": "stage IN ('lead','study_permit','pgwp','pr','citizenship')"
         }
       },

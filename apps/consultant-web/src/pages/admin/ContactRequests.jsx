@@ -12,13 +12,14 @@ const ContactRequests = () => {
   const handleApprove = async (id) => {
     try {
       const response = await approveContact.mutateAsync(id);
+      const subject = response.applicant ?? {};
       const name =
-        response.student.contactInfo?.name || response.student.email || "Client";
+        subject.contactInfo?.name || subject.email || "Client";
       if (response.inviteSent) {
         toast.success(`${name}'s access has been approved. A welcome email was sent.`);
       } else {
         toast.success(
-          `${name}'s access approved. Email delivery failed — ask the student to request a sign-in link manually.`
+          `${name}'s access approved. Email delivery failed — ask the applicant to request a sign-in link manually.`
         );
       }
     } catch (err) {
@@ -32,7 +33,7 @@ const ContactRequests = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Contact Requests</h1>
           <p className="mt-2 text-gray-600">
-            Review prospective student enquiries and grant access when they are ready to begin onboarding.
+            Review prospective applicant enquiries and grant access when they are ready to begin onboarding.
           </p>
         </div>
 

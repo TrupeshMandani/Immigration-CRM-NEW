@@ -11,20 +11,19 @@ const navItems = [
   { label: "Dashboard", to: "/admin/dashboard", icon: DashboardIcon },
   { label: "Contact Requests", to: "/admin/requests", icon: MailIcon },
   {
-    label: "Registered Students",
-    to: "/admin/students/registered",
-    matchPrefixes: ["/admin/students/registered"],
+    label: "Registered Applicants",
+    to: "/admin/applicants/registered",
+    matchPrefixes: ["/admin/applicants/registered"],
     icon: ClipboardIcon,
   },
   {
-    label: "Student Profiles",
-    to: "/admin/students",
+    label: "Applicant Profiles",
+    to: "/admin/applicants",
     matchPrefixes: [
-      "/admin/students",
-      "/admin/student-profiles",
-      "/admin/students/",
+      "/admin/applicants",
+      "/admin/applicants/",
     ],
-    excludePrefixes: ["/admin/students/registered", "/admin/students/create"],
+    excludePrefixes: ["/admin/applicants/registered", "/admin/applicants/create"],
     icon: UsersIcon,
   },
   { label: "Tasks", to: "/admin/tasks", icon: TasksIcon },
@@ -35,7 +34,7 @@ const navItems = [
     matchPrefixes: ["/admin/assistant"],
     icon: SparklesIcon,
   },
-  { label: "Create Student", to: "/admin/students/create", icon: PlusIcon },
+  { label: "Create Applicant", to: "/admin/applicants/create", icon: PlusIcon },
 ];
 
 function DashboardIcon(props) {

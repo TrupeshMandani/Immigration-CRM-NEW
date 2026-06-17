@@ -102,9 +102,9 @@ async function request<T>(
   return data as T;
 }
 
-// ─── Student types ────────────────────────────────────────────────────────────
+// ─── Applicant types ──────────────────────────────────────────────────────────
 
-export interface Student {
+export interface Applicant {
   _id: string;
   id?: string;
   username?: string;
@@ -125,14 +125,14 @@ export interface Student {
   updatedAt?: string;
 }
 
-export interface CreateStudentPayload {
+export interface CreateApplicantPayload {
   name: string;
   email: string;
   phone?: string;
   message?: string;
 }
 
-export interface ContactRequest extends Student {
+export interface ContactRequest extends Applicant {
   inviteSent?: boolean;
 }
 
@@ -148,9 +148,9 @@ export interface Task {
   verificationConfidence?: number;
   documentId?: string;
   documentField?: string;
-  studentId?: string;
-  studentName?: string;
-  studentAiKey?: string;
+  applicantId?: string;
+  applicantName?: string;
+  applicantAiKey?: string;
   uploadTimestamp?: string;
   createdAt?: string;
 }
@@ -184,9 +184,9 @@ export const api = {
   // Auth
   auth: {
     login: (username: string, password: string) =>
-      request<{ token: string; user: Student }>("POST", "/auth/login", { username, password }),
+      request<{ token: string; user: Applicant }>("POST", "/auth/login", { username, password }),
     firebaseLogin: (idToken: string) =>
-      request<{ token: string; user: Student }>("POST", "/auth/firebase-login", { idToken }),
+      request<{ token: string; user: Applicant }>("POST", "/auth/firebase-login", { idToken }),
     requestLoginLink: (email: string) =>
       request<{ message: string }>("POST", "/auth/login-link", { email }),
     register: (payload: { name: string; email: string; phone?: string }) =>
@@ -195,25 +195,25 @@ export const api = {
       request<unknown>("POST", "/auth/change-password", { currentPassword, newPassword }),
   },
 
-  // Students (admin)
-  students: {
+  // Applicants (admin)
+  applicants: {
     list: (params?: Record<string, string>) => {
       const qs = params ? `?${new URLSearchParams(params).toString()}` : "";
-      return request<Student[]>("GET", `/students${qs}`);
+      return request<Applicant[]>("GET", `/applicants${qs}`);
     },
-    registered: () => request<Student[]>("GET", "/students/registered"),
-    pendingContacts: () => request<Student[]>("GET", "/students/pending/contacts"),
-    byId: (id: string) => request<Student>("GET", `/students/admin/${id}`),
-    create: (payload: CreateStudentPayload) =>
-      request<{ student: Student }>("POST", "/students", payload),
-    update: (id: string, updates: Partial<Student> & { contactInfo?: Student["contactInfo"] }) =>
-      request<Student>("PUT", `/students/${id}`, updates),
-    activate: (id: string) => request<Student>("POST", `/students/${id}/activate`),
-    delete: (id: string) => request<void>("DELETE", `/students/${id}`),
+    registered: () => request<Applicant[]>("GET", "/applicants/registered"),
+    pendingContacts: () => request<Applicant[]>("GET", "/applicants/pending/contacts"),
+    byId: (id: string) => request<Applicant>("GET", `/applicants/admin/${id}`),
+    create: (payload: CreateApplicantPayload) =>
+      request<{ applicant: Applicant }>("POST", "/applicants", payload),
+    update: (id: string, updates: Partial<Applicant> & { contactInfo?: Applicant["contactInfo"] }) =>
+      request<Applicant>("PUT", `/applicants/${id}`, updates),
+    activate: (id: string) => request<Applicant>("POST", `/applicants/${id}/activate`),
+    delete: (id: string) => request<void>("DELETE", `/applicants/${id}`),
     approveContact: (id: string) =>
-      request<{ student: Student; inviteSent: boolean }>("POST", `/students/${id}/approve-contact`),
+      request<{ applicant: Applicant; inviteSent: boolean }>("POST", `/applicants/${id}/approve-contact`),
     files: (aiKey: string) =>
-      request<{ files: unknown[] }>("GET", `/students/${aiKey}/files`),
+      request<{ files: unknown[] }>("GET", `/applicants/${aiKey}/files`),
   },
 
   // Tasks (admin)

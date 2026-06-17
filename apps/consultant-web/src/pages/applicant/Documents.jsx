@@ -8,10 +8,10 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import DocumentUpload from "../../components/student/DocumentUpload";
-import DocumentManager from "../../components/student/DocumentManager";
+import DocumentUpload from "../../components/applicant/DocumentUpload";
+import DocumentManager from "../../components/applicant/DocumentManager";
 import ErrorBoundary from "../../components/common/ErrorBoundary";
-import RequiredDocuments from "../../components/student/RequiredDocuments";
+import RequiredDocuments from "../../components/applicant/RequiredDocuments";
 import { toast } from "sonner";
 
 const Documents = () => {

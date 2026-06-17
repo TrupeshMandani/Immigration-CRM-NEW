@@ -94,11 +94,11 @@ export async function login(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const [student] = await db.select({ id: applicants.id }).from(applicants)
+    const [applicant] = await db.select({ id: applicants.id }).from(applicants)
       .where(and(eq(applicants.email, email), inArray(applicants.status, ['active', 'registered'])))
       .limit(1);
 
-    if (student) {
+    if (applicant) {
       res.status(403).json({
         message: 'Applicants must sign in using the email link or Google option on the login page.',
       });
@@ -151,11 +151,11 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
       return;
     }
 
-    let [student] = await db.select().from(applicants)
+    let [applicant] = await db.select().from(applicants)
       .where(and(eq(applicants.email, email), eq(applicants.firm_id, firmId)))
       .limit(1);
 
-    if (!student) {
+    if (!applicant) {
       log('➕', `New applicant — auto-creating account for ${email}`);
       let aiKey = generateAiKey(displayName || email);
       const existing = await db.select({ ai_key: applicants.ai_key }).from(applicants)
@@ -171,29 +171,29 @@ export async function firebaseLogin(req: Request, res: Response): Promise<void> 
         last_name: displayName.split(' ').slice(1).join(' ') || null,
         profile_data: { fullName: displayName, email },
       }).returning();
-      student = created;
+      applicant = created;
     } else {
-      if (student.status === 'closed') {
+      if (applicant.status === 'closed') {
         res.status(403).json({ message: 'Your account is inactive. Please contact support.' });
         return;
       }
     }
 
-    log('✅', `Firebase login success → ${email} (applicant id: ${student.id})`);
-    const studentUser = { ...student, role: 'applicant' };
-    const token = generateToken(studentUser, firmId);
-    setRefreshCookie(res, generateRefreshToken(studentUser, firmId));
+    log('✅', `Firebase login success → ${email} (applicant id: ${applicant.id})`);
+    const applicantUser = { ...applicant, role: 'applicant' };
+    const token = generateToken(applicantUser, firmId);
+    setRefreshCookie(res, generateRefreshToken(applicantUser, firmId));
 
     res.json({
       message: 'Login successful',
       token,
       user: {
-        id: student.id,
-        username: student.email,
-        email: student.email,
+        id: applicant.id,
+        username: applicant.email,
+        email: applicant.email,
         role: 'applicant',
-        aiKey: student.ai_key,
-        status: student.status,
+        aiKey: applicant.ai_key,
+        status: applicant.status,
       },
     });
   } catch (error) {
@@ -219,23 +219,23 @@ export async function sendLoginLink(req: Request, res: Response): Promise<void> 
     const email = emailRaw.trim().toLowerCase();
     const firmId = DEFAULT_FIRM_ID();
 
-    const [student] = await db.select().from(applicants)
+    const [applicant] = await db.select().from(applicants)
       .where(and(eq(applicants.email, email), eq(applicants.firm_id, firmId)))
       .limit(1);
 
-    if (!student) {
+    if (!applicant) {
       res.status(404).json({
-        message: "We couldn't find a student account with that email. Please contact your advisor.",
+        message: "We couldn't find an applicant account with that email. Please contact your advisor.",
       });
       return;
     }
-    if (student.status === 'closed') {
+    if (applicant.status === 'closed') {
       res.status(403).json({ message: 'This account is inactive. Contact your advisor.' });
       return;
     }
 
-    const name = student.first_name
-      ? `${student.first_name} ${student.last_name || ''}`.trim()
+    const name = applicant.first_name
+      ? `${applicant.first_name} ${applicant.last_name || ''}`.trim()
       : email.split('@')[0];
 
     const invite = await sendApplicantInviteEmail({ email, name });
@@ -288,8 +288,8 @@ export async function changePassword(req: Request, res: Response): Promise<void>
   }
 }
 
-// ─── registerStudent ──────────────────────────────────────────────────────────
-export async function registerStudent(req: Request, res: Response): Promise<void> {
+// ─── registerApplicant ────────────────────────────────────────────────────────
+export async function registerApplicant(req: Request, res: Response): Promise<void> {
   try {
     const { name, email, phone } = (req.body ?? {}) as RegisterApplicantBody;
     if (!name || !email) { res.status(400).json({ message: 'Name and email are required.' }); return; }
@@ -297,9 +297,9 @@ export async function registerStudent(req: Request, res: Response): Promise<void
     const normalizedEmail = email.trim().toLowerCase();
     const firmId = DEFAULT_FIRM_ID();
 
-    const [existingStudent] = await db.select({ id: applicants.id }).from(applicants)
+    const [existingApplicant] = await db.select({ id: applicants.id }).from(applicants)
       .where(and(eq(applicants.email, normalizedEmail), eq(applicants.firm_id, firmId))).limit(1);
-    if (existingStudent) {
+    if (existingApplicant) {
       res.status(400).json({ message: 'An account with this email already exists.' });
       return;
     }
@@ -330,11 +330,11 @@ export async function registerStudent(req: Request, res: Response): Promise<void
     try {
       const adminRecipients = await getAdminNotificationEmails();
       if (adminRecipients.length) {
-        const profileUrl = `${getAppBaseUrl()}/admin/students/${inserted.id}`;
+        const profileUrl = `${getAppBaseUrl()}/admin/applicants/${inserted.id}`;
         await sendEmail({
           to: adminRecipients.join(', '),
-          subject: 'New student registration received',
-          html: `<p>New student <strong>${name}</strong> (${normalizedEmail}) registered. <a href="${profileUrl}">Review profile</a></p>`,
+          subject: 'New applicant registration received',
+          html: `<p>New applicant <strong>${name}</strong> (${normalizedEmail}) registered. <a href="${profileUrl}">Review profile</a></p>`,
         });
       }
     } catch (notifyError) {
@@ -355,7 +355,7 @@ export async function registerStudent(req: Request, res: Response): Promise<void
       res.status(400).json({ message: 'Email already in use.' });
       return;
     }
-    res.status(500).json({ message: 'Failed to register student.' });
+    res.status(500).json({ message: 'Failed to register applicant.' });
   }
 }
 

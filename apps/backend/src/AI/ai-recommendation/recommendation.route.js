@@ -10,8 +10,9 @@ const {
 // Auth needed for all
 router.use(authenticateToken);
 
-router.get("/:studentId", getRecommendations);                 // student/admin
-router.post("/generate/:studentId", generateRecommendations);
-router.patch("/enable/:studentId", requireAdmin, setRecommendationEnabled);  // legacy
+// Preferred routes — :applicantId
+router.get("/:applicantId", getRecommendations);                            // applicant/admin
+router.post("/generate/:applicantId", generateRecommendations);
+router.patch("/enable/:applicantId", requireAdmin, setRecommendationEnabled); // legacy
 
 module.exports = router;

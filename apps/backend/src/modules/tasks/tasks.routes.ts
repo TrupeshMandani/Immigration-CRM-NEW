@@ -47,7 +47,7 @@ tasksRouter.get('/', async (req: Request, res: Response) => {
 
 // ---------------------------------------------------------------------------
 // POST /api/tasks
-// Body: { task_type?, title, description?, student_id?, document_id?,
+// Body: { task_type?, title, description?, applicant_id?, document_id?,
 //         assigned_to?, due_at?, metadata? }
 // ---------------------------------------------------------------------------
 tasksRouter.post('/', async (req: Request, res: Response) => {

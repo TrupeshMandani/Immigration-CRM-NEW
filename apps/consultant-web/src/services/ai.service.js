@@ -1,22 +1,16 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 /**
- * Sends a message to the AI Assistant.
- * @param {string} message - The user's message
- * @param {string} studentId - Optional student ID for context
- * @returns {Promise<string>} - The AI's response
- */
-/**
  * Sends a message to the AI Assistant and streams the response.
  * @param {string} message - The user's message
- * @param {string} studentId - Optional student ID for context
+ * @param {string} applicantId - Optional applicant ID for context
  * @param {function} onChunk - Callback for each chunk of text
  * @param {object} options - Optional callbacks (e.g., { onNotification })
  * @returns {Promise<void>}
  */
 export const chatWithAI = async (
   message,
-  studentId = null,
+  applicantId = null,
   onChunk,
   options = {}
 ) => {
@@ -28,7 +22,7 @@ export const chatWithAI = async (
         "Content-Type": "application/json",
         Authorization: token ? `Bearer ${token}` : "",
       },
-      body: JSON.stringify({ message, studentId }),
+      body: JSON.stringify({ message, applicantId }),
     });
 
     if (!response.ok) {

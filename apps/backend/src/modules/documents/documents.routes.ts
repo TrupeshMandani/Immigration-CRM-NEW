@@ -3,7 +3,7 @@ import {
   generateUploadUrl,
   finalizeUpload,
   getDownloadUrl,
-  listStudentDocuments,
+  listApplicantDocuments,
   deleteDocument,
 } from './documents.service';
 
@@ -20,7 +20,7 @@ function serviceError(res: Response, err: unknown) {
 
 // ---------------------------------------------------------------------------
 // POST /api/documents/upload-url
-// Body: { studentId, documentType, fileName, mimeType, sizeBytes }
+// Body: { applicantId, documentType, fileName, mimeType, sizeBytes }
 // Returns: { uploadUrl, documentId, s3Key, contentType }
 // ---------------------------------------------------------------------------
 documentsRouter.post('/upload-url', async (req: Request, res: Response) => {
@@ -35,12 +35,12 @@ documentsRouter.post('/upload-url', async (req: Request, res: Response) => {
 });
 
 // ---------------------------------------------------------------------------
-// GET /api/documents/student/:studentId
-// Returns all documents for a student (RLS scoped to current firm).
+// GET /api/documents/applicant/:applicantId
+// Returns all documents for an applicant (RLS scoped to current firm).
 // ---------------------------------------------------------------------------
-documentsRouter.get('/student/:studentId', async (req: Request, res: Response) => {
+documentsRouter.get('/applicant/:applicantId', async (req: Request, res: Response) => {
   try {
-    const rows = await listStudentDocuments(req.db, req.params.studentId);
+    const rows = await listApplicantDocuments(req.db, req.params.applicantId);
     res.json(rows);
   } catch (err) {
     serviceError(res, err);

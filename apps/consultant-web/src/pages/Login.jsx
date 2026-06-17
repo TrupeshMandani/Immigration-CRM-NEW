@@ -27,9 +27,9 @@ const Login = () => {
   });
   const [adminLoading, setAdminLoading] = useState(false);
   const [error, setError] = useState("");
-  const [studentLoading, setStudentLoading] = useState(false);
-  const [studentError, setStudentError] = useState("");
-  const [studentMessage, setStudentMessage] = useState("");
+  const [applicantLoading, setApplicantLoading] = useState(false);
+  const [applicantError, setApplicantError] = useState("");
+  const [applicantMessage, setApplicantMessage] = useState("");
   const [emailForLink, setEmailForLink] = useState("");
   const [emailLinkSent, setEmailLinkSent] = useState(false);
   const [awaitingEmailConfirm, setAwaitingEmailConfirm] = useState(false);
@@ -80,20 +80,20 @@ const Login = () => {
   const completeEmailLinkSignIn = useCallback(
     async (signInEmail) => {
       if (!firebaseAvailable || !firebaseAuth) {
-        setStudentError("Firebase authentication is not available.");
+        setApplicantError("Firebase authentication is not available.");
         return;
       }
 
       if (!signInEmail) {
-        setStudentError("Enter the email address you used to request access.");
+        setApplicantError("Enter the email address you used to request access.");
         return;
       }
 
       console.groupCollapsed("[FirebaseEmailLink] Complete flow");
       console.debug("Email attempting link completion", signInEmail);
-      setStudentLoading(true);
-      setStudentError("");
-      setStudentMessage("Verifying your email...");
+      setApplicantLoading(true);
+      setApplicantError("");
+      setApplicantMessage("Verifying your email...");
 
       try {
         const result = await signInWithEmailLink(
@@ -104,7 +104,7 @@ const Login = () => {
         window.localStorage.removeItem("firebaseEmailForSignIn");
         setEmailLinkSent(false);
         setAwaitingEmailConfirm(false);
-        setStudentMessage("");
+        setApplicantMessage("");
         console.debug("Firebase email link sign-in success, user", result.user.uid);
 
         try {
@@ -122,18 +122,18 @@ const Login = () => {
           routeAfterLogin(authResult.user);
         } else {
           console.error("Backend rejected Firebase token", authResult.error);
-          setStudentError(authResult.error);
+          setApplicantError(authResult.error);
         }
       } catch (err) {
         console.error("Email link sign-in failed:", err);
-        setStudentError(
+        setApplicantError(
           err?.message || "Unable to complete email link sign-in."
         );
         setAwaitingEmailConfirm(true);
       } finally {
         clearEmailLinkFromUrl();
         console.groupEnd();
-        setStudentLoading(false);
+        setApplicantLoading(false);
       }
     },
     [
@@ -147,14 +147,14 @@ const Login = () => {
 
   const handleGoogleSignIn = useCallback(async () => {
     if (!firebaseAvailable || !firebaseAuth) {
-      setStudentError("Firebase authentication is not available.");
+      setApplicantError("Firebase authentication is not available.");
       return;
     }
 
     googlePopupPendingRef.current = true;
-    setStudentLoading(true);
-    setStudentError("");
-    setStudentMessage("");
+    setApplicantLoading(true);
+    setApplicantError("");
+    setApplicantMessage("");
     console.groupCollapsed("[FirebaseAuth] Google sign-in");
 
     try {
@@ -178,14 +178,14 @@ const Login = () => {
         routeAfterLogin(authResult.user);
       } else {
         console.error("Backend rejected Google login", authResult.error);
-        setStudentError(authResult.error);
+        setApplicantError(authResult.error);
       }
     } catch (err) {
       console.error("Google sign-in failed:", err);
       if (err?.code === "auth/popup-closed-by-user") {
-        setStudentMessage("Google sign-in was cancelled.");
+        setApplicantMessage("Google sign-in was cancelled.");
       } else {
-        setStudentError(err?.message || "Google sign-in failed.");
+        setApplicantError(err?.message || "Google sign-in failed.");
       }
     } finally {
       console.groupEnd();
@@ -194,18 +194,18 @@ const Login = () => {
         clearTimeout(googlePopupRecoveryTimerRef.current);
         googlePopupRecoveryTimerRef.current = null;
       }
-      setStudentLoading(false);
+      setApplicantLoading(false);
     }
   }, [firebaseAuth, firebaseAvailable, loginWithFirebaseToken, routeAfterLogin]);
 
   const requestEmailLink = useCallback(async () => {
     if (!emailForLink) {
-      setStudentError("Enter your email address to continue.");
+      setApplicantError("Enter your email address to continue.");
       return;
     }
 
     if (!firebaseAvailable) {
-      setStudentError("Firebase authentication is not available.");
+      setApplicantError("Firebase authentication is not available.");
       return;
     }
 
@@ -216,9 +216,9 @@ const Login = () => {
       origin: window.location.origin,
     });
 
-    setStudentLoading(true);
-    setStudentError("");
-    setStudentMessage("");
+    setApplicantLoading(true);
+    setApplicantError("");
+    setApplicantMessage("");
 
     try {
       clearEmailLinkFromUrl();
@@ -229,20 +229,20 @@ const Login = () => {
       window.localStorage.setItem("firebaseEmailForSignIn", emailForLink);
       setEmailLinkSent(true);
       setAwaitingEmailConfirm(false);
-      setStudentMessage(
+      setApplicantMessage(
         response?.message ||
           "We've emailed you a sign-in link. Open it on this device to finish signing in."
       );
     } catch (err) {
       console.error("Email sign-in link error:", err);
-      setStudentError(
+      setApplicantError(
         err?.response?.data?.message ||
           err?.message ||
           "Unable to send the email sign-in link right now."
       );
     } finally {
       console.groupEnd();
-      setStudentLoading(false);
+      setApplicantLoading(false);
     }
   }, [clearEmailLinkFromUrl, emailForLink, firebaseAvailable]);
 
@@ -257,8 +257,8 @@ const Login = () => {
 
   const handleEmailInputChange = (event) => {
     setEmailForLink(event.target.value);
-    setStudentError("");
-    setStudentMessage("");
+    setApplicantError("");
+    setApplicantMessage("");
   };
 
   useEffect(() => {
@@ -288,7 +288,7 @@ const Login = () => {
       );
       setEmailForLink("");
       setAwaitingEmailConfirm(true);
-      setStudentMessage(
+      setApplicantMessage(
         "Enter the email you used to request the sign-in link to finish signing in."
       );
     }
@@ -310,9 +310,9 @@ const Login = () => {
       googlePopupRecoveryTimerRef.current = setTimeout(() => {
         if (googlePopupPendingRef.current) {
           googlePopupPendingRef.current = false;
-          setStudentLoading(false);
-          setStudentError("");
-          setStudentMessage("Google sign-in was cancelled.");
+          setApplicantLoading(false);
+          setApplicantError("");
+          setApplicantMessage("Google sign-in was cancelled.");
         }
       }, 400);
     };
@@ -460,21 +460,21 @@ const Login = () => {
             <div className="relative flex items-center gap-4">
               <span className="flex-1 border-t border-primary-400/30" />
               <span className="text-xs font-semibold uppercase tracking-widest text-primary-400">
-                Student Access
+                Applicant Access
               </span>
               <span className="flex-1 border-t border-primary-400/30" />
             </div>
 
             <section className="space-y-6">
-              {studentError && (
+              {applicantError && (
                 <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                  {studentError}
+                  {applicantError}
                 </div>
               )}
 
-              {studentMessage && (
+              {applicantMessage && (
                 <div className="rounded-md border border-primary-400 bg-primary-200 px-4 py-3 text-sm text-primary-800">
-                  {studentMessage}
+                  {applicantMessage}
                 </div>
               )}
 
@@ -490,7 +490,7 @@ const Login = () => {
                 variant="outline"
                 size="lg"
                 onClick={handleGoogleSignIn}
-                disabled={studentLoading || !firebaseAvailable}
+                disabled={applicantLoading || !firebaseAvailable}
                 className="w-full"
               >
                 <span className="inline-flex items-center justify-center gap-2">
@@ -508,21 +508,21 @@ const Login = () => {
               <form className="space-y-4" onSubmit={handleEmailFormSubmit}>
                 <div>
                   <label
-                    htmlFor="student-email"
+                    htmlFor="applicant-email"
                     className="block text-sm font-medium text-primary-800"
                   >
-                    Student Email
+                    Applicant Email
                   </label>
                   <div className="mt-1">
                     <input
-                      id="student-email"
+                      id="applicant-email"
                       type="email"
                       value={emailForLink}
                       onChange={handleEmailInputChange}
                       required
-                      disabled={studentLoading && !awaitingEmailConfirm}
+                      disabled={applicantLoading && !awaitingEmailConfirm}
                       className="block w-full rounded-md border border-primary-400 px-3 py-2 text-sm shadow-sm placeholder-primary-400 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-400/40 bg-white/50"
-                      placeholder="student@example.com"
+                      placeholder="applicant.com"
                     />
                   </div>
                 </div>
@@ -550,8 +550,8 @@ const Login = () => {
                   type="submit"
                   variant="primary"
                   size="lg"
-                  loading={studentLoading}
-                  disabled={studentLoading || !firebaseAvailable}
+                  loading={applicantLoading}
+                  disabled={applicantLoading || !firebaseAvailable}
                   className="w-full"
                 >
                   {awaitingEmailConfirm ? "Complete sign in" : "Send login email"}

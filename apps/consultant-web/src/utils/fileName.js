@@ -43,21 +43,21 @@ const sanitizeSegment = (value, fallback) => {
 
 export const buildRequiredDocFileName = ({
   fieldName = "Document",
-  studentName = "Student",
+  applicantName = "Applicant",
   extension = "",
   index = null,
 }) => {
   const fieldSegment = sanitizeSegment(fieldName, "Document");
-  const studentSegment = sanitizeSegment(studentName, "Student");
+  const applicantSegment = sanitizeSegment(applicantName, "Applicant");
   const uniqueSuffix =
     typeof index === "number" && index >= 0 ? `_${index + 1}` : "";
-  return `${fieldSegment}_${studentSegment}${uniqueSuffix}${extension}`;
+  return `${fieldSegment}_${applicantSegment}${uniqueSuffix}${extension}`;
 };
 
 export const renameFileForRequiredDoc = (
   file,
   fieldName,
-  studentName,
+  applicantName,
   index = null
 ) => {
   if (!(file instanceof File)) return file;
@@ -67,7 +67,7 @@ export const renameFileForRequiredDoc = (
     : "";
   const newName = buildRequiredDocFileName({
     fieldName,
-    studentName,
+    applicantName,
     extension,
     index,
   });

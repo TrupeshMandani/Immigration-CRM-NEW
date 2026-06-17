@@ -3,20 +3,20 @@ const { applicants } = require('../../db/schema');
 const { eq } = require('drizzle-orm');
 const { generateUniversityListFromProfile } = require('../../modules/ai/recommendation.service');
 
-// GET /api/recommendations/:studentId
+// GET /api/recommendations/:applicantId
 exports.getRecommendations = async (req, res) => {
   try {
-    const { studentId } = req.params;
+    const applicantId = req.params.applicantId;
 
-    const isStudent = req.user?.role === 'applicant';
-    if (isStudent && req.userId !== studentId) {
+    const isApplicant = req.user?.role === 'applicant';
+    if (isApplicant && req.userId !== applicantId) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 
-    const [student] = await db.select().from(applicants).where(eq(applicants.id, studentId)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.id, applicantId)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
-    const stateData = student.state_data ?? {};
+    const stateData = applicant.state_data ?? {};
     const preferences = stateData.preferences ?? {};
     const rec = stateData.recommendations ?? null;
 
@@ -31,24 +31,24 @@ exports.getRecommendations = async (req, res) => {
   }
 };
 
-// POST /api/recommendations/generate/:studentId
+// POST /api/recommendations/generate/:applicantId
 exports.generateRecommendations = async (req, res) => {
   try {
-    const { studentId } = req.params;
+    const applicantId = req.params.applicantId;
 
-    const isStudent = req.user?.role === 'applicant';
-    if (isStudent && req.userId !== studentId) {
+    const isApplicant = req.user?.role === 'applicant';
+    if (isApplicant && req.userId !== applicantId) {
       return res.status(403).json({ message: 'Forbidden' });
     }
-    if (!isStudent && !['admin', 'senior', 'junior'].includes(req.user?.role)) {
+    if (!isApplicant && !['admin', 'senior', 'junior'].includes(req.user?.role)) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 
-    const [student] = await db.select().from(applicants).where(eq(applicants.id, studentId)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
-    if (student.status === 'closed') return res.status(403).json({ message: 'Inactive applicant' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.id, applicantId)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
+    if (applicant.status === 'closed') return res.status(403).json({ message: 'Inactive applicant' });
 
-    const stateData = student.state_data ?? {};
+    const stateData = applicant.state_data ?? {};
     const existingPreferences = stateData.preferences ?? {};
     const filters = req.body?.filters ?? {};
     const mergedPreferences = { ...existingPreferences, ...filters };
@@ -59,18 +59,18 @@ exports.generateRecommendations = async (req, res) => {
       mergedPreferences.overallScore = Math.round((bandValues.reduce((a, b) => a + b, 0) / 4) * 2) / 2;
     }
 
-    const profile = { ...(student.profile_data ?? {}), ...mergedPreferences };
+    const profile = { ...(applicant.profile_data ?? {}), ...mergedPreferences };
 
     const context = {
-      firmId: req.context?.firmId ?? student.firm_id,
+      firmId: req.context?.firmId ?? applicant.firm_id,
       relatedEntityType: 'applicant',
-      relatedEntityId: studentId,
+      relatedEntityId: applicantId,
     };
     const { universities, source } = await generateUniversityListFromProfile(profile, context);
 
-    const recPayload = { studentId, universities, generatedAt: new Date().toISOString(), source };
+    const recPayload = { applicantId, universities, generatedAt: new Date().toISOString(), source };
     const newStateData = { ...stateData, recommendations: recPayload, preferences: mergedPreferences };
-    await db.update(applicants).set({ state_data: newStateData }).where(eq(applicants.id, studentId));
+    await db.update(applicants).set({ state_data: newStateData }).where(eq(applicants.id, applicantId));
 
     res.json({ ...recPayload, preferences: mergedPreferences });
   } catch (err) {
@@ -79,7 +79,7 @@ exports.generateRecommendations = async (req, res) => {
   }
 };
 
-// PATCH /api/recommendations/enable/:studentId — legacy no-op
+// PATCH /api/recommendations/enable/:applicantId — legacy no-op
 exports.setRecommendationEnabled = async (req, res) => {
   res.status(410).json({ message: 'Legacy endpoint no longer supported.' });
 };

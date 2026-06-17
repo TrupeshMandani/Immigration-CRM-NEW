@@ -9,13 +9,13 @@ import { useApplicants, usePendingContacts } from "../../hooks/useApplicants";
 const AdminDashboard = () => {
   const { user } = useAuth();
 
-  const { data: allStudents = [], isLoading: studentsLoading } = useApplicants();
+  const { data: allApplicants = [], isLoading: applicantsLoading } = useApplicants();
   const { data: pendingContacts = [], isLoading: contactsLoading } = usePendingContacts();
 
-  const loading = studentsLoading || contactsLoading;
+  const loading = applicantsLoading || contactsLoading;
 
-  const activeStudents = allStudents.filter((s) => s.status === "active");
-  const recentStudents = allStudents.slice(0, 5);
+  const activeApplicants = allApplicants.filter((s) => s.status === "active");
+  const recentApplicants = allApplicants.slice(0, 5);
 
   if (loading) {
     return (
@@ -50,8 +50,8 @@ const AdminDashboard = () => {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-primary-600">Total Students</p>
-                  <p className="text-2xl font-semibold text-primary-900">{allStudents.length}</p>
+                  <p className="text-sm font-medium text-primary-600">Total Applicants</p>
+                  <p className="text-2xl font-semibold text-primary-900">{allApplicants.length}</p>
                 </div>
               </div>
             </Card.Body>
@@ -82,8 +82,8 @@ const AdminDashboard = () => {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-primary-600">Active Students</p>
-                  <p className="text-2xl font-semibold text-primary-900">{activeStudents.length}</p>
+                  <p className="text-sm font-medium text-primary-600">Active Applicants</p>
+                  <p className="text-2xl font-semibold text-primary-900">{activeApplicants.length}</p>
                 </div>
               </div>
             </Card.Body>
@@ -91,46 +91,46 @@ const AdminDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Students */}
+          {/* Recent Applicants */}
           <Card>
             <Card.Header>
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-primary-900">Recent Students</h2>
-                <Link to="/admin/students">
+                <h2 className="text-xl font-semibold text-primary-900">Recent Applicants</h2>
+                <Link to="/admin/applicants">
                   <Button variant="outline" size="sm">View All</Button>
                 </Link>
               </div>
             </Card.Header>
             <Card.Body>
-              {recentStudents.length > 0 ? (
+              {recentApplicants.length > 0 ? (
                 <div className="space-y-4">
-                  {recentStudents.map((student) => (
+                  {recentApplicants.map((applicant) => (
                     <Link
-                      key={student._id}
-                      to={`/admin/students/${student._id}`}
+                      key={applicant._id}
+                      to={`/admin/applicants/${applicant._id}`}
                       className="flex items-center justify-between rounded-lg border border-transparent bg-primary-200/30 p-3 transition hover:border-primary-400/40 hover:bg-primary-200"
                     >
                       <div>
                         <p className="font-medium text-primary-900">
-                          {student.contactInfo?.name || student.username || "Unknown"}
+                          {applicant.contactInfo?.name || applicant.username || "Unknown"}
                         </p>
                         <p className="text-sm text-primary-600">
-                          {student.contactInfo?.email || student.email || "No email"}
+                          {applicant.contactInfo?.email || applicant.email || "No email"}
                         </p>
                       </div>
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        student.status === "active" ? "bg-green-100 text-green-800"
-                          : student.status === "pending" ? "bg-yellow-100 text-yellow-800"
+                        applicant.status === "active" ? "bg-green-100 text-green-800"
+                          : applicant.status === "pending" ? "bg-yellow-100 text-yellow-800"
                           : "bg-primary-400/20 text-primary-800"
                       }`}>
-                        {student.status?.charAt(0).toUpperCase() + student.status?.slice(1)}
+                        {applicant.status?.charAt(0).toUpperCase() + applicant.status?.slice(1)}
                       </span>
                     </Link>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-primary-600">No students found</p>
+                  <p className="text-primary-600">No applicants found</p>
                 </div>
               )}
             </Card.Body>
@@ -150,20 +150,20 @@ const AdminDashboard = () => {
                   Review Contact Requests
                 </Button>
               </Link>
-              <Link to="/admin/students" className="block">
+              <Link to="/admin/applicants" className="block">
                 <Button variant="outline" className="w-full justify-start">
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
-                  Manage Students
+                  Manage Applicants
                 </Button>
               </Link>
-              <Link to="/admin/students/create" className="block">
+              <Link to="/admin/applicants/create" className="block">
                 <Button variant="outline" className="w-full justify-start">
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  Create New Student
+                  Create New Applicant
                 </Button>
               </Link>
             </Card.Body>

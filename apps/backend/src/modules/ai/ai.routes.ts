@@ -36,7 +36,7 @@ aiRouter.post('/verify-document/:documentId', async (req: Request, res: Response
     await verifyQueue.add('verify', {
       documentId: doc.id,
       firmId,
-      studentId: doc.applicant_id,
+      applicantId: doc.applicant_id,
       s3Key: doc.s3_key,
       s3Bucket: doc.s3_bucket,
       documentType: doc.document_type ?? 'Document',
@@ -76,27 +76,27 @@ aiRouter.post('/extract-fields/:documentId', async (req: Request, res: Response)
 });
 
 // ---------------------------------------------------------------------------
-// POST /api/ai/recommendations/:studentId
-// Generates university recommendations for a student.
+// POST /api/ai/recommendations/:applicantId
+// Generates university recommendations for an applicant.
 // ---------------------------------------------------------------------------
-aiRouter.post('/recommendations/:studentId', async (req: Request, res: Response) => {
+aiRouter.post('/recommendations/:applicantId', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
-    const studentId = req.params.studentId as string;
+    const applicantId = req.params.applicantId as string;
 
-    const [student] = await req.db
+    const [applicant] = await req.db
       .select()
       .from(applicants)
-      .where(eq(applicants.id, studentId))
+      .where(eq(applicants.id, applicantId))
       .limit(1);
 
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
-    const profile = (student.profile_data ?? {}) as Record<string, unknown>;
+    const profile = (applicant.profile_data ?? {}) as Record<string, unknown>;
     const result = await generateUniversityListFromProfile(profile, {
       firmId,
       relatedEntityType: 'applicant',
-      relatedEntityId: studentId,
+      relatedEntityId: applicantId,
     });
 
     res.json(result);
@@ -111,7 +111,7 @@ aiRouter.post('/recommendations/:studentId', async (req: Request, res: Response)
 // ---------------------------------------------------------------------------
 aiRouter.post('/chat', async (req: Request, res: Response) => {
   try {
-    const { message, studentId } = req.body;
+    const { message, applicantId } = req.body;
     if (!message) return res.status(400).json({ error: 'Message is required' });
 
     const firmId = req.context!.firmId;
@@ -126,7 +126,7 @@ aiRouter.post('/chat', async (req: Request, res: Response) => {
     const mcpUrl = process.env.MCP_SERVER_URL ?? 'http://localhost:3002/api/chat';
     const response = await axios.post(
       mcpUrl,
-      { message, studentId, firmId },
+      { message, applicantId, firmId },
       {
         headers: {
           Authorization: authHeader,

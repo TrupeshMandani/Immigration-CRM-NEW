@@ -1,20 +1,20 @@
 /**
  * One-shot ETL: copies Applicant documents from MongoDB into the Postgres
- * students table.
+ * applicants table.
  *
  * Run:
- *   npx tsx src/scripts/etl-students-mongo-to-pg.ts
+ *   npx tsx src/scripts/etl-applicants-mongo-to-pg.ts
  *
  * Safety:
- *   - Idempotent: skips any student whose ai_key already exists in Postgres.
+ *   - Idempotent: skips any applicant whose ai_key already exists in Postgres.
  *   - Does NOT migrate embedded documents, tasks, or requiredDocuments — those
  *     are migrated in Prompts 10 and 12 respectively.
  *   - Does NOT delete the Mongoose documents; the MongoDB collection remains
  *     intact until all embeddings are migrated.
  *
- * All students are assigned to the DEFAULT_FIRM_ID from .env.
+ * All applicants are assigned to the DEFAULT_FIRM_ID from .env.
  * After running, verify with:
- *   pnpm db:studio  →  select count(*) from students;
+ *   pnpm db:studio  →  select count(*) from applicants;
  */
 import 'dotenv/config';
 import mongoose from 'mongoose';
@@ -44,7 +44,7 @@ const mongoSchema = new mongoose.Schema({
   profile: mongoose.Schema.Types.Mixed,
   preferences: mongoose.Schema.Types.Mixed,
 }, { timestamps: true });
-const MongoStudent = mongoose.model('Applicant', mongoSchema);
+const MongoApplicant = mongoose.model('Applicant', mongoSchema);
 
 function splitName(full?: string): { first: string | null; last: string | null } {
   if (!full || !full.trim()) return { first: null, last: null };
@@ -64,18 +64,18 @@ async function main() {
   const db = drizzle(pgClient);
   console.log('Connected to Postgres.');
 
-  // Fetch all students from MongoDB
-  const mongoStudents = await MongoStudent.find({}).lean();
-  console.log(`Found ${mongoStudents.length} MongoDB applicants.`);
+  // Fetch all applicants from MongoDB
+  const mongoApplicants = await MongoApplicant.find({}).lean();
+  console.log(`Found ${mongoApplicants.length} MongoDB applicants.`);
 
   let inserted = 0;
   let skipped = 0;
   let errors = 0;
 
-  for (const s of mongoStudents) {
+  for (const s of mongoApplicants) {
     const aiKey = s.aiKey as string | undefined;
     if (!aiKey) {
-      console.warn(`Skipping student with no aiKey: ${s._id}`);
+      console.warn(`Skipping applicant with no aiKey: ${s._id}`);
       skipped++;
       continue;
     }
@@ -98,7 +98,7 @@ async function main() {
       ((s.contactInfo as any)?.email as string | undefined);
 
     if (!email) {
-      console.warn(`Skipping student ${aiKey} — no email.`);
+      console.warn(`Skipping applicant ${aiKey} — no email.`);
       skipped++;
       continue;
     }

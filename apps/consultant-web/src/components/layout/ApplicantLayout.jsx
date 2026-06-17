@@ -7,58 +7,58 @@ import applicantTaskService from "../../services/applicantTaskService";
 const navItems = [
   {
     label: "Dashboard",
-    to: "/student/dashboard",
+    to: "/applicant/dashboard",
     icon: DashboardIcon,
-    matchPrefixes: ["/student/dashboard"],
+    matchPrefixes: ["/applicant/dashboard"],
     requiresActive: true,
   },
   {
     label: "Profile",
-    to: "/student/profile",
+    to: "/applicant/profile",
     icon: UserIcon,
-    matchPrefixes: ["/student/profile"],
+    matchPrefixes: ["/applicant/profile"],
     requiresActive: false,
   },
   {
     label: "Documents",
-    to: "/student/documents",
+    to: "/applicant/documents",
     icon: FolderIcon,
-    matchPrefixes: ["/student/documents"],
+    matchPrefixes: ["/applicant/documents"],
     requiresActive: true,
   },
   {
     label: "Tasks",
-    to: "/student/tasks",
+    to: "/applicant/tasks",
     icon: TasksIcon,
-    matchPrefixes: ["/student/tasks"],
+    matchPrefixes: ["/applicant/tasks"],
     requiresActive: true,
   },
   {
     label: "University Recommendations",
-    to: "/student/university-recommendations",
+    to: "/applicant/university-recommendations",
     icon: UniversityIcon,
-    matchPrefixes: ["/student/university-recommendations"],
+    matchPrefixes: ["/applicant/university-recommendations"],
     requiresActive: false,
   },
   {
     label: "Retainer Agreement",
-    to: "/student/retainer",
+    to: "/applicant/retainer",
     icon: RetainerIcon,
-    matchPrefixes: ["/student/retainer"],
+    matchPrefixes: ["/applicant/retainer"],
     requiresActive: false,
   },
   {
     label: "Invoices & Payments",
-    to: "/student/pay-invoice",
+    to: "/applicant/pay-invoice",
     icon: InvoiceIcon,
-    matchPrefixes: ["/student/pay-invoice"],
+    matchPrefixes: ["/applicant/pay-invoice"],
     requiresActive: false,
   },
   {
     label: "Change Password",
-    to: "/student/change-password",
+    to: "/applicant/change-password",
     icon: LockIcon,
-    matchPrefixes: ["/student/change-password"],
+    matchPrefixes: ["/applicant/change-password"],
     requiresActive: true,
   },
 ];
@@ -188,14 +188,14 @@ const ApplicantLayout = ({ children }) => {
   const [taskAlert, setTaskAlert] = useState(false);
 
   const isRestricted =
-    user?.role === "student" && user?.status && user.status !== "active";
+    user?.role === "applicant" && user?.status && user.status !== "active";
 
   const allowedRestrictedRoutes = useMemo(
     () =>
       new Set([
-        "/student/profile",
-        "/student/university-recommendations",
-        "/student/change-password",
+        "/applicant/profile",
+        "/applicant/university-recommendations",
+        "/applicant/change-password",
       ]),
     []
   );
@@ -215,7 +215,7 @@ const ApplicantLayout = ({ children }) => {
         const list = await applicantTaskService.list(user.aiKey);
         if (cancelled) return;
         const hasNew = list.some(
-          (task) => !task.seenByStudent && task.status === "pending"
+          (task) => !(task.seenByApplicant ?? task.seenByApplicant) && task.status === "pending"
         );
         setTaskAlert(hasNew);
       } catch {
@@ -231,7 +231,7 @@ const ApplicantLayout = ({ children }) => {
   }, [user?.aiKey]);
 
   useEffect(() => {
-    if (currentPath.startsWith("/student/tasks")) {
+    if (currentPath.startsWith("/applicant/tasks")) {
       setTaskAlert(false);
     }
   }, [currentPath]);
@@ -247,7 +247,7 @@ const ApplicantLayout = ({ children }) => {
       const isActive = prefixes.some((prefix) => currentPath.startsWith(prefix));
       const Icon = item.icon;
       const disabled = isRestricted && item.requiresActive;
-      const showTaskBadge = item.to === "/student/tasks" && taskAlert;
+      const showTaskBadge = item.to === "/applicant/tasks" && taskAlert;
 
       const handleClick = (event) => {
         if (disabled) {
@@ -301,7 +301,7 @@ const ApplicantLayout = ({ children }) => {
       <div className="flex h-full overflow-hidden">
         <aside className="hidden h-full w-64 flex-shrink-0 flex-col border-r border-primary-800 bg-primary-900 p-6 md:flex">
           <div className="mb-8">
-            <Link to="/student/dashboard" className="flex items-center gap-2">
+            <Link to="/applicant/dashboard" className="flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-800 text-primary-200">
                 <svg
                   className="h-5 w-5"
@@ -328,7 +328,7 @@ const ApplicantLayout = ({ children }) => {
                 Signed in as
               </p>
               <p className="mt-1 font-medium text-primary-200">
-                {user?.username || user?.contactInfo?.name || "Student"}
+                {user?.username || user?.contactInfo?.name || "Applicant"}
               </p>
             </div>
             <button 
@@ -353,7 +353,7 @@ const ApplicantLayout = ({ children }) => {
         >
           <div className="mb-8 flex items-center justify-between">
             <Link
-              to="/student/dashboard"
+              to="/applicant/dashboard"
               className="flex items-center gap-2"
               onClick={() => setMobileNavOpen(false)}
             >
@@ -393,7 +393,7 @@ const ApplicantLayout = ({ children }) => {
                 Signed in as
               </p>
               <p className="mt-1 font-medium text-primary-200">
-                {user?.username || user?.contactInfo?.name || "Student"}
+                {user?.username || user?.contactInfo?.name || "Applicant"}
               </p>
             </div>
             <button 
@@ -418,7 +418,7 @@ const ApplicantLayout = ({ children }) => {
               </svg>
             </button>
             <span className="text-base font-semibold text-primary-900">
-              Student Portal
+              Applicant Portal
             </span>
             <button
               type="button"

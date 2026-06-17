@@ -35,7 +35,7 @@ export function startVerifyWorker() {
   const worker = new Worker<VerifyJobData>(
     'ai-verify',
     async (job) => {
-      const { documentId, firmId, studentId, s3Key, s3Bucket, documentType, mimeType } = job.data;
+      const { documentId, firmId, applicantId, s3Key, s3Bucket, documentType, mimeType } = job.data;
 
       const ext = s3Key.split('.').pop() ?? 'bin';
       const tmpPath = await downloadToTemp(s3Bucket, s3Key, ext);
@@ -60,7 +60,7 @@ export function startVerifyWorker() {
             documentId,
             result,
             null, // aiJobId — traceability link; TODO: thread through from runAIJob
-            { firmId, studentId: studentId ?? null },
+            { firmId, applicantId: applicantId ?? null },
           );
         }
 

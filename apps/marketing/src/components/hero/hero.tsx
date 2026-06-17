@@ -7,7 +7,7 @@ import CanadaMap from "@react-map/canada";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
 
-const pathways = ["Students", "Skilled Talent", "HR Teams", "Families"];
+const pathways = ["Applicants", "Skilled Talent", "HR Teams", "Families"];
 const stats = [
   { label: "Countries served", value: "65+" },
   { label: "College alliances", value: "120" },
@@ -105,7 +105,7 @@ export function Hero() {
               Your Journey to Canada Starts Here
             </h1>
             <p className="max-w-3xl text-lg text-slate-600">
-              Trusted immigration pathways for students, workers, and families worldwide.
+              Trusted immigration pathways for applicants, workers, and families worldwide.
               CompleteCanadaVisa unifies eligibility, compliance, and personalized
               concierge support in one enterprise-grade portal.
             </p>

@@ -20,8 +20,8 @@ const Register = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      if (user?.role === "student") {
-        navigate("/student/profile", { replace: true });
+      if (user?.role === "applicant") {
+        navigate("/applicant/profile", { replace: true });
       } else if (user?.role === "admin") {
         navigate("/admin/dashboard", { replace: true });
       }
@@ -64,7 +64,7 @@ const Register = () => {
             Immigration CRM
           </h1>
           <h2 className="text-2xl font-bold text-primary-900">
-            Create your student account
+            Create your applicant account
           </h2>
           <p className="mt-2 text-sm text-primary-600">
             Already have an account?{" "}

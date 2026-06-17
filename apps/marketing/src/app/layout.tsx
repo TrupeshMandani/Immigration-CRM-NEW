@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: "CompleteCanadaVisa | Enterprise Immigration Platform",
   description:
-    "CompleteCanadaVisa delivers an enterprise-grade pathway to Canada for students, workers, and families through a trusted portal experience.",
+    "CompleteCanadaVisa delivers an enterprise-grade pathway to Canada for applicants, workers, and families through a trusted portal experience.",
   keywords: [
     "Canada immigration",
     "study visa",

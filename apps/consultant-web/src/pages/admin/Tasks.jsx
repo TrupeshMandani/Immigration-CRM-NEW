@@ -8,8 +8,8 @@ import Loading from "../../components/common/Loading";
 import VerificationBadge from "../../components/common/VerificationBadge";
 import { taskService } from "../../services/taskService";
 import { useSocket } from "../../hooks/useSocket";
-import UploadedFilesModal from "../../components/student/UploadedFilesModal";
-import DocumentViewer from "../../components/student/DocumentViewer";
+import UploadedFilesModal from "../../components/applicant/UploadedFilesModal";
+import DocumentViewer from "../../components/applicant/DocumentViewer";
 import { requiredDocsService } from "../../services/requireDocService";
 import { normalizeFileList, normalizeRequiredDoc } from "../../utils/requiredDocs";
 
@@ -108,8 +108,8 @@ const TasksPage = () => {
     (task) => ({
       id: task.documentId,
       name: task.documentField || "Document",
-      aiKey: task.studentAiKey,
-      studentId: task.studentId,
+      aiKey: task.applicantAiKey ?? task.applicantAiKey,
+      applicantId: task.applicantId ?? task.applicantId,
     }),
     []
   );
@@ -298,12 +298,12 @@ const TasksPage = () => {
       <Button variant="outline" size="sm" onClick={() => handleOpenPreview(task)}>
         View document
       </Button>
-      {task.studentId && (
+      {(task.applicantId || task.applicantId) && (
         <Button
           variant="ghost"
           size="sm"
           className="text-neutral-700 hover:text-primary"
-          onClick={() => navigate(`/admin/students/${task.studentId}`)}
+          onClick={() => navigate(`/admin/applicants/${task.applicantId || task.applicantId}`)}
         >
           Open profile
         </Button>
@@ -361,10 +361,12 @@ const TasksPage = () => {
         <tr key={task.id} className="border-t border-neutral-100">
           <td className="px-4 py-4 align-top">
             <p className="font-semibold text-neutral-900">
-              {task.studentName || "Student"}
+              {task.applicantName || task.applicantName || "Applicant"}
             </p>
             <p className="text-xs text-neutral-500">
-              {task.studentAiKey ? `AI Key: ${task.studentAiKey}` : ""}
+              {(task.applicantAiKey || task.applicantAiKey)
+                ? `AI Key: ${task.applicantAiKey || task.applicantAiKey}`
+                : ""}
             </p>
           </td>
           <td className="px-4 py-4 align-top">
@@ -475,7 +477,7 @@ const TasksPage = () => {
               <table className="min-w-full divide-y divide-neutral-200 text-sm">
                 <thead className="bg-neutral-50 text-xs font-semibold uppercase tracking-wide text-neutral-500">
                   <tr>
-                    <th className="px-4 py-3 text-left">Student</th>
+                    <th className="px-4 py-3 text-left">Applicant</th>
                     <th className="px-4 py-3 text-left">Document</th>
                     <th className="px-4 py-3 text-left">Uploaded</th>
                     <th className="px-4 py-3 text-left">Status</th>

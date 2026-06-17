@@ -20,15 +20,15 @@ import Faq from "./pages/Faq";
 import Forbidden from "./pages/Forbidden";
 import NotFound from "./pages/NotFound";
 
-// ── Student pages — lazy ──────────────────────────────────────────────────────
-const ApplicantDashboard      = lazy(() => import("./pages/student/ApplicantDashboard"));
-const ApplicantProfile        = lazy(() => import("./pages/student/ApplicantProfile"));
-const ApplicantDocuments      = lazy(() => import("./pages/student/Documents"));
-const ApplicantTasks          = lazy(() => import("./pages/student/Tasks"));
-const ChangePassword        = lazy(() => import("./pages/student/ChangePassword"));
-const UniversityRecommendation = lazy(() => import("./pages/student/UniversityRecommendations"));
-const Retainer              = lazy(() => import("./pages/student/Retainer"));
-const PayInvoice            = lazy(() => import("./pages/student/PayInvoice"));
+// ── Applicant pages — lazy ────────────────────────────────────────────────────
+const ApplicantDashboard      = lazy(() => import("./pages/applicant/ApplicantDashboard"));
+const ApplicantProfile        = lazy(() => import("./pages/applicant/ApplicantProfile"));
+const ApplicantDocuments      = lazy(() => import("./pages/applicant/Documents"));
+const ApplicantTasks          = lazy(() => import("./pages/applicant/Tasks"));
+const ChangePassword        = lazy(() => import("./pages/applicant/ChangePassword"));
+const UniversityRecommendation = lazy(() => import("./pages/applicant/UniversityRecommendations"));
+const Retainer              = lazy(() => import("./pages/applicant/Retainer"));
+const PayInvoice            = lazy(() => import("./pages/applicant/PayInvoice"));
 
 // ── Admin pages — lazy ────────────────────────────────────────────────────────
 const AdminDashboard        = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -73,7 +73,7 @@ function App() {
             <Route path="/403"       element={<Forbidden />} />
             <Route path="/404"       element={<NotFound />} />
 
-            {/* ── Student routes ────────────────────────────────────────── */}
+            {/* ── Applicant routes ────────────────────────────────────── */}
             <Route element={<ApplicantRoutes />}>
               <Route path="/applicant/dashboard"               element={<ApplicantDashboard />} />
               <Route path="/applicant/profile"                 element={<ApplicantProfile />} />
@@ -91,7 +91,6 @@ function App() {
               <Route path="/admin/requests"              element={<ContactRequests />} />
               <Route path="/admin/applicants/registered"   element={<RegisteredApplicants />} />
               <Route path="/admin/applicants"              element={<ApplicantList />} />
-              <Route path="/admin/student-profiles"      element={<ApplicantList />} />
               <Route path="/admin/applicants/create"       element={<CreateApplicant />} />
               <Route path="/admin/applicants/:id"          element={<ApplicantDetail />} />
               <Route path="/admin/tasks"                 element={<TasksPage />} />

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const GenerateUploadUrlSchema = z.object({
-  studentId: z.string().uuid('studentId must be a valid UUID'),
+  applicantId: z.string().uuid('applicantId must be a valid UUID'),
   documentType: z.string().trim().min(1).optional().nullable().default(null),
   fileName: z.string().trim().min(1, 'fileName is required'),
   mimeType: z.string().trim().min(1, 'mimeType is required'),

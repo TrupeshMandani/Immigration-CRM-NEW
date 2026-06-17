@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../common/Button";
 
-const ApplicantCard = ({ student }) => {
+const ApplicantCard = ({ applicant }) => {
   const navigate = useNavigate();
 
   // --- Color helpers ---
@@ -34,16 +34,16 @@ const ApplicantCard = ({ student }) => {
   };
 
   // --- Derived fields ---
-  const name = student.contactInfo?.name || student.username || "Unknown Student";
-  const email = student.contactInfo?.email || student.email || "No email";
-  const phone = student.contactInfo?.phone || "N/A";
-  const joined = student.createdAt
-    ? new Date(student.createdAt).toLocaleDateString()
+  const name = applicant.contactInfo?.name || applicant.username || "Unknown Applicant";
+  const email = applicant.contactInfo?.email || applicant.email || "No email";
+  const phone = applicant.contactInfo?.phone || "N/A";
+  const joined = applicant.createdAt
+    ? new Date(applicant.createdAt).toLocaleDateString()
     : "Unknown";
-  const applications = student.applications?.length || 0;
+  const applications = applicant.applications?.length || 0;
 
   const handleNavigate = () => {
-    navigate(`/admin/students/${student._id}`);
+    navigate(`/admin/applicants/${applicant._id}`);
   };
 
   const handleKeyDown = (event) => {
@@ -82,14 +82,14 @@ const ApplicantCard = ({ student }) => {
         <div className="flex flex-col items-end space-y-1">
           <span
             className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${getStatusColor(
-              student.status
+              applicant.status
             )}`}
           >
-            {student.status?.toUpperCase() || "UNKNOWN"}
+            {applicant.status?.toUpperCase() || "UNKNOWN"}
           </span>
-          {student.priority && (
-            <span className={`text-xs ${getPriorityColor(student.priority)}`}>
-              {student.priority.toUpperCase()}
+          {applicant.priority && (
+            <span className={`text-xs ${getPriorityColor(applicant.priority)}`}>
+              {applicant.priority.toUpperCase()}
             </span>
           )}
         </div>
@@ -101,7 +101,7 @@ const ApplicantCard = ({ student }) => {
           icon={
             <UserIcon />
           }
-          label={`Student ID: ${student.studentId || "N/A"}`}
+          label={`Applicant ID: ${applicant.aiKey || applicant._id || "N/A"}`}
         />
 
         <InfoRow

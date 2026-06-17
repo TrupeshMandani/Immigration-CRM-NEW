@@ -52,11 +52,11 @@ billingRouter.get('/stripe/onboarding-link', async (req: Request, res: Response)
 billingRouter.get('/invoices', async (req: Request, res: Response) => {
   try {
     const { firmId, role, userId } = req.context!;
-    // Students are restricted to their own invoices; admins may filter by studentId optionally
-    const studentId = role === 'applicant'
+    // Applicants are restricted to their own invoices; admins may filter by applicantId optionally
+    const applicantId = role === 'applicant'
       ? userId
-      : (req.query.studentId as string | undefined);
-    const rows = await invoicesService.listInvoices(req.db, firmId, studentId);
+      : (req.query.applicantId as string | undefined);
+    const rows = await invoicesService.listInvoices(req.db, firmId, applicantId);
     res.json({ success: true, invoices: rows });
   } catch (err) { svcError(res, err); }
 });
@@ -77,24 +77,25 @@ billingRouter.get('/invoices/:id', async (req: Request, res: Response) => {
 billingRouter.post('/invoices', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
-    const { studentId, lineItems, retainerId, dueAt } = req.body as {
-      studentId: string;
+    const body = req.body as {
+      applicantId?: string;
       lineItems: Array<{ description: string; amount_cents: number; quantity?: number }>;
       retainerId?: string;
       dueAt?: string;
     };
-    if (!studentId || !lineItems?.length) {
-      return res.status(400).json({ success: false, message: 'studentId and lineItems are required' });
+    const applicantId = body.applicantId;
+    if (!applicantId || !body.lineItems?.length) {
+      return res.status(400).json({ success: false, message: 'applicantId and lineItems are required' });
     }
-    const inv = await invoicesService.createInvoice(req.db, firmId, studentId, lineItems, {
-      retainerId,
-      dueAt: dueAt ? new Date(dueAt) : undefined,
+    const inv = await invoicesService.createInvoice(req.db, firmId, applicantId, body.lineItems, {
+      retainerId: body.retainerId,
+      dueAt: body.dueAt ? new Date(body.dueAt) : undefined,
     });
     res.status(201).json({ success: true, invoice: inv });
   } catch (err) { svcError(res, err); }
 });
 
-// POST /api/billing/invoices/:id/checkout  — student-facing Stripe Checkout
+// POST /api/billing/invoices/:id/checkout  — applicant-facing Stripe Checkout
 billingRouter.post('/invoices/:id/checkout', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
@@ -119,8 +120,9 @@ billingRouter.post('/invoices/:id/send', async (req: Request, res: Response) => 
 billingRouter.post('/trust/deposit', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
+    const applicantId = req.body.applicantId;
     const entry = await trustService.recordDeposit(req.db, firmId, {
-      studentId: req.body.studentId,
+      applicantId,
       amountCents: Number(req.body.amountCents),
       relatedInvoiceId: req.body.relatedInvoiceId,
       relatedStripeChargeId: req.body.relatedStripeChargeId,
@@ -135,8 +137,9 @@ billingRouter.post('/trust/deposit', async (req: Request, res: Response) => {
 billingRouter.post('/trust/withdrawal', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
+    const applicantId = req.body.applicantId;
     const entry = await trustService.recordWithdrawal(req.db, firmId, {
-      studentId: req.body.studentId,
+      applicantId,
       amountCents: Number(req.body.amountCents),
       relatedInvoiceId: req.body.relatedInvoiceId,
       description: req.body.description,
@@ -150,8 +153,9 @@ billingRouter.post('/trust/withdrawal', async (req: Request, res: Response) => {
 billingRouter.post('/trust/transfer', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
+    const applicantId = req.body.applicantId;
     const entry = await trustService.recordTransfer(req.db, firmId, {
-      studentId: req.body.studentId,
+      applicantId,
       amountCents: Number(req.body.amountCents),
       relatedInvoiceId: req.body.relatedInvoiceId,
       description: req.body.description,
@@ -189,11 +193,11 @@ billingRouter.get('/retainers/templates', (_req: Request, res: Response) => {
 billingRouter.get('/retainers', async (req: Request, res: Response) => {
   try {
     const { firmId, role, userId } = req.context!;
-    // Students are restricted to their own retainers; admins may filter by studentId optionally
-    const studentId = role === 'applicant'
+    // Applicants are restricted to their own retainers; admins may filter by applicantId optionally
+    const applicantId = role === 'applicant'
       ? userId
-      : (req.query.studentId as string | undefined);
-    const rows = await retainersService.listRetainers(req.db, firmId, studentId);
+      : (req.query.applicantId as string | undefined);
+    const rows = await retainersService.listRetainers(req.db, firmId, applicantId);
     res.json({ success: true, retainers: rows });
   } catch (err) { svcError(res, err); }
 });
@@ -214,16 +218,17 @@ billingRouter.get('/retainers/:id', async (req: Request, res: Response) => {
 billingRouter.post('/retainers', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
-    const { studentId, templateKey, scope } = req.body as {
-      studentId: string;
+    const body = req.body as {
+      applicantId?: string;
       templateKey: string;
       scope?: Record<string, unknown>;
     };
-    if (!studentId || !templateKey) {
-      return res.status(400).json({ success: false, message: 'studentId and templateKey are required' });
+    const applicantId = body.applicantId;
+    if (!applicantId || !body.templateKey) {
+      return res.status(400).json({ success: false, message: 'applicantId and templateKey are required' });
     }
     const agreement = await retainersService.createDraft(
-      req.db, firmId, studentId, templateKey, scope ?? {},
+      req.db, firmId, applicantId, body.templateKey, body.scope ?? {},
     );
     res.status(201).json({ success: true, retainer: agreement });
   } catch (err) { svcError(res, err); }

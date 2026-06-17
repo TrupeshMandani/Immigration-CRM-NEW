@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AlertCircle, UploadCloud, Eye } from "lucide-react";
 import { requiredDocsService } from "../../services/requireDocService";
-import { studentService } from "../../services/authService";
+import { applicantService } from "../../services/authService";
 import Loading from "../common/Loading";
 import Button from "../common/Button";
 import DocumentViewer from "./DocumentViewer";
@@ -40,15 +40,15 @@ const RequiredDocuments = ({ aiKey }) => {
     currentUploadingIndex: null,
   });
   const [filesModal, setFilesModal] = useState(initialFilesModalState);
-  const [studentName, setStudentName] = useState("");
+  const [applicantName, setApplicantName] = useState("");
 
-  const deriveStudentName = (data) => {
+  const deriveApplicantName = (data) => {
     if (!data) return "";
     const profile = data.profile || {};
     const contactName =
       data.contactInfo?.name ||
       data.contactInfo?.fullName ||
-      data.contactInfo?.studentName ||
+      data.contactInfo?.applicantName ||
       "";
     const firstLast = [profile.firstName, profile.lastName].filter(Boolean).join("");
     return (
@@ -112,18 +112,18 @@ const RequiredDocuments = ({ aiKey }) => {
 
   useEffect(() => {
     let cancelled = false;
-    const fetchStudentName = async () => {
+    const fetchApplicantName = async () => {
       if (!aiKey) return;
       try {
-        const data = await studentService.getStudentByKey(aiKey);
+        const data = await applicantService.getApplicantByKey(aiKey);
         if (!cancelled) {
-          setStudentName(deriveStudentName(data));
+          setApplicantName(deriveApplicantName(data));
         }
       } catch (err) {
-        console.error("Failed to fetch student info:", err);
+        console.error("Failed to fetch applicant info:", err);
       }
     };
-    fetchStudentName();
+    fetchApplicantName();
     return () => {
       cancelled = true;
     };
@@ -212,7 +212,7 @@ const RequiredDocuments = ({ aiKey }) => {
         const fileToUpload = renameFileForRequiredDoc(
           currentFile,
           doc?.name || "Document",
-          studentName || "Student",
+          applicantName || "Applicant",
           filesArray.length > 1 ? i : null
         );
 

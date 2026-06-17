@@ -1,5 +1,5 @@
 const { db } = require('../../db/postgres');
-const { students } = require('../../db/schema');
+const { applicants } = require('../../db/schema');
 const { eq } = require('drizzle-orm');
 
 // ─── Pure passport-field helpers (unchanged) ─────────────────────────────────

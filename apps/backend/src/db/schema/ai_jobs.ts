@@ -9,7 +9,7 @@ export const aiJobs = pgTable('ai_jobs', {
     .references(() => firms.id, { onDelete: 'cascade' }),
   // doc_verify | field_extract | recommendation | chat | fraud_screen
   job_type: text('job_type').notNull(),
-  // document | student | case
+  // document | applicant | case
   related_entity_type: text('related_entity_type'),
   related_entity_id: text('related_entity_id'),
   model: text('model'),

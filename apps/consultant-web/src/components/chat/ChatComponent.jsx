@@ -10,7 +10,7 @@ const initialMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hi! I'm your AI assistant. Ask me anything about students, tasks, or documents.",
+    "Hi! I'm your AI assistant. Ask me anything about applicants, tasks, or documents.",
 };
 
 const loadingWords = [
@@ -200,11 +200,11 @@ const ChatComponent = () => {
       // Actually we added it above, so we just need to update it
       
       let fullResponse = "";
-      const studentId = undefined; 
-      
+      const applicantId = undefined;
+
       await chatWithAI(
         messageToSend,
-        studentId,
+        applicantId,
         (chunk) => {
           fullResponse += chunk;
           setMessages((prev) => {

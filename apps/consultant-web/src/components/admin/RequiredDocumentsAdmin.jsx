@@ -9,11 +9,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Button from "../common/Button";
-import DocumentViewer from "../student/DocumentViewer";
-import UploadConfirmationModal from "../student/UploadConfirmationModal";
-import UploadedFilesModal from "../student/UploadedFilesModal";
+import DocumentViewer from "../applicant/DocumentViewer";
+import UploadConfirmationModal from "../applicant/UploadConfirmationModal";
+import UploadedFilesModal from "../applicant/UploadedFilesModal";
 import { requiredDocsService } from "../../services/requireDocService";
-import { studentService } from "../../services/authService";
+import { applicantService } from "../../services/authService";
 import { renameFileForRequiredDoc } from "../../utils/fileName";
 import {
   normalizeRequiredDoc,
@@ -47,7 +47,7 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
   const [uploadModal, setUploadModal] = useState(initialUploadModalState);
   const [filesModal, setFilesModal] = useState(initialFilesModalState);
   const fileInputsRef = useRef({});
-  const [studentName, setStudentName] = useState("");
+  const [applicantName, setApplicantName] = useState("");
   const hasAutoOpened = useRef(false);
   const [verifyingFileId, setVerifyingFileId] = useState(null);
 
@@ -55,13 +55,13 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
     hasAutoOpened.current = false;
   }, [autoOpenDocumentId]);
 
-  const deriveStudentName = (data) => {
+  const deriveApplicantName = (data) => {
     if (!data) return "";
     const profile = data.profile || {};
     const contactName =
       data.contactInfo?.name ||
       data.contactInfo?.fullName ||
-      data.contactInfo?.studentName ||
+      data.contactInfo?.applicantName ||
       "";
     const firstLast = [profile.firstName, profile.lastName].filter(Boolean).join("");
     return (
@@ -100,18 +100,18 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
 
   useEffect(() => {
     let cancelled = false;
-    const fetchStudentName = async () => {
+    const fetchApplicantName = async () => {
       if (!aiKey) return;
       try {
-        const data = await studentService.getStudentByKey(aiKey);
+        const data = await applicantService.getApplicantByKey(aiKey);
         if (!cancelled) {
-          setStudentName(deriveStudentName(data));
+          setApplicantName(deriveApplicantName(data));
         }
       } catch (error) {
-        console.error("Failed to fetch student info:", error);
+        console.error("Failed to fetch applicant info:", error);
       }
     };
-    fetchStudentName();
+    fetchApplicantName();
     return () => {
       cancelled = true;
     };
@@ -347,7 +347,7 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
       const fileToUpload = renameFileForRequiredDoc(
         currentFile,
         doc?.name || "Document",
-        studentName || "Student",
+        applicantName || "Applicant",
         files.length > 1 ? i : null
       );
       setUploadModal((prev) => ({
@@ -449,7 +449,7 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
               Required document checklist
             </p>
             <p className="text-xs text-neutral-500">
-              Add, review, and verify student uploads.
+              Add, review, and verify applicant uploads.
             </p>
           </div>
         </div>

@@ -1,15 +1,15 @@
 import api from "./api";
 
 export const uploadService = {
-  // Get student files
-  getStudentFiles: async (aiKey) => {
-    const response = await api.get(`/students/${aiKey}/files`);
+  // Get applicant files
+  getApplicantFiles: async (aiKey) => {
+    const response = await api.get(`/applicants/${aiKey}/files`);
     return response.data;
   },
 
   renameDocument: async (aiKey, documentId, newName) => {
     const response = await api.post(
-      `/students/${aiKey}/documents/${documentId}/rename`,
+      `/applicants/${aiKey}/documents/${documentId}/rename`,
       { newName }
     );
     return response.data;
@@ -19,7 +19,7 @@ export const uploadService = {
     try {
       console.log("UploadService: Deleting document", { aiKey, documentId });
       const response = await api.delete(
-        `/students/${aiKey}/documents/${documentId}`
+        `/applicants/${aiKey}/documents/${documentId}`
       );
       console.log("UploadService: Delete response", response.data);
       return response.data;
@@ -29,9 +29,9 @@ export const uploadService = {
     }
   },
 
-  // Get student profile with extracted data
-  getStudentProfile: async (aiKey) => {
-    const response = await api.get(`/students/${aiKey}`);
+  // Get applicant profile with extracted data
+  getApplicantProfile: async (aiKey) => {
+    const response = await api.get(`/applicants/${aiKey}`);
     return response.data;
   },
 

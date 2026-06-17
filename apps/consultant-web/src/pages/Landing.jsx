@@ -85,9 +85,9 @@ const Landing = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-4">Student Management</h3>
+              <h3 className="text-xl font-semibold mb-4">Applicant Management</h3>
               <p className="text-gray-600">
-                Manage student profiles, track progress, and maintain organized
+                Manage applicant profiles, track progress, and maintain organized
                 records
               </p>
             </Card>

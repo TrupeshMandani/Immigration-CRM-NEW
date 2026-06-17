@@ -7,7 +7,7 @@ const emailTemplates = {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1d4ed8;">New Message Received</h2>
-        <p>Dear ${data.studentName},</p>
+        <p>Dear ${data.applicantName},</p>
         <p>You have received a new message from your immigration team:</p>
         <div style="background-color: #f0f9ff; border: 1px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <p><strong>From:</strong> ${data.senderName}</p>
@@ -27,7 +27,7 @@ const emailTemplates = {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1d4ed8;">Document Uploaded Successfully</h2>
-        <p>Dear ${data.studentName},</p>
+        <p>Dear ${data.applicantName},</p>
         <p>Your document has been uploaded successfully:</p>
         <div style="background-color: #f0f9ff; border: 1px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <p><strong>Document Type:</strong> ${data.documentType}</p>
@@ -48,7 +48,7 @@ const emailTemplates = {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1d4ed8;">Document Verified</h2>
-        <p>Dear ${data.studentName},</p>
+        <p>Dear ${data.applicantName},</p>
         <p>Great news! Your document has been verified:</p>
         <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <p><strong>Document Type:</strong> ${data.documentType}</p>
@@ -70,7 +70,7 @@ const emailTemplates = {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #dc2626;">Document Rejected</h2>
-        <p>Dear ${data.studentName},</p>
+        <p>Dear ${data.applicantName},</p>
         <p>Unfortunately, your document has been rejected and needs to be resubmitted:</p>
         <div style="background-color: #fef2f2; border: 1px solid #dc2626; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <p><strong>Document Type:</strong> ${data.documentType}</p>
@@ -92,7 +92,7 @@ const emailTemplates = {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1d4ed8;">Application Status Update</h2>
-        <p>Dear ${data.studentName},</p>
+        <p>Dear ${data.applicantName},</p>
         <p>Your application status has been updated:</p>
         <div style="background-color: #f0f9ff; border: 1px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <p><strong>Application:</strong> ${data.applicationNumber}</p>
@@ -115,7 +115,7 @@ const emailTemplates = {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1d4ed8;">Document Expiring Soon</h2>
-        <p>Dear ${data.studentName},</p>
+        <p>Dear ${data.applicantName},</p>
         <p>We wanted to remind you that one of your documents is expiring soon:</p>
         <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <p><strong>Document:</strong> ${data.documentType}</p>
@@ -136,7 +136,7 @@ const emailTemplates = {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1d4ed8;">New Document Required</h2>
-        <p>Dear ${data.studentName},</p>
+        <p>Dear ${data.applicantName},</p>
         <p>We need you to upload the following document to continue processing your application:</p>
         <div style="background-color: #f0f9ff; border: 1px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <p><strong>Document Type:</strong> ${data.documentType}</p>

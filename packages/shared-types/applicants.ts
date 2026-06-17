@@ -21,7 +21,10 @@ export const CreateApplicantSchema = z.object({
   assigned_to: z.string().uuid().optional().nullable(),
 });
 
-export type CreateApplicantInput = z.infer<typeof CreateApplicantSchema>;
+// Use z.input so callers don't have to supply fields with schema-level defaults
+// (status, stage, profile_data, state_data). The function .parse()s the input
+// internally, so the post-parse shape is z.infer<typeof CreateApplicantSchema>.
+export type CreateApplicantInput = z.input<typeof CreateApplicantSchema>;
 
 // ---------------------------------------------------------------------------
 // Update (all fields optional)

@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import Button from "../common/Button";
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout, isAdmin, isStudent } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin, isApplicant } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -85,16 +85,16 @@ const Navbar = () => {
                       Admin Dashboard
                     </Link>
                   )}
-                  {isStudent && (
+                  {isApplicant && (
                     <>
                       <Link
-                        to="/student/dashboard"
+                        to="/applicant/dashboard"
                         className="text-sm text-gray-700 transition hover:text-primary"
                       >
                         Dashboard
                       </Link>
                       <Link
-                        to="/student/documents"
+                        to="/applicant/documents"
                         className="text-sm text-gray-700 transition hover:text-primary"
                       >
                         Documents
@@ -175,17 +175,17 @@ const Navbar = () => {
                     Admin Dashboard
                   </Link>
                 )}
-                {isStudent && (
+                {isApplicant && (
                   <>
                     <Link
-                      to="/student/dashboard"
+                      to="/applicant/dashboard"
                       onClick={closeMenu}
                       className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 transition hover:bg-gray-100 hover:text-primary"
                     >
                       Dashboard
                     </Link>
                     <Link
-                      to="/student/documents"
+                      to="/applicant/documents"
                       onClick={closeMenu}
                       className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 transition hover:bg-gray-100 hover:text-primary"
                     >

@@ -67,7 +67,7 @@ const DocumentManager = ({
       }
 
       console.log("📁 DocumentManager: Fetching documents for aiKey:", aiKey);
-      const response = await uploadService.getStudentFiles(aiKey);
+      const response = await uploadService.getApplicantFiles(aiKey);
       console.log("📁 DocumentManager: Received response:", response);
       console.log("📁 DocumentManager: Files array:", response.files);
 
@@ -261,7 +261,7 @@ const DocumentManager = ({
     return (
       <div className={`space-y-4 ${className}`}>
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-4 py-3 rounded-md">
-          <p>No student key available. Please log in again.</p>
+          <p>No applicant key available. Please log in again.</p>
         </div>
       </div>
     );

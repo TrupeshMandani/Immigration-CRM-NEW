@@ -1,37 +1,37 @@
 const {
-  getStudentTasks,
-  createStudentTask,
-  updateStudentTask,
-  deleteStudentTask,
+  getApplicantTasks,
+  createApplicantTask,
+  updateApplicantTask,
+  deleteApplicantTask,
 } = require("../services/applicant.service");
 
 module.exports = {
-  getTasksForStudent: {
-    description: "Fetch all tasks associated with a student.",
+  getTasksForApplicant: {
+    description: "Fetch all tasks associated with an applicant.",
     args: {
       type: "object",
       properties: {
         applicantId: {
           type: "string",
-          description: "The student's aiKey (the short slug identifier, e.g. 'john-smith-abc123').",
+          description: "The applicant's aiKey (the short slug identifier, e.g. 'john-smith-abc123').",
         },
       },
       required: ["applicantId"],
     },
     run: async ({ applicantId }) => {
-      return await getStudentTasks(applicantId);
+      return await getApplicantTasks(applicantId);
     },
   },
 
-  createStudentTask: {
+  createApplicantTask: {
     description:
-      "Create a CRM task for a student so reminders, notifications, and workflows trigger automatically.",
+      "Create a CRM task for an applicant so reminders, notifications, and workflows trigger automatically.",
     args: {
       type: "object",
       properties: {
         applicantId: {
           type: "string",
-          description: "Unique student identifier (aiKey) from the CRM backend.",
+          description: "Unique applicant identifier (aiKey) from the CRM backend.",
         },
         title: {
           type: "string",
@@ -39,7 +39,7 @@ module.exports = {
         },
         description: {
           type: "string",
-          description: "Detailed instructions for the student.",
+          description: "Detailed instructions for the applicant.",
         },
         dueDate: {
           type: "string",
@@ -54,7 +54,7 @@ module.exports = {
       required: ["applicantId", "title"],
     },
     run: async ({ applicantId, title, description, dueDate, attachmentPath }) => {
-      return await createStudentTask(applicantId, {
+      return await createApplicantTask(applicantId, {
         title,
         description,
         dueDate,
@@ -63,9 +63,9 @@ module.exports = {
     },
   },
 
-  updateStudentTaskStatus: {
+  updateApplicantTaskStatus: {
     description:
-      "Update a student's task status (e.g., mark complete) using the CRM backend.",
+      "Update an applicant's task status (e.g., mark complete) using the CRM backend.",
     args: {
       type: "object",
       properties: {
@@ -90,16 +90,16 @@ module.exports = {
       required: ["applicantId", "taskId", "status"],
     },
     run: async ({ applicantId, taskId, status, notes }) => {
-      return await updateStudentTask(applicantId, taskId, {
+      return await updateApplicantTask(applicantId, taskId, {
         status,
         notes,
       });
     },
   },
 
-  deleteStudentTask: {
+  deleteApplicantTask: {
     description:
-      "Remove a specific student task from the CRM to clean up completed/outdated work.",
+      "Remove a specific applicant task from the CRM to clean up completed/outdated work.",
     args: {
       type: "object",
       properties: {
@@ -115,7 +115,7 @@ module.exports = {
       required: ["applicantId", "taskId"],
     },
     run: async ({ applicantId, taskId }) => {
-      return await deleteStudentTask(applicantId, taskId);
+      return await deleteApplicantTask(applicantId, taskId);
     },
   },
 };

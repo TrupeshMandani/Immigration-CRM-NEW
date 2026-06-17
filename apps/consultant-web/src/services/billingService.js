@@ -13,7 +13,7 @@ export const billingService = {
     return res.data.invoice;
   },
 
-  /** Returns { url } — redirect the student to url for Stripe Checkout */
+  /** Returns { url } — redirect the applicant to url for Stripe Checkout */
   createCheckoutSession: async (invoiceId) => {
     const res = await api.post(`/billing/invoices/${invoiceId}/checkout`);
     return res.data;
@@ -21,8 +21,8 @@ export const billingService = {
 
   // ── Retainers ─────────────────────────────────────────────────────────────
 
-  listRetainers: async (studentId) => {
-    const params = studentId ? { studentId } : {};
+  listRetainers: async (applicantId) => {
+    const params = applicantId ? { applicantId } : {};
     const res = await api.get("/billing/retainers", { params });
     return res.data.retainers ?? [];
   },

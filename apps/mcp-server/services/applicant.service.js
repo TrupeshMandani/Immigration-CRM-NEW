@@ -31,7 +31,7 @@ const getApplicantById = async (applicantId) => {
     const res = await httpClient.get(buildApplicantPath(applicantId));
     return res.data;
   } catch (error) {
-    throw formatError(error, "Failed to fetch student.");
+    throw formatError(error, "Failed to fetch applicant.");
   }
 };
 
@@ -58,17 +58,17 @@ const getMissingDocuments = async (applicantId) => {
   }
 };
 
-const getStudentTasks = async (applicantId) => {
+const getApplicantTasks = async (applicantId) => {
   ensureValue(applicantId, "applicantId");
   try {
     const res = await httpClient.get(buildApplicantPath(applicantId, "/tasks"));
     return res.data;
   } catch (error) {
-    throw formatError(error, "Failed to fetch student tasks.");
+    throw formatError(error, "Failed to fetch applicant tasks.");
   }
 };
 
-const createStudentTask = async (applicantId, payload = {}) => {
+const createApplicantTask = async (applicantId, payload = {}) => {
   ensureValue(applicantId, "applicantId");
   ensureValue(payload.title, "title");
 
@@ -93,11 +93,11 @@ const createStudentTask = async (applicantId, payload = {}) => {
     });
     return res.data;
   } catch (error) {
-    throw formatError(error, "Failed to create student task.");
+    throw formatError(error, "Failed to create applicant task.");
   }
 };
 
-const updateStudentTask = async (applicantId, taskId, updates = {}) => {
+const updateApplicantTask = async (applicantId, taskId, updates = {}) => {
   ensureValue(applicantId, "applicantId");
   ensureValue(taskId, "taskId");
   if (!updates || typeof updates !== "object" || !Object.keys(updates).length) {
@@ -111,11 +111,11 @@ const updateStudentTask = async (applicantId, taskId, updates = {}) => {
     );
     return res.data;
   } catch (error) {
-    throw formatError(error, "Failed to update student task.");
+    throw formatError(error, "Failed to update applicant task.");
   }
 };
 
-const deleteStudentTask = async (applicantId, taskId) => {
+const deleteApplicantTask = async (applicantId, taskId) => {
   ensureValue(applicantId, "applicantId");
   ensureValue(taskId, "taskId");
   try {
@@ -124,7 +124,7 @@ const deleteStudentTask = async (applicantId, taskId) => {
     );
     return res.data;
   } catch (error) {
-    throw formatError(error, "Failed to delete student task.");
+    throw formatError(error, "Failed to delete applicant task.");
   }
 };
 
@@ -135,7 +135,7 @@ const updateApplicantStage = async (applicantId, newStage) => {
     const res = await httpClient.patch(buildApplicantPath(applicantId, "/stage"), { newStage });
     return res.data;
   } catch (error) {
-    throw formatError(error, "Failed to update student stage.");
+    throw formatError(error, "Failed to update applicant stage.");
   }
 };
 
@@ -156,7 +156,7 @@ const getApplicantOverview = async (applicantId) => {
     const res = await httpClient.get(buildApplicantPath(applicantId, "/overview"));
     return res.data;
   } catch (error) {
-    throw formatError(error, "Failed to fetch student overview.");
+    throw formatError(error, "Failed to fetch applicant overview.");
   }
 };
 
@@ -164,10 +164,10 @@ module.exports = {
   getApplicantById,
   searchApplicants,
   getMissingDocuments,
-  getStudentTasks,
-  createStudentTask,
-  updateStudentTask,
-  deleteStudentTask,
+  getApplicantTasks,
+  createApplicantTask,
+  updateApplicantTask,
+  deleteApplicantTask,
   updateApplicantStage,
   addNote,
   getApplicantOverview,

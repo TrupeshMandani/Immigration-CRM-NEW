@@ -25,7 +25,7 @@ function forbidden(): never {
 export async function createInvoice(
   dbClient: DbClient,
   firmId: string,
-  studentId: string,
+  applicantId: string,
   lineItems: InvoiceLineItem[],
   options?: { retainerId?: string; dueAt?: Date },
 ): Promise<Invoice> {
@@ -38,7 +38,7 @@ export async function createInvoice(
     .insert(invoices)
     .values({
       firm_id: firmId,
-      applicant_id: studentId,
+      applicant_id: applicantId,
       retainer_id: options?.retainerId ?? null,
       amount_cents: totalCents,
       status: 'draft',
@@ -51,7 +51,7 @@ export async function createInvoice(
 }
 
 // ─── sendInvoice ──────────────────────────────────────────────────────────────
-// Creates a Stripe Invoice, attaches line items, finalizes, and emails student.
+// Creates a Stripe Invoice, attaches line items, finalizes, and emails applicant.
 export async function sendInvoice(
   dbClient: DbClient,
   firmId: string,
@@ -65,12 +65,12 @@ export async function sendInvoice(
   if (!inv) notFound('Invoice not found');
   if (inv.firm_id !== firmId) forbidden();
 
-  const [student] = await dbClient
+  const [applicant] = await dbClient
     .select()
     .from(applicants)
     .where(eq(applicants.id, inv.applicant_id))
     .limit(1);
-  if (!student) notFound('Applicant not found');
+  if (!applicant) notFound('Applicant not found');
 
   const [stripeAcct] = await dbClient
     .select()
@@ -81,16 +81,16 @@ export async function sendInvoice(
   const s = stripe();
   const opts = stripeAcct ? ({ stripeAccount: stripeAcct.stripe_account_id } as object) : {};
 
-  // Resolve or create Stripe customer for this student.
-  const existing = await s.customers.list({ email: student.email, limit: 1 }, opts as any);
+  // Resolve or create Stripe customer for this applicant.
+  const existing = await s.customers.list({ email: applicant.email, limit: 1 }, opts as any);
   const customerId =
     existing.data.length > 0
       ? existing.data[0].id
       : (
           await s.customers.create(
             {
-              email: student.email,
-              name: [student.first_name, student.last_name].filter(Boolean).join(' '),
+              email: applicant.email,
+              name: [applicant.first_name, applicant.last_name].filter(Boolean).join(' '),
             },
             opts as any,
           )
@@ -158,20 +158,20 @@ export async function markPaid(
 export async function listInvoices(
   dbClient: DbClient,
   firmId: string,
-  studentId?: string,
+  applicantId?: string,
 ): Promise<Invoice[]> {
   return dbClient
     .select()
     .from(invoices)
     .where(
-      studentId
-        ? and(eq(invoices.firm_id, firmId), eq(invoices.applicant_id, studentId))
+      applicantId
+        ? and(eq(invoices.firm_id, firmId), eq(invoices.applicant_id, applicantId))
         : eq(invoices.firm_id, firmId),
     );
 }
 
 // ─── createCheckoutSession ────────────────────────────────────────────────────
-// Creates a Stripe Checkout Session so a student can pay via the hosted page.
+// Creates a Stripe Checkout Session so an applicant can pay via the hosted page.
 export async function createCheckoutSession(
   dbClient: DbClient,
   firmId: string,
@@ -210,8 +210,8 @@ export async function createCheckoutSession(
     {
       mode: 'payment',
       line_items: lineItems,
-      success_url: `${baseUrl}/student/pay-invoice?status=success&invoiceId=${invoiceId}`,
-      cancel_url: `${baseUrl}/student/pay-invoice?status=cancel&invoiceId=${invoiceId}`,
+      success_url: `${baseUrl}/applicant/pay-invoice?status=success&invoiceId=${invoiceId}`,
+      cancel_url: `${baseUrl}/applicant/pay-invoice?status=cancel&invoiceId=${invoiceId}`,
       metadata: { invoiceId, firmId },
     },
     opts,

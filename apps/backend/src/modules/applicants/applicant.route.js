@@ -19,31 +19,31 @@ router.get(
   "/registered",
   authenticateToken,
   requireAdmin,
-  ctrl.getRegisteredStudents
+  ctrl.getRegisteredApplicants
 );
 
-// Public routes (for students to access their own data)
+// Public routes (for applicants to access their own data)
 router.put(
   "/me/profile",
   authenticateToken,
   requireApplicant,
   ctrl.updateSelfProfile
 );
-router.get("/:aiKey/files", authenticateToken, ctrl.getStudentFiles);
+router.get("/:aiKey/files", authenticateToken, ctrl.getApplicantFiles);
 router.post(
   "/:aiKey/documents/:documentId/rename",
   authenticateToken,
-  ctrl.renameStudentDocument
+  ctrl.renameApplicantDocument
 );
 router.delete(
   "/:aiKey/documents/:documentId",
   authenticateToken,
-  ctrl.deleteStudentDocument
+  ctrl.deleteApplicantDocument
 );
 
 // Admin-only routes
 router.post("/", authenticateToken, requireAdmin, ctrl.createApplicant);
-router.get("/", authenticateToken, requireAdmin, ctrl.getAllStudents);
+router.get("/", authenticateToken, requireAdmin, ctrl.getAllApplicants);
 router.get(
   "/pending/contacts",
   authenticateToken,
@@ -61,7 +61,7 @@ router.post(
   "/:id/activate",
   authenticateToken,
   requireAdmin,
-  ctrl.activateStudent
+  ctrl.activateApplicant
 );
 router.put("/:id", authenticateToken, requireAdmin, ctrl.updateApplicant);
 router.delete("/:id", authenticateToken, requireAdmin, ctrl.deleteApplicant);
@@ -125,29 +125,29 @@ router.post(
   requireAdmin,
   ctrl.verifyRequiredDocumentFile
 );
-router.get("/:aiKey/tasks", authenticateToken, ctrl.listStudentTasks);
+router.get("/:aiKey/tasks", authenticateToken, ctrl.listApplicantTasks);
 router.post(
   "/:aiKey/tasks",
   authenticateToken,
   requireAdmin,
   upload.single("attachment"),
-  ctrl.createStudentTask
+  ctrl.createApplicantTask
 );
 router.patch(
   "/:aiKey/tasks/:taskId",
   authenticateToken,
-  ctrl.updateStudentTask
+  ctrl.updateApplicantTask
 );
 router.get(
   "/:aiKey/tasks/:taskId/attachment",
   authenticateToken,
-  ctrl.getStudentTaskAttachmentUrl
+  ctrl.getApplicantTaskAttachmentUrl
 );
 router.delete(
   "/:aiKey/tasks/:taskId",
   authenticateToken,
-  ctrl.deleteStudentTask
+  ctrl.deleteApplicantTask
 );
-router.get("/:aiKey", ctrl.getStudentByKey);
+router.get("/:aiKey", ctrl.getApplicantByKey);
 
 module.exports = router;

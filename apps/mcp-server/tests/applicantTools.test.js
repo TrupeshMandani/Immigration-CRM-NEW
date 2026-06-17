@@ -3,10 +3,10 @@ const { describe, it, expect, jest, beforeEach } = require("@jest/globals");
 jest.mock("../services/applicant.service");
 jest.mock("../config/logger");
 
-const studentService = require("../services/applicant.service");
+const applicantService = require("../services/applicant.service");
 const applicantTools = require("../tools/applicantTools");
 
-const STUDENT_ID = "student-abc-123";
+const APPLICANT_ID = "applicant-abc-123";
 
 describe("Applicant Tools", () => {
   beforeEach(() => jest.clearAllMocks());
@@ -16,7 +16,7 @@ describe("Applicant Tools", () => {
     const names = [
       "getApplicantById",
       "searchApplicants",
-      "getStudentMissingDocuments",
+      "getApplicantMissingDocuments",
       "updateApplicantStage",
       "addApplicantNote",
       "getApplicantOverview",
@@ -37,14 +37,14 @@ describe("Applicant Tools", () => {
 
   // ── getApplicantById ─────────────────────────────────────────────────────────
   describe("getApplicantById", () => {
-    it("returns student data from the service", async () => {
-      const mockStudent = { id: STUDENT_ID, first_name: "John", last_name: "Doe" };
-      studentService.getApplicantById.mockResolvedValue(mockStudent);
+    it("returns applicant data from the service", async () => {
+      const mockApplicant = { id: APPLICANT_ID, first_name: "John", last_name: "Doe" };
+      applicantService.getApplicantById.mockResolvedValue(mockApplicant);
 
-      const result = await applicantTools.getApplicantById.run({ applicantId: STUDENT_ID });
+      const result = await applicantTools.getApplicantById.run({ applicantId: APPLICANT_ID });
 
-      expect(result).toEqual(mockStudent);
-      expect(studentService.getApplicantById).toHaveBeenCalledWith(STUDENT_ID);
+      expect(result).toEqual(mockApplicant);
+      expect(applicantService.getApplicantById).toHaveBeenCalledWith(APPLICANT_ID);
     });
 
     it("has applicantId as required in args schema", () => {
@@ -56,20 +56,20 @@ describe("Applicant Tools", () => {
   describe("searchApplicants", () => {
     it("passes query to the service", async () => {
       const mockList = { applicants: [{ id: "1" }, { id: "2" }] };
-      studentService.searchApplicants.mockResolvedValue(mockList);
+      applicantService.searchApplicants.mockResolvedValue(mockList);
 
       const result = await applicantTools.searchApplicants.run({ query: "John" });
 
       expect(result).toEqual(mockList);
-      expect(studentService.searchApplicants).toHaveBeenCalledWith("John");
+      expect(applicantService.searchApplicants).toHaveBeenCalledWith("John");
     });
 
     it("works without a query (list all)", async () => {
-      studentService.searchApplicants.mockResolvedValue({ applicants: [] });
+      applicantService.searchApplicants.mockResolvedValue({ applicants: [] });
 
       await applicantTools.searchApplicants.run({});
 
-      expect(studentService.searchApplicants).toHaveBeenCalledWith(undefined);
+      expect(applicantService.searchApplicants).toHaveBeenCalledWith(undefined);
     });
 
     it("query is not required in args schema", () => {
@@ -77,22 +77,22 @@ describe("Applicant Tools", () => {
     });
   });
 
-  // ── getStudentMissingDocuments ─────────────────────────────────────────────
-  describe("getStudentMissingDocuments", () => {
-    it("returns missing documents for a student", async () => {
+  // ── getApplicantMissingDocuments ─────────────────────────────────────────────
+  describe("getApplicantMissingDocuments", () => {
+    it("returns missing documents for an applicant", async () => {
       const mockDocs = { missing: ["Passport", "IELTS"] };
-      studentService.getMissingDocuments.mockResolvedValue(mockDocs);
+      applicantService.getMissingDocuments.mockResolvedValue(mockDocs);
 
-      const result = await applicantTools.getStudentMissingDocuments.run({
-        applicantId: STUDENT_ID,
+      const result = await applicantTools.getApplicantMissingDocuments.run({
+        applicantId: APPLICANT_ID,
       });
 
       expect(result).toEqual(mockDocs);
-      expect(studentService.getMissingDocuments).toHaveBeenCalledWith(STUDENT_ID);
+      expect(applicantService.getMissingDocuments).toHaveBeenCalledWith(APPLICANT_ID);
     });
 
     it("has applicantId as required", () => {
-      expect(applicantTools.getStudentMissingDocuments.args.required).toContain("applicantId");
+      expect(applicantTools.getApplicantMissingDocuments.args.required).toContain("applicantId");
     });
   });
 
@@ -100,16 +100,16 @@ describe("Applicant Tools", () => {
   describe("updateApplicantStage", () => {
     it("calls service with applicantId and newStage", async () => {
       const mockResult = { success: true, stage: "study_permit" };
-      studentService.updateApplicantStage.mockResolvedValue(mockResult);
+      applicantService.updateApplicantStage.mockResolvedValue(mockResult);
 
       const result = await applicantTools.updateApplicantStage.run({
-        applicantId: STUDENT_ID,
+        applicantId: APPLICANT_ID,
         newStage: "study_permit",
       });
 
       expect(result).toEqual(mockResult);
-      expect(studentService.updateApplicantStage).toHaveBeenCalledWith(
-        STUDENT_ID,
+      expect(applicantService.updateApplicantStage).toHaveBeenCalledWith(
+        APPLICANT_ID,
         "study_permit"
       );
     });
@@ -125,17 +125,17 @@ describe("Applicant Tools", () => {
   describe("addApplicantNote", () => {
     it("calls service with applicantId and noteText", async () => {
       const mockResult = { success: true };
-      studentService.addNote.mockResolvedValue(mockResult);
+      applicantService.addNote.mockResolvedValue(mockResult);
 
       const result = await applicantTools.addApplicantNote.run({
-        applicantId: STUDENT_ID,
-        noteText: "Called student regarding passport",
+        applicantId: APPLICANT_ID,
+        noteText: "Called applicant regarding passport",
       });
 
       expect(result).toEqual(mockResult);
-      expect(studentService.addNote).toHaveBeenCalledWith(
-        STUDENT_ID,
-        "Called student regarding passport"
+      expect(applicantService.addNote).toHaveBeenCalledWith(
+        APPLICANT_ID,
+        "Called applicant regarding passport"
       );
     });
 
@@ -149,15 +149,15 @@ describe("Applicant Tools", () => {
   // ── getApplicantOverview ─────────────────────────────────────────────────────
   describe("getApplicantOverview", () => {
     it("returns the overview from the service", async () => {
-      const mockOverview = { id: STUDENT_ID, stage: "lead", tasks: [] };
-      studentService.getApplicantOverview.mockResolvedValue(mockOverview);
+      const mockOverview = { id: APPLICANT_ID, stage: "lead", tasks: [] };
+      applicantService.getApplicantOverview.mockResolvedValue(mockOverview);
 
       const result = await applicantTools.getApplicantOverview.run({
-        applicantId: STUDENT_ID,
+        applicantId: APPLICANT_ID,
       });
 
       expect(result).toEqual(mockOverview);
-      expect(studentService.getApplicantOverview).toHaveBeenCalledWith(STUDENT_ID);
+      expect(applicantService.getApplicantOverview).toHaveBeenCalledWith(APPLICANT_ID);
     });
 
     it("has applicantId as required", () => {
@@ -168,7 +168,7 @@ describe("Applicant Tools", () => {
   // ── Error propagation ──────────────────────────────────────────────────────
   describe("error propagation", () => {
     it("surfaces service errors to the caller", async () => {
-      studentService.getApplicantById.mockRejectedValue(new Error("Applicant not found"));
+      applicantService.getApplicantById.mockRejectedValue(new Error("Applicant not found"));
 
       await expect(
         applicantTools.getApplicantById.run({ applicantId: "bad-id" })

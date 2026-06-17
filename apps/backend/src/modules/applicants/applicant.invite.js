@@ -22,7 +22,7 @@ const buildInviteEmail = ({ name, loginLink }) => {
         <td style="padding:32px;">
           <p style="margin:0 0 18px;font-size:16px;">${greeting}</p>
           <p style="margin:0 0 18px;font-size:16px;line-height:1.65;">
-            You now have secure access to your Immigration CRM student hub. Click the button below to verify your email and open your dashboard. The link is protected and expires shortly for your security.
+            You now have secure access to your Immigration CRM applicant hub. Click the button below to verify your email and open your dashboard. The link is protected and expires shortly for your security.
           </p>
           <div style="text-align:center;margin:30px 0;">
             <a href="${safeLoginLink}" style="display:inline-block;padding:14px 28px;background:#2563eb;border-radius:999px;color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;letter-spacing:0.6px;box-shadow:0 12px 28px -16px rgba(37,99,235,0.9);">
@@ -98,7 +98,7 @@ const sendApplicantInviteEmail = async ({ email, name }) => {
     });
     return { emailSent: true, loginLink };
   } catch (error) {
-    console.error("Failed to send student invite email:", error);
+    console.error("Failed to send applicant invite email:", error);
     return { emailSent: false, loginLink, error };
   }
 };

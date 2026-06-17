@@ -3,7 +3,7 @@ import { Queue } from 'bullmq';
 export interface VerifyJobData {
   documentId: string;
   firmId: string;
-  studentId: string | null;
+  applicantId: string | null;
   s3Key: string;
   s3Bucket: string;
   documentType: string;

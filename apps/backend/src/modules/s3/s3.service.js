@@ -21,16 +21,16 @@ const s3Client = new S3Client({
 });
 
 // Upload file to S3
-async function uploadFileToS3(filePath, fileName, studentKey) {
+async function uploadFileToS3(filePath, fileName, applicantKey) {
   try {
     console.log(`🔍 S3 Upload Debug:`);
     console.log(`   filePath: ${filePath}`);
     console.log(`   fileName: ${fileName}`);
-    console.log(`   studentKey: ${studentKey}`);
+    console.log(`   applicantKey: ${applicantKey}`);
     console.log(`   bucket: ${env.AWS_S3_BUCKET_NAME}`);
 
     const fileContent = fs.readFileSync(filePath);
-    const sanitizedKey = studentKey || "unassigned";
+    const sanitizedKey = applicantKey || "unassigned";
     const key = `${sanitizedKey}/${fileName}`;
 
     const command = new PutObjectCommand({
@@ -87,11 +87,11 @@ async function deleteS3Object(key) {
   await s3Client.send(command);
 }
 
-// List all files for a student
-async function listStudentFiles(studentKey) {
+// List all files for an applicant
+async function listApplicantFiles(applicantKey) {
   const command = new ListObjectsV2Command({
     Bucket: env.AWS_S3_BUCKET_NAME,
-    Prefix: `${studentKey}/`,
+    Prefix: `${applicantKey}/`,
   });
 
   const response = await s3Client.send(command);
@@ -128,7 +128,7 @@ function deleteLocalFile(filePath) {
 module.exports = {
   uploadFileToS3,
   getPresignedUrl,
-  listStudentFiles,
+  listApplicantFiles,
   deleteLocalFile,
   s3Client,
   deleteS3Object,

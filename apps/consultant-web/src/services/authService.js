@@ -17,7 +17,7 @@ export const authService = {
     return response.data;
   },
 
-  // Register student
+  // Register applicant
   register: async ({ name, email, phone }) => {
     const response = await api.post("/auth/register", {
       name,
@@ -61,74 +61,75 @@ export const contactService = {
   },
 };
 
-export const studentService = {
-  // Get all students (admin only)
-  getAllStudents: async (params = {}) => {
-    const response = await api.get("/students", { params });
+export const applicantService = {
+  // Get all applicants (admin only)
+  getAllApplicants: async (params = {}) => {
+    const response = await api.get("/applicants", { params });
     return response.data;
   },
 
-  // Create student (admin only)
-  createStudent: async (payload) => {
-    const response = await api.post("/students", payload);
+  // Create applicant (admin only)
+  createApplicant: async (payload) => {
+    const response = await api.post("/applicants", payload);
     return response.data;
   },
 
   // Get pending contacts (admin only)
   getPendingContacts: async () => {
-    const response = await api.get("/students/pending/contacts");
+    const response = await api.get("/applicants/pending/contacts");
     return response.data;
   },
 
-  // Get student by ID (admin only)
-  getStudentById: async (id) => {
-    const response = await api.get(`/students/admin/${id}`);
+  // Get applicant by ID (admin only)
+  getApplicantById: async (id) => {
+    const response = await api.get(`/applicants/admin/${id}`);
     return response.data;
   },
 
   // Approve contact request and trigger onboarding (admin only)
   approveContactRequest: async (id) => {
-    const response = await api.post(`/students/${id}/approve-contact`);
+    const response = await api.post(`/applicants/${id}/approve-contact`);
     return response.data;
   },
 
-  // Activate student (admin only)
-  activateStudent: async (id) => {
-    const response = await api.post(`/students/${id}/activate`);
+  // Activate applicant (admin only)
+  activateApplicant: async (id) => {
+    const response = await api.post(`/applicants/${id}/activate`);
     return response.data;
   },
 
-  // Update student (admin only)
-  updateStudent: async (id, updates) => {
-    const response = await api.put(`/students/${id}`, updates);
+  // Update applicant (admin only)
+  updateApplicant: async (id, updates) => {
+    const response = await api.put(`/applicants/${id}`, updates);
     return response.data;
   },
 
-  // Delete student (admin only)
-  deleteStudent: async (id) => {
-    const response = await api.delete(`/students/${id}`);
+  // Delete applicant (admin only)
+  deleteApplicant: async (id) => {
+    const response = await api.delete(`/applicants/${id}`);
     return response.data;
   },
 
-  // Get student by aiKey (public)
-  getStudentByKey: async (aiKey) => {
-    const response = await api.get(`/students/${aiKey}`);
+  // Get applicant by aiKey (public)
+  getApplicantByKey: async (aiKey) => {
+    const response = await api.get(`/applicants/${aiKey}`);
     return response.data;
   },
 
-  getRegisteredStudents: async (params = {}) => {
-    const response = await api.get("/students/registered", { params });
+  getRegisteredApplicants: async (params = {}) => {
+    const response = await api.get("/applicants/registered", { params });
     return response.data;
   },
 
-  // Get student files (public)
-  getStudentFiles: async (aiKey) => {
-    const response = await api.get(`/students/${aiKey}/files`);
+  // Get applicant files (public)
+  getApplicantFiles: async (aiKey) => {
+    const response = await api.get(`/applicants/${aiKey}/files`);
     return response.data;
   },
 
   updateSelfProfile: async (payload) => {
-    const response = await api.put("/students/me/profile", payload);
+    const response = await api.put("/applicants/me/profile", payload);
     return response.data;
   },
 };
+

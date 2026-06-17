@@ -16,7 +16,7 @@ const NotificationToast = ({ notification, onClose }) => {
   return (
     <div className="pointer-events-auto flex w-80 flex-col rounded-2xl border border-primary/20 bg-white p-4 shadow-lg shadow-primary/20">
       <p className="text-sm font-semibold text-neutral-900">
-        {notification.actorName || "Student"} completed {notification.taskTitle}
+        {notification.actorName || "Applicant"} completed {notification.taskTitle}
       </p>
       <p className="mt-1 text-xs text-neutral-600">
         Please review the task in the admin portal.

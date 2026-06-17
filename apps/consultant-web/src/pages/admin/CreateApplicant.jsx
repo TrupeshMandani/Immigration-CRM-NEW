@@ -15,9 +15,9 @@ const schema = z.object({
   message: z.string().optional(),
 });
 
-const CreateStudent = () => {
+const CreateApplicant = () => {
   const navigate = useNavigate();
-  const createStudent = useCreateApplicant();
+  const createApplicant = useCreateApplicant();
 
   const {
     register,
@@ -27,12 +27,13 @@ const CreateStudent = () => {
 
   const onSubmit = async (values) => {
     try {
-      const response = await createStudent.mutateAsync(values);
-      toast.success("Student created successfully.");
-      const studentId = response?.student?.id ?? response?.student?._id;
-      navigate(studentId ? `/admin/students/${studentId}` : "/admin/students");
+      const response = await createApplicant.mutateAsync(values);
+      toast.success("Applicant created successfully.");
+      const applicantId =
+        response?.applicant?.id ?? response?.applicant?._id;
+      navigate(applicantId ? `/admin/applicants/${applicantId}` : "/admin/applicants");
     } catch (err) {
-      toast.error(err?.message || "Failed to create student.");
+      toast.error(err?.message || "Failed to create applicant.");
     }
   };
 
@@ -40,16 +41,16 @@ const CreateStudent = () => {
     <AdminLayout>
       <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Create New Student</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Create New Applicant</h1>
           <p className="text-gray-600 mt-2">
-            Add a new student to your immigration CRM system
+            Add a new applicant to your immigration CRM system
           </p>
         </div>
 
         <Card>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
             <Card.Header>
-              <h2 className="text-xl font-semibold">Student Information</h2>
+              <h2 className="text-xl font-semibold">Applicant Information</h2>
             </Card.Header>
 
             <Card.Body className="space-y-6">
@@ -114,7 +115,7 @@ const CreateStudent = () => {
               </div>
 
               <div className="border-t pt-6 text-sm text-gray-600">
-                Login instructions are emailed to the student automatically once the profile is created.
+                Login instructions are emailed to the applicant automatically once the profile is created.
               </div>
             </Card.Body>
 
@@ -123,7 +124,7 @@ const CreateStudent = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate("/admin/students")}
+                  onClick={() => navigate("/admin/applicants")}
                 >
                   Cancel
                 </Button>
@@ -133,7 +134,7 @@ const CreateStudent = () => {
                   loading={isSubmitting}
                   disabled={isSubmitting}
                 >
-                  Create Student
+                  Create Applicant
                 </Button>
               </div>
             </Card.Footer>
@@ -144,4 +145,4 @@ const CreateStudent = () => {
   );
 };
 
-export default CreateStudent;
+export default CreateApplicant;

@@ -73,8 +73,8 @@ vi.mock('@aws-sdk/client-s3', () => ({
 const tag = Date.now();
 let firmAId: string;
 let firmBId: string;
-let studentAId: string;
-let studentBId: string;
+let applicantAId: string;
+let applicantBId: string;
 
 beforeAll(async () => {
   const [firmA] = await db
@@ -91,21 +91,21 @@ beforeAll(async () => {
 
   const sA = await withFirmContext(firmAId, (tx) =>
     createApplicant(tx as typeof db, firmAId, {
-      email: `billing-student-a-${tag}@test.com`,
+      email: `billing-applicant-a-${tag}@test.com`,
       first_name: 'Alice',
       last_name: 'Billing',
     }),
   );
-  studentAId = sA.id;
+  applicantAId = sA.id;
 
   const sB = await withFirmContext(firmBId, (tx) =>
     createApplicant(tx as typeof db, firmBId, {
-      email: `billing-student-b-${tag}@test.com`,
+      email: `billing-applicant-b-${tag}@test.com`,
       first_name: 'Bob',
       last_name: 'Billing',
     }),
   );
-  studentBId = sB.id;
+  applicantBId = sB.id;
 });
 
 afterAll(async () => {
@@ -121,7 +121,7 @@ describe('invoices service', () => {
     const { createInvoice } = await import('../invoices.service');
 
     const inv = await withFirmContext(firmAId, (tx) =>
-      createInvoice(tx as typeof db, firmAId, studentAId, [
+      createInvoice(tx as typeof db, firmAId, applicantAId, [
         { description: 'Study permit prep', amount_cents: 75000 },
         { description: 'Government fee', amount_cents: 15000, quantity: 1 },
       ]),
@@ -129,7 +129,7 @@ describe('invoices service', () => {
 
     expect(inv.id).toBeTruthy();
     expect(inv.firm_id).toBe(firmAId);
-    expect(inv.applicant_id).toBe(studentAId);
+    expect(inv.applicant_id).toBe(applicantAId);
     expect(inv.amount_cents).toBe(90000);
     expect(inv.status).toBe('draft');
     expect(inv.currency).toBe('CAD');
@@ -140,7 +140,7 @@ describe('invoices service', () => {
     const { createInvoice } = await import('../invoices.service');
 
     const inv = await withFirmContext(firmAId, (tx) =>
-      createInvoice(tx as typeof db, firmAId, studentAId, [
+      createInvoice(tx as typeof db, firmAId, applicantAId, [
         { description: 'Hour of consulting', amount_cents: 20000, quantity: 3 },
       ]),
     );
@@ -177,7 +177,7 @@ describe('trust service', () => {
 
     const entry = await withFirmContext(firmAId, (tx) =>
       recordDeposit(tx as typeof db, firmAId, {
-        studentId: studentAId,
+        applicantId: applicantAId,
         amountCents: 90000,
         description: 'Initial retainer deposit',
       }),
@@ -194,7 +194,7 @@ describe('trust service', () => {
 
     const entry = await withFirmContext(firmAId, (tx) =>
       recordWithdrawal(tx as typeof db, firmAId, {
-        studentId: studentAId,
+        applicantId: applicantAId,
         amountCents: 30000,
         description: 'Fee earned — application submitted',
       }),
@@ -251,11 +251,11 @@ describe('retainers service', () => {
     expect(keys).toContain('generic_v1');
   });
 
-  it('createDraft — renders template with student vars and persists', async () => {
+  it('createDraft — renders template with applicant vars and persists', async () => {
     const { createDraft } = await import('../retainers.service');
 
     const agreement = await withFirmContext(firmAId, (tx) =>
-      createDraft(tx as typeof db, firmAId, studentAId, 'study_permit_v1', {
+      createDraft(tx as typeof db, firmAId, applicantAId, 'study_permit_v1', {
         institution: 'University of Toronto',
         program: 'Computer Science',
         professionalFee: '900.00',
@@ -320,7 +320,7 @@ describe('cross-tenant isolation', () => {
 
     // Create an invoice for firm A.
     const inv = await withFirmContext(firmAId, (tx) =>
-      createInvoice(tx as typeof db, firmAId, studentAId, [
+      createInvoice(tx as typeof db, firmAId, applicantAId, [
         { description: 'Isolated service', amount_cents: 10000 },
       ]),
     );
@@ -337,7 +337,7 @@ describe('cross-tenant isolation', () => {
 
     const entry = await withFirmContext(firmAId, (tx) =>
       recordDeposit(tx as typeof db, firmAId, {
-        studentId: studentAId,
+        applicantId: applicantAId,
         amountCents: 5000,
         description: 'Cross-tenant isolation test deposit',
       }),
@@ -353,7 +353,7 @@ describe('cross-tenant isolation', () => {
     const { createDraft } = await import('../retainers.service');
 
     const agreement = await withFirmContext(firmAId, (tx) =>
-      createDraft(tx as typeof db, firmAId, studentAId, 'generic_v1', {}),
+      createDraft(tx as typeof db, firmAId, applicantAId, 'generic_v1', {}),
     );
 
     const rows = await withFirmContext(firmBId, (tx) =>
@@ -365,13 +365,13 @@ describe('cross-tenant isolation', () => {
     expect(rows).toHaveLength(0);
   });
 
-  it('Firm B student cannot be used for Firm A invoice', async () => {
+  it('Firm B applicant cannot be used for Firm A invoice', async () => {
     const { createInvoice } = await import('../invoices.service');
 
-    // Firm A context + Firm B student — should fail the FK + RLS constraint.
+    // Firm A context + Firm B applicant — should fail the FK + RLS constraint.
     await expect(
       withFirmContext(firmAId, (tx) =>
-        createInvoice(tx as typeof db, firmAId, studentBId, [
+        createInvoice(tx as typeof db, firmAId, applicantBId, [
           { description: 'Should fail', amount_cents: 1000 },
         ]),
       ),

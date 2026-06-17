@@ -13,61 +13,61 @@
 
 import { z } from 'zod';
 
-// ─── Student Tools ────────────────────────────────────────────────────────────
+// ─── Applicant Tools ────────────────────────────────────────────────────────────
 
-export const GetStudentByIdInput = z.object({
-  studentId: z.string().describe('Unique student identifier from the CRM backend.'),
+export const GetApplicantByIdInput = z.object({
+  applicantId: z.string().describe('Unique applicant identifier from the CRM backend.'),
 });
 
-export const SearchStudentsInput = z.object({
+export const SearchApplicantsInput = z.object({
   query: z
     .string()
     .optional()
     .describe(
-      'Keyword used to match against student records. Leave blank to list all students.',
+      'Keyword used to match against applicant records. Leave blank to list all applicants.',
     ),
 });
 
-export const GetStudentMissingDocumentsInput = z.object({
-  studentId: z.string().describe('Unique student identifier from the CRM backend.'),
+export const GetApplicantMissingDocumentsInput = z.object({
+  applicantId: z.string().describe('Unique applicant identifier from the CRM backend.'),
 });
 
-export const UpdateStudentStageInput = z.object({
-  studentId: z.string().describe('Unique student identifier from the CRM backend.'),
-  newStage: z.string().describe('New stage value to assign to the student.'),
+export const UpdateApplicantStageInput = z.object({
+  applicantId: z.string().describe('Unique applicant identifier from the CRM backend.'),
+  newStage: z.string().describe('New stage value to assign to the applicant.'),
 });
 
-export const AddStudentNoteInput = z.object({
-  studentId: z.string().describe('Unique student identifier from the CRM backend.'),
-  noteText: z.string().describe('Content of the note to append to the student record.'),
+export const AddApplicantNoteInput = z.object({
+  applicantId: z.string().describe('Unique applicant identifier from the CRM backend.'),
+  noteText: z.string().describe('Content of the note to append to the applicant record.'),
 });
 
-export const GetStudentOverviewInput = z.object({
-  studentId: z.string().describe('Unique student identifier from the CRM backend.'),
+export const GetApplicantOverviewInput = z.object({
+  applicantId: z.string().describe('Unique applicant identifier from the CRM backend.'),
 });
 
 // ─── Document Tools ───────────────────────────────────────────────────────────
 
 export const UploadDocumentInput = z.object({
-  aiKey: z.string().describe("Student's unique AI key identifier"),
+  aiKey: z.string().describe("Applicant's unique AI key identifier"),
   documentType: z
     .string()
     .describe("Type of document (e.g., 'Passport', 'Resume', 'IELTS Result')"),
   filePath: z.string().describe('Path to the file to upload'),
 });
 
-export const GetStudentDocumentsInput = z.object({
-  aiKey: z.string().describe("Student's unique AI key identifier"),
+export const GetApplicantDocumentsInput = z.object({
+  aiKey: z.string().describe("Applicant's unique AI key identifier"),
 });
 
 export const GetDocumentByIdInput = z.object({
-  aiKey: z.string().describe("Student's unique AI key identifier"),
+  aiKey: z.string().describe("Applicant's unique AI key identifier"),
   docId: z.string().describe('Required document ID'),
   fileId: z.string().describe('File ID to retrieve'),
 });
 
 export const VerifyDocumentInput = z.object({
-  aiKey: z.string().describe("Student's unique AI key identifier"),
+  aiKey: z.string().describe("Applicant's unique AI key identifier"),
   docId: z.string().describe('Required document ID'),
   fileId: z.string().describe('File ID to verify'),
   verified: z.boolean().optional().describe('Verification status (true/false)'),
@@ -75,17 +75,17 @@ export const VerifyDocumentInput = z.object({
 });
 
 export const RenameDocumentInput = z.object({
-  aiKey: z.string().describe("Student's unique AI key identifier"),
+  aiKey: z.string().describe("Applicant's unique AI key identifier"),
   documentId: z.string().describe('Document ID to rename'),
   newName: z.string().describe('New document name'),
 });
 
 export const GetRequiredDocumentsInput = z.object({
-  aiKey: z.string().describe("Student's unique AI key identifier"),
+  aiKey: z.string().describe("Applicant's unique AI key identifier"),
 });
 
 export const DeleteDocumentInput = z.object({
-  aiKey: z.string().describe("Student's unique AI key identifier"),
+  aiKey: z.string().describe("Applicant's unique AI key identifier"),
   documentName: z
     .string()
     .optional()
@@ -117,16 +117,16 @@ export const SendEmailInput = z.object({
 
 // ─── Task Tools ───────────────────────────────────────────────────────────────
 
-export const GetTasksForStudentInput = z.object({
-  studentId: z.string().describe('Unique student identifier from the CRM backend.'),
+export const GetTasksForApplicantInput = z.object({
+  applicantId: z.string().describe('Unique applicant identifier from the CRM backend.'),
 });
 
-export const CreateStudentTaskInput = z.object({
-  studentId: z
+export const CreateApplicantTaskInput = z.object({
+  applicantId: z
     .string()
-    .describe('Unique student identifier (aiKey) from the CRM backend.'),
+    .describe('Unique applicant identifier (aiKey) from the CRM backend.'),
   title: z.string().describe("Short title for the task (e.g., 'Upload passport')."),
-  description: z.string().optional().describe('Detailed instructions for the student.'),
+  description: z.string().optional().describe('Detailed instructions for the applicant.'),
   dueDate: z.string().optional().describe('Due date in ISO format (optional).'),
   attachmentPath: z
     .string()
@@ -134,15 +134,15 @@ export const CreateStudentTaskInput = z.object({
     .describe('Absolute path to a local file to attach (optional; file must exist).'),
 });
 
-export const UpdateStudentTaskStatusInput = z.object({
-  studentId: z.string().describe('Student identifier (aiKey).'),
+export const UpdateApplicantTaskStatusInput = z.object({
+  applicantId: z.string().describe('Applicant identifier (aiKey).'),
   taskId: z.string().describe('Task ID returned by the backend.'),
   status: z.string().describe("New status value such as 'completed' or 'pending'."),
   notes: z.string().optional().describe('Optional notes recorded alongside the update.'),
 });
 
-export const DeleteStudentTaskInput = z.object({
-  studentId: z.string().describe('Student identifier (aiKey).'),
+export const DeleteApplicantTaskInput = z.object({
+  applicantId: z.string().describe('Applicant identifier (aiKey).'),
   taskId: z.string().describe('Task ID to delete.'),
 });
 
@@ -154,7 +154,7 @@ export const StandardSuccessOutput = z.object({
   data: z.unknown().optional(),
 });
 
-export const GetStudentDocumentsOutput = z.object({
+export const GetApplicantDocumentsOutput = z.object({
   success: z.boolean(),
   files: z.array(z.unknown()),
   totalFiles: z.number(),
@@ -183,15 +183,15 @@ export const SendEmailOutput = z.object({
 
 // ─── Inferred types ───────────────────────────────────────────────────────────
 
-export type GetStudentByIdInput = z.infer<typeof GetStudentByIdInput>;
-export type SearchStudentsInput = z.infer<typeof SearchStudentsInput>;
-export type GetStudentMissingDocumentsInput = z.infer<typeof GetStudentMissingDocumentsInput>;
-export type UpdateStudentStageInput = z.infer<typeof UpdateStudentStageInput>;
-export type AddStudentNoteInput = z.infer<typeof AddStudentNoteInput>;
-export type GetStudentOverviewInput = z.infer<typeof GetStudentOverviewInput>;
+export type GetApplicantByIdInput = z.infer<typeof GetApplicantByIdInput>;
+export type SearchApplicantsInput = z.infer<typeof SearchApplicantsInput>;
+export type GetApplicantMissingDocumentsInput = z.infer<typeof GetApplicantMissingDocumentsInput>;
+export type UpdateApplicantStageInput = z.infer<typeof UpdateApplicantStageInput>;
+export type AddApplicantNoteInput = z.infer<typeof AddApplicantNoteInput>;
+export type GetApplicantOverviewInput = z.infer<typeof GetApplicantOverviewInput>;
 
 export type UploadDocumentInput = z.infer<typeof UploadDocumentInput>;
-export type GetStudentDocumentsInput = z.infer<typeof GetStudentDocumentsInput>;
+export type GetApplicantDocumentsInput = z.infer<typeof GetApplicantDocumentsInput>;
 export type GetDocumentByIdInput = z.infer<typeof GetDocumentByIdInput>;
 export type VerifyDocumentInput = z.infer<typeof VerifyDocumentInput>;
 export type RenameDocumentInput = z.infer<typeof RenameDocumentInput>;
@@ -200,7 +200,7 @@ export type DeleteDocumentInput = z.infer<typeof DeleteDocumentInput>;
 
 export type SendEmailInput = z.infer<typeof SendEmailInput>;
 
-export type GetTasksForStudentInput = z.infer<typeof GetTasksForStudentInput>;
-export type CreateStudentTaskInput = z.infer<typeof CreateStudentTaskInput>;
-export type UpdateStudentTaskStatusInput = z.infer<typeof UpdateStudentTaskStatusInput>;
-export type DeleteStudentTaskInput = z.infer<typeof DeleteStudentTaskInput>;
+export type GetTasksForApplicantInput = z.infer<typeof GetTasksForApplicantInput>;
+export type CreateApplicantTaskInput = z.infer<typeof CreateApplicantTaskInput>;
+export type UpdateApplicantTaskStatusInput = z.infer<typeof UpdateApplicantTaskStatusInput>;
+export type DeleteApplicantTaskInput = z.infer<typeof DeleteApplicantTaskInput>;

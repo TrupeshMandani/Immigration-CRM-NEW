@@ -31,7 +31,7 @@ const cleanupTempFile = async (filePath) => {
 */
 
 /**
- * Upload a document file for a student's required document using Smart Upload
+ * Upload a document file for an applicant's required document using Smart Upload
  * @param {string} aiKey - Applicant's AI key
  * @param {string} documentType - Type of document (e.g., "Passport", "IELTS")
  * @param {string} filePath - Path to the file to upload
@@ -82,11 +82,11 @@ async function uploadDocument({ aiKey, documentType, filePath }) {
 }
 
 /**
- * Get all documents for a student
+ * Get all documents for an applicant
  * @param {string} aiKey - Applicant's AI key
- * @returns {Promise<Object>} List of student documents with presigned URLs
+ * @returns {Promise<Object>} List of applicant documents with presigned URLs
  */
-async function getStudentDocuments({ aiKey }) {
+async function getApplicantDocuments({ aiKey }) {
   try {
     if (!aiKey) {
       throw new Error("Missing required argument: aiKey");
@@ -100,8 +100,8 @@ async function getStudentDocuments({ aiKey }) {
       totalFiles: response.data.totalFiles || 0,
     };
   } catch (err) {
-    logger.error(`getStudentDocuments failed: ${err.message}`);
-    throw new Error(`getStudentDocuments failed: ${err.message}`);
+    logger.error(`getApplicantDocuments failed: ${err.message}`);
+    throw new Error(`getApplicantDocuments failed: ${err.message}`);
   }
 }
 
@@ -216,7 +216,7 @@ async function renameDocument({ aiKey, documentId, newName }) {
 }
 
 /**
- * Get required documents for a student
+ * Get required documents for an applicant
  * @param {string} aiKey - Applicant's AI key
  * @returns {Promise<Object>} List of required documents with IDs
  */
@@ -256,10 +256,10 @@ async function deleteDocument({ aiKey, documentId, documentName }) {
     // We always search by name to ensure accuracy, even if documentId was also provided
     if (documentName) {
       logger.info(
-        `[deleteDocument] Step 1: Searching for document '${documentName}' for student ${aiKey}`
+        `[deleteDocument] Step 1: Searching for document '${documentName}' for applicant ${aiKey}`
       );
 
-      // Step 1: Fetch ALL required documents for the student
+      // Step 1: Fetch ALL required documents for the applicant
       const requiredDocsResponse = await httpClient.get(
         buildRequiredDocsPath(aiKey)
       );
@@ -288,7 +288,7 @@ async function deleteDocument({ aiKey, documentId, documentName }) {
           .filter(Boolean)
           .join(", ");
         throw new Error(
-          `Document '${documentName}' not found for student '${aiKey}'. Available documents: ${
+          `Document '${documentName}' not found for applicant '${aiKey}'. Available documents: ${
             availableNames || "none"
           }`
         );
@@ -313,14 +313,14 @@ async function deleteDocument({ aiKey, documentId, documentName }) {
 
     // Step 4: Delete using the found document ID
     logger.info(
-      `[deleteDocument] Step 4: Deleting document with ID '${documentId}' for student ${aiKey}`
+      `[deleteDocument] Step 4: Deleting document with ID '${documentId}' for applicant ${aiKey}`
     );
     const response = await httpClient.delete(
       buildRequiredDocPath(aiKey, documentId)
     );
 
     logger.info(
-      `[deleteDocument] Success! Document ${documentId} deleted for student ${aiKey}`
+      `[deleteDocument] Success! Document ${documentId} deleted for applicant ${aiKey}`
     );
     return {
       success: true,
@@ -332,7 +332,7 @@ async function deleteDocument({ aiKey, documentId, documentName }) {
     // Provide more helpful error message
     if (err.response?.status === 404) {
       throw new Error(
-        `Document not found. The document ID '${documentId}' does not exist for student '${aiKey}'. Try using documentName instead (e.g., "Passport").`
+        `Document not found. The document ID '${documentId}' does not exist for applicant '${aiKey}'. Try using documentName instead (e.g., "Passport").`
       );
     }
     throw new Error(`deleteDocument failed: ${err.message}`);
@@ -427,8 +427,8 @@ module.exports = {
     run: async (args) => await uploadDocument(args),
   },
 
-  getStudentDocuments: {
-    description: "Get all documents for a student with presigned URLs",
+  getApplicantDocuments: {
+    description: "Get all documents for an applicant with presigned URLs",
     args: {
       type: "object",
       properties: {
@@ -439,7 +439,7 @@ module.exports = {
       },
       required: ["aiKey"],
     },
-    run: async (args) => await getStudentDocuments(args),
+    run: async (args) => await getApplicantDocuments(args),
   },
 
   getDocumentById: {
@@ -497,7 +497,7 @@ module.exports = {
   },
 
   renameDocument: {
-    description: "Rename a student document",
+    description: "Rename an applicant document",
     args: {
       type: "object",
       properties: {
@@ -521,7 +521,7 @@ module.exports = {
 
   getRequiredDocuments: {
     description:
-      "Get all required documents for a student. Use this to find document IDs before deleting.",
+      "Get all required documents for an applicant. Use this to find document IDs before deleting.",
     args: {
       type: "object",
       properties: {

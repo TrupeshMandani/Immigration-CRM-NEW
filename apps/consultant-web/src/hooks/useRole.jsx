@@ -1,9 +1,9 @@
 import { useAuth } from "../context/AuthContext";
 
 const ROLE_PERMISSIONS = {
-  "delete:student": ["admin", "senior"],
-  "create:student": ["admin", "senior", "junior"],
-  "view:student": ["admin", "senior", "junior"],
+  "delete:applicant": ["admin", "senior"],
+  "create:applicant": ["admin", "senior", "junior"],
+  "view:applicant": ["admin", "senior", "junior"],
   "manage:billing": ["admin", "senior"],
 };
 
@@ -16,7 +16,7 @@ export const useRole = () => {
     isAdmin: role === "admin",
     isSenior: role === "senior",
     isJunior: role === "junior",
-    isStudent: role === "student",
+    isApplicant: role === "applicant",
     can: (action) => ROLE_PERMISSIONS[action]?.includes(role) ?? false,
   };
 };

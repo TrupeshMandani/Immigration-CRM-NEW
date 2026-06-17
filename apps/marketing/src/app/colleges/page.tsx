@@ -7,7 +7,7 @@ const partnerBenefits = [
   {
     title: "Pipeline Visibility",
     description:
-      "Real-time dashboards show you confirmed students, pending documents, and forecasted arrivals.",
+      "Real-time dashboards show you confirmed applicants, pending documents, and forecasted arrivals.",
   },
   {
     title: "Co-marketing Content",

@@ -28,7 +28,7 @@ export default function SuccessStoriesPage() {
       <PageHero
         eyebrow="Success stories"
         title="People from every region, every pathway"
-        description="Students, HR teams, and families rely on CompleteCanadaVisa for clarity and execution."
+        description="Applicants, HR teams, and families rely on CompleteCanadaVisa for clarity and execution."
       />
       <SectionShell className="grid gap-6 pb-24 md:grid-cols-3">
         {stories.map((story) => (

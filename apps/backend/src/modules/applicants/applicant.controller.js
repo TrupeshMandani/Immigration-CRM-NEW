@@ -2,7 +2,7 @@ const path = require('path');
 const {
   getPresignedUrl,
   deleteS3Object,
-  listStudentFiles,
+  listApplicantFiles,
   getMimeType,
   uploadFileToS3,
   deleteLocalFile,
@@ -34,22 +34,22 @@ const DEFAULT_FIRM_ID = () => process.env.DEFAULT_FIRM_ID ?? '';
 const getAppBaseUrl = () =>
   (env?.APP_BASE_URL || process.env.APP_BASE_URL || 'https://portal.example.com').replace(/\/$/, '');
 
-const canManageStudentDocuments = (user, student) => {
-  if (!user || !student) return false;
+const canManageApplicantDocuments = (user, applicant) => {
+  if (!user || !applicant) return false;
   if (['admin', 'senior', 'junior'].includes(user.role)) return true;
-  if (user.role === 'applicant' && (user.ai_key || user.aiKey) === student.ai_key) return true;
+  if (user.role === 'applicant' && (user.ai_key || user.aiKey) === applicant.ai_key) return true;
   return false;
 };
 
-const getStudentEmail = (student) => student?.email ?? null;
+const getApplicantEmail = (applicant) => applicant?.email ?? null;
 
-const getStudentName = (student) =>
-  student.first_name
-    ? `${student.first_name} ${student.last_name || ''}`.trim()
-    : (student.profile_data?.fullName || student.profile_data?.name || student.email || 'Applicant');
+const getApplicantName = (applicant) =>
+  applicant.first_name
+    ? `${applicant.first_name} ${applicant.last_name || ''}`.trim()
+    : (applicant.profile_data?.fullName || applicant.profile_data?.name || applicant.email || 'Applicant');
 
-const sendTaskAssignedEmail = async ({ student, task }) => {
-  const recipient = getStudentEmail(student);
+const sendTaskAssignedEmail = async ({ applicant, task }) => {
+  const recipient = getApplicantEmail(applicant);
   if (!recipient) return;
   try {
     await sendEmail({
@@ -78,13 +78,13 @@ const createDocumentSlug = (name = '') => {
   return `${base}-${unique}`;
 };
 
-const getDocDefs = (student) => (student.state_data?.doc_defs ?? {});
+const getDocDefs = (applicant) => (applicant.state_data?.doc_defs ?? {});
 
-const saveDocDefs = async (studentId, defs, student) => {
-  const newStateData = { ...(student.state_data ?? {}), doc_defs: defs };
+const saveDocDefs = async (applicantId, defs, applicant) => {
+  const newStateData = { ...(applicant.state_data ?? {}), doc_defs: defs };
   const [updated] = await db.update(applicants)
     .set({ state_data: newStateData, updated_at: new Date() })
-    .where(eq(applicants.id, studentId))
+    .where(eq(applicants.id, applicantId))
     .returning();
   return updated;
 };
@@ -193,10 +193,10 @@ const formatRequiredDoc = (slug, defData, fileRows) => {
   };
 };
 
-const getDocFilesMap = async (studentId, slugs) => {
+const getDocFilesMap = async (applicantId, slugs) => {
   if (!slugs.length) return {};
   const rows = await db.select().from(documents)
-    .where(and(eq(documents.applicant_id, studentId), inArray(documents.document_type, slugs)));
+    .where(and(eq(documents.applicant_id, applicantId), inArray(documents.document_type, slugs)));
   const map = {};
   for (const row of rows) {
     if (!map[row.document_type]) map[row.document_type] = [];
@@ -205,9 +205,9 @@ const getDocFilesMap = async (studentId, slugs) => {
   return map;
 };
 
-const notifyStudentAboutRequiredDoc = async (student, docName) => {
+const notifyApplicantAboutRequiredDoc = async (applicant, docName) => {
   try {
-    const recipient = getStudentEmail(student);
+    const recipient = getApplicantEmail(applicant);
     if (!recipient) return;
     await sendEmail({
       to: recipient,
@@ -228,8 +228,8 @@ const notifyStudentAboutRequiredDoc = async (student, docName) => {
 
 // ─── Task helpers ─────────────────────────────────────────────────────────────
 
-// Map Postgres task row to legacy student-task response shape
-const formatStudentTask = (row) => {
+// Map Postgres task row to applicant-task response shape
+const formatApplicantTask = (row) => {
   if (!row) return null;
   const meta = row.metadata ?? {};
   return {
@@ -241,14 +241,14 @@ const formatStudentTask = (row) => {
     assignedBy: row.created_by,
     assignedAt: row.created_at,
     completedAt: row.completed_at,
-    seenByStudent: row.is_read,
+    seenByApplicant: row.is_read,
     attachment: meta.attachment ?? null,
   };
 };
 
 // ─── Applicant list/CRUD ────────────────────────────────────────────────────────
 
-exports.getAllStudents = async (req, res) => {
+exports.getAllApplicants = async (req, res) => {
   try {
     const { status, search } = req.query;
     const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
@@ -271,12 +271,12 @@ exports.getAllStudents = async (req, res) => {
 
     res.json(list);
   } catch (error) {
-    console.error('Get students error:', error);
-    res.status(500).json({ message: 'Failed to get students' });
+    console.error('Get applicants error:', error);
+    res.status(500).json({ message: 'Failed to get applicants' });
   }
 };
 
-exports.getRegisteredStudents = async (req, res) => {
+exports.getRegisteredApplicants = async (req, res) => {
   try {
     const { search } = req.query;
     const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
@@ -293,8 +293,8 @@ exports.getRegisteredStudents = async (req, res) => {
 
     res.json(list);
   } catch (error) {
-    console.error('Get registered students error:', error);
-    res.status(500).json({ message: 'Failed to get registered students' });
+    console.error('Get registered applicants error:', error);
+    res.status(500).json({ message: 'Failed to get registered applicants' });
   }
 };
 
@@ -315,12 +315,12 @@ exports.approveContactRequest = async (req, res) => {
     const { id } = req.params;
     const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
 
-    const [student] = await db.select().from(applicants)
+    const [applicant] = await db.select().from(applicants)
       .where(and(eq(applicants.id, id), eq(applicants.firm_id, firmId))).limit(1);
-    if (!student) return res.status(404).json({ message: 'Contact request not found' });
-    if (student.status !== 'pending') return res.status(400).json({ message: 'This contact has already been processed' });
+    if (!applicant) return res.status(404).json({ message: 'Contact request not found' });
+    if (applicant.status !== 'pending') return res.status(400).json({ message: 'This contact has already been processed' });
 
-    const contactEmail = student.email;
+    const contactEmail = applicant.email;
     if (!contactEmail) return res.status(400).json({ message: 'Contact request is missing an email address' });
 
     const username = contactEmail.toLowerCase();
@@ -328,7 +328,7 @@ exports.approveContactRequest = async (req, res) => {
     const [existingOther] = await db.select({ id: applicants.id }).from(applicants)
       .where(and(eq(applicants.email, username), eq(applicants.firm_id, firmId), ne(applicants.id, id))).limit(1);
     if (existingOther) {
-      return res.status(400).json({ message: 'Another student already uses this email.' });
+      return res.status(400).json({ message: 'Another applicant already uses this email.' });
     }
 
     const [existingAdmin] = await db.select({ id: users.id }).from(users)
@@ -342,14 +342,14 @@ exports.approveContactRequest = async (req, res) => {
       .where(eq(applicants.id, id))
       .returning();
 
-    const name = getStudentName(updated);
+    const name = getApplicantName(updated);
     const invite = await sendApplicantInviteEmail({ email: username, name });
 
     res.json({
       message: invite.emailSent
         ? 'Contact approved and login instructions sent successfully.'
         : 'Contact approved, but the email could not be delivered automatically.',
-      student: { id: updated.id, email: updated.email },
+      applicant: { id: updated.id, email: updated.email },
       inviteSent: invite.emailSent,
       loginLink: invite.loginLink,
     });
@@ -359,28 +359,28 @@ exports.approveContactRequest = async (req, res) => {
   }
 };
 
-exports.activateStudent = async (req, res) => {
+exports.activateApplicant = async (req, res) => {
   try {
     const { id } = req.params;
     const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
 
-    const [student] = await db.select().from(applicants)
+    const [applicant] = await db.select().from(applicants)
       .where(and(eq(applicants.id, id), eq(applicants.firm_id, firmId))).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
-    if (!['pending', 'registered'].includes(student.status)) {
+    if (!['pending', 'registered'].includes(applicant.status)) {
       return res.status(400).json({ message: 'Applicant cannot be activated' });
     }
 
-    const contactEmail = student.email?.trim()?.toLowerCase();
+    const contactEmail = applicant.email?.trim()?.toLowerCase();
     if (!contactEmail) {
       return res.status(400).json({ message: 'Applicant is missing an email address.' });
     }
 
     // Ensure default required document defs exist
-    const defs = getDocDefs(student);
+    const defs = getDocDefs(applicant);
     ensureDefaultDocDefs(defs);
-    const newStateData = { ...(student.state_data ?? {}), doc_defs: defs };
+    const newStateData = { ...(applicant.state_data ?? {}), doc_defs: defs };
 
     const [updated] = await db.update(applicants)
       .set({ status: 'active', state_data: newStateData, updated_at: new Date() })
@@ -388,14 +388,14 @@ exports.activateStudent = async (req, res) => {
       .returning();
 
     try {
-      const studentName = getStudentName(updated);
-      const dashboardUrl = `${getAppBaseUrl()}/student/dashboard`;
+      const applicantName = getApplicantName(updated);
+      const dashboardUrl = `${getAppBaseUrl()}/applicant/dashboard`;
       await sendEmail({
         to: contactEmail,
         subject: 'Your Immigration CRM portal is now active',
         html: `
           <div style="font-family: 'Inter', Arial, sans-serif; line-height: 1.7; color: #0f172a;">
-            <h1 style="margin-bottom: 12px;">Welcome aboard, ${studentName}!</h1>
+            <h1 style="margin-bottom: 12px;">Welcome aboard, ${applicantName}!</h1>
             <p>Your profile has been reviewed and your Immigration CRM portal is officially active.</p>
             <a href="${dashboardUrl}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-weight:600;text-decoration:none;">Access my dashboard</a>
           </div>
@@ -407,35 +407,35 @@ exports.activateStudent = async (req, res) => {
 
     res.json({
       message: 'Applicant account activated successfully',
-      student: { id: updated.id, aiKey: updated.ai_key, email: updated.email },
+      applicant: { id: updated.id, aiKey: updated.ai_key, email: updated.email },
     });
   } catch (error) {
-    console.error('Activate student error:', error);
-    res.status(500).json({ message: 'Failed to activate student' });
+    console.error('Activate applicant error:', error);
+    res.status(500).json({ message: 'Failed to activate applicant' });
   }
 };
 
-exports.getStudentByKey = async (req, res) => {
+exports.getApplicantByKey = async (req, res) => {
   try {
-    const [student] = await db.select().from(applicants)
+    const [applicant] = await db.select().from(applicants)
       .where(eq(applicants.ai_key, req.params.aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Not found' });
-    res.json(student);
+    if (!applicant) return res.status(404).json({ message: 'Not found' });
+    res.json(applicant);
   } catch (error) {
-    console.error('Get student by key error:', error);
-    res.status(500).json({ message: 'Failed to get student' });
+    console.error('Get applicant by key error:', error);
+    res.status(500).json({ message: 'Failed to get applicant' });
   }
 };
 
 exports.getApplicantById = async (req, res) => {
   try {
-    const [student] = await db.select().from(applicants)
+    const [applicant] = await db.select().from(applicants)
       .where(eq(applicants.id, req.params.id)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
-    res.json(student);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
+    res.json(applicant);
   } catch (error) {
-    console.error('Get student error:', error);
-    res.status(500).json({ message: 'Failed to get student' });
+    console.error('Get applicant error:', error);
+    res.status(500).json({ message: 'Failed to get applicant' });
   }
 };
 
@@ -461,10 +461,10 @@ exports.updateApplicant = async (req, res) => {
 
     if (!updated) return res.status(404).json({ message: 'Applicant not found' });
 
-    res.json({ message: 'Applicant updated successfully', student: updated });
+    res.json({ message: 'Applicant updated successfully', applicant: updated });
   } catch (error) {
-    console.error('Update student error:', error);
-    res.status(500).json({ message: 'Failed to update student' });
+    console.error('Update applicant error:', error);
+    res.status(500).json({ message: 'Failed to update applicant' });
   }
 };
 
@@ -475,8 +475,8 @@ exports.deleteApplicant = async (req, res) => {
     if (!result.length) return res.status(404).json({ message: 'Applicant not found' });
     res.json({ message: 'Applicant deleted successfully' });
   } catch (error) {
-    console.error('Delete student error:', error);
-    res.status(500).json({ message: 'Failed to delete student' });
+    console.error('Delete applicant error:', error);
+    res.status(500).json({ message: 'Failed to delete applicant' });
   }
 };
 
@@ -514,11 +514,11 @@ const sanitizePassportDetails = (details = {}) => {
 exports.updateSelfProfile = async (req, res) => {
   try {
     const { profile = {}, contactInfo = {} } = req.body || {};
-    const [student] = await db.select().from(applicants).where(eq(applicants.id, req.userId)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
-    if (student.status === 'closed') return res.status(403).json({ message: 'Account inactive' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.id, req.userId)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
+    if (applicant.status === 'closed') return res.status(403).json({ message: 'Account inactive' });
 
-    let profileData = { ...(student.profile_data ?? {}) };
+    let profileData = { ...(applicant.profile_data ?? {}) };
 
     if (profile && typeof profile === 'object') {
       const cleanedPassport = sanitizePassportDetails(profile.passportDetails);
@@ -543,14 +543,14 @@ exports.updateSelfProfile = async (req, res) => {
       .where(eq(applicants.id, req.userId))
       .returning();
 
-    res.json({ message: 'Profile updated', student: updated });
+    res.json({ message: 'Profile updated', applicant: updated });
   } catch (error) {
     console.error('Update self profile error:', error);
     res.status(500).json({ message: 'Failed to update profile' });
   }
 };
 
-// ─── Create student (admin) ───────────────────────────────────────────────────
+// ─── Create applicant (admin) ───────────────────────────────────────────────────
 
 exports.createApplicant = async (req, res) => {
   try {
@@ -560,9 +560,9 @@ exports.createApplicant = async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase();
     const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
 
-    const [existingStudent] = await db.select({ id: applicants.id }).from(applicants)
+    const [existingApplicant] = await db.select({ id: applicants.id }).from(applicants)
       .where(and(eq(applicants.email, normalizedEmail), eq(applicants.firm_id, firmId))).limit(1);
-    if (existingStudent) return res.status(400).json({ message: 'A student with this email already exists' });
+    if (existingApplicant) return res.status(400).json({ message: 'An applicant with this email already exists' });
 
     const [existingAdmin] = await db.select({ id: users.id }).from(users)
       .where(and(eq(users.email, normalizedEmail), eq(users.firm_id, firmId))).limit(1);
@@ -605,37 +605,37 @@ exports.createApplicant = async (req, res) => {
       message: invite.emailSent
         ? 'Applicant created successfully and login instructions sent.'
         : 'Applicant created successfully, but the invitation email could not be delivered automatically.',
-      student: { id: inserted.id, email: inserted.email, status: inserted.status },
+      applicant: { id: inserted.id, email: inserted.email, status: inserted.status },
       inviteSent: invite.emailSent,
       loginLink: invite.loginLink,
     });
   } catch (error) {
-    console.error('Create student error:', error);
-    res.status(500).json({ message: 'Failed to create student' });
+    console.error('Create applicant error:', error);
+    res.status(500).json({ message: 'Failed to create applicant' });
   }
 };
 
 // ─── Generic S3 file management ───────────────────────────────────────────────
 
-exports.getStudentFiles = async (req, res) => {
+exports.getApplicantFiles = async (req, res) => {
   try {
     const { aiKey } = req.params;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     let docRows = await db.select().from(documents)
-      .where(and(eq(documents.applicant_id, student.id), isNull(documents.document_type)));
+      .where(and(eq(documents.applicant_id, applicant.id), isNull(documents.document_type)));
 
     if (!docRows.length) {
       try {
-        const s3Objects = await listStudentFiles(aiKey);
+        const s3Objects = await listApplicantFiles(aiKey);
         if (Array.isArray(s3Objects) && s3Objects.length) {
           const inserts = s3Objects.map((obj) => {
             const key = obj.Key;
             const name = key.replace(`${aiKey}/`, '') || path.basename(key);
             return {
-              firm_id: student.firm_id,
-              applicant_id: student.id,
+              firm_id: applicant.firm_id,
+              applicant_id: applicant.id,
               s3_key: key,
               s3_bucket: env.AWS_S3_BUCKET_NAME,
               mime_type: getMimeType(name),
@@ -665,12 +665,12 @@ exports.getStudentFiles = async (req, res) => {
 
     res.json({ files: filesWithUrls, totalFiles: filesWithUrls.length });
   } catch (error) {
-    console.error('Get student files error:', error);
+    console.error('Get applicant files error:', error);
     res.status(500).json({ error: 'Failed to retrieve documents' });
   }
 };
 
-exports.renameStudentDocument = async (req, res) => {
+exports.renameApplicantDocument = async (req, res) => {
   try {
     const { aiKey, documentId } = req.params;
     const { newName } = req.body;
@@ -679,15 +679,15 @@ exports.renameStudentDocument = async (req, res) => {
       return res.status(400).json({ success: false, message: 'New document name is required' });
     }
 
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ success: false, message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ success: false, message: 'Applicant not found' });
 
-    if (!canManageStudentDocuments(req.user, student)) {
+    if (!canManageApplicantDocuments(req.user, applicant)) {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
     const [doc] = await db.select().from(documents)
-      .where(and(eq(documents.id, documentId), eq(documents.applicant_id, student.id))).limit(1);
+      .where(and(eq(documents.id, documentId), eq(documents.applicant_id, applicant.id))).limit(1);
     if (!doc) return res.status(404).json({ success: false, message: 'Document not found' });
 
     const sanitized = newName.trim().replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, ' ');
@@ -708,14 +708,14 @@ exports.renameStudentDocument = async (req, res) => {
   }
 };
 
-exports.deleteStudentDocument = async (req, res) => {
+exports.deleteApplicantDocument = async (req, res) => {
   try {
     const { aiKey, documentId } = req.params;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ success: false, message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ success: false, message: 'Applicant not found' });
 
     const [doc] = await db.select().from(documents)
-      .where(and(eq(documents.id, documentId), eq(documents.applicant_id, student.id))).limit(1);
+      .where(and(eq(documents.id, documentId), eq(documents.applicant_id, applicant.id))).limit(1);
     if (!doc) return res.status(404).json({ success: false, message: 'Document not found' });
 
     if (doc.s3_key) {
@@ -737,20 +737,20 @@ exports.deleteStudentDocument = async (req, res) => {
 exports.getRequiredDocuments = async (req, res) => {
   try {
     const { aiKey } = req.params;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
     const isOwner = req.user?.role === 'applicant' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
     if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    const defs = getDocDefs(student);
+    const defs = getDocDefs(applicant);
     const changed = ensureDefaultDocDefs(defs);
-    let currentStudent = student;
-    if (changed) currentStudent = await saveDocDefs(student.id, defs, student);
+    let currentApplicant = applicant;
+    if (changed) currentApplicant = await saveDocDefs(applicant.id, defs, applicant);
 
     const slugs = Object.keys(defs);
-    const filesMap = await getDocFilesMap(student.id, slugs);
+    const filesMap = await getDocFilesMap(applicant.id, slugs);
     const requiredDocuments = slugs.map((slug) => formatRequiredDoc(slug, defs[slug], filesMap[slug] || []));
 
     return res.json({ success: true, requiredDocuments });
@@ -766,11 +766,11 @@ exports.addRequiredDocument = async (req, res) => {
     const { name, description, aiExtractionEnabled } = req.body || {};
     if (!name || !name.trim()) return res.status(400).json({ message: 'Document name required' });
 
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const slug = createDocumentSlug(name);
-    const defs = { ...getDocDefs(student) };
+    const defs = { ...getDocDefs(applicant) };
     defs[slug] = {
       name: name.trim(),
       description: description?.toString()?.trim() || '',
@@ -780,13 +780,13 @@ exports.addRequiredDocument = async (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    const updated = await saveDocDefs(student.id, defs, student);
+    const updated = await saveDocDefs(applicant.id, defs, applicant);
     const newDefs = getDocDefs(updated);
     const slugs = Object.keys(newDefs);
-    const filesMap = await getDocFilesMap(student.id, slugs);
+    const filesMap = await getDocFilesMap(applicant.id, slugs);
     const requiredDocuments = slugs.map((s) => formatRequiredDoc(s, newDefs[s], filesMap[s] || []));
 
-    notifyStudentAboutRequiredDoc(student, name.trim()).catch(() => {});
+    notifyApplicantAboutRequiredDoc(applicant, name.trim()).catch(() => {});
 
     return res.json({ success: true, requiredDocuments });
   } catch (error) {
@@ -798,19 +798,19 @@ exports.addRequiredDocument = async (req, res) => {
 exports.deleteRequiredDocument = async (req, res) => {
   try {
     const { aiKey, docId } = req.params;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
     const isOwner = req.user?.role === 'applicant' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
     if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    const defs = { ...getDocDefs(student) };
+    const defs = { ...getDocDefs(applicant) };
     if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
     // Delete all files for this doc slot from S3 + db
     const fileRows = await db.select().from(documents)
-      .where(and(eq(documents.applicant_id, student.id), eq(documents.document_type, docId)));
+      .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId)));
     for (const row of fileRows) {
       if (row.s3_key) {
         try { await deleteS3Object(row.s3_key); } catch (e) { console.error('S3 delete failed:', e.message); }
@@ -818,21 +818,21 @@ exports.deleteRequiredDocument = async (req, res) => {
     }
     if (fileRows.length) {
       await db.delete(documents)
-        .where(and(eq(documents.applicant_id, student.id), eq(documents.document_type, docId)));
+        .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId)));
     }
 
     // Dismiss any open verification tasks for files in this doc
     const fileIds = fileRows.map((r) => r.id);
     if (fileIds.length) {
       await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
-        .where(and(eq(tasks.firm_id, student.firm_id), eq(tasks.task_type, 'ai_verification'), inArray(tasks.document_id, fileIds)));
+        .where(and(eq(tasks.firm_id, applicant.firm_id), eq(tasks.task_type, 'ai_verification'), inArray(tasks.document_id, fileIds)));
     }
 
     delete defs[docId];
-    const updated = await saveDocDefs(student.id, defs, student);
+    const updated = await saveDocDefs(applicant.id, defs, applicant);
     const newDefs = getDocDefs(updated);
     const slugs = Object.keys(newDefs);
-    const filesMap = await getDocFilesMap(student.id, slugs);
+    const filesMap = await getDocFilesMap(applicant.id, slugs);
     const requiredDocuments = slugs.map((s) => formatRequiredDoc(s, newDefs[s], filesMap[s] || []));
 
     return res.json({ success: true, requiredDocuments });
@@ -847,10 +847,10 @@ exports.updateRequiredDocumentSettings = async (req, res) => {
     const { aiKey, docId } = req.params;
     const { name, description, aiExtractionEnabled } = req.body || {};
 
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
-    const defs = { ...getDocDefs(student) };
+    const defs = { ...getDocDefs(applicant) };
     if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
     const def = { ...defs[docId] };
@@ -861,10 +861,10 @@ exports.updateRequiredDocumentSettings = async (req, res) => {
     def.updatedAt = new Date().toISOString();
     defs[docId] = def;
 
-    const updated = await saveDocDefs(student.id, defs, student);
+    const updated = await saveDocDefs(applicant.id, defs, applicant);
     const newDefs = getDocDefs(updated);
     const fileRows = await db.select().from(documents)
-      .where(and(eq(documents.applicant_id, student.id), eq(documents.document_type, docId)));
+      .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId)));
 
     return res.json({ success: true, document: formatRequiredDoc(docId, newDefs[docId], fileRows) });
   } catch (error) {
@@ -875,7 +875,7 @@ exports.updateRequiredDocumentSettings = async (req, res) => {
 
 // ─── Required-doc file upload ─────────────────────────────────────────────────
 
-const processRequiredDocumentUpload = async ({ student, slug, defData, file, uploadOptions = {} }) => {
+const processRequiredDocumentUpload = async ({ applicant, slug, defData, file, uploadOptions = {} }) => {
   const {
     fileSource = 'manual',
     uploadedBy = null,
@@ -884,15 +884,15 @@ const processRequiredDocumentUpload = async ({ student, slug, defData, file, upl
     skipExtraction = false,
   } = uploadOptions;
 
-  const studentDisplayName = getStudentName(student);
+  const applicantDisplayName = getApplicantName(applicant);
   const extension = guessExtension(file.originalname, file.mimetype);
   const renamedFileName = buildRequiredDocFileName({
     fieldName: defData.name || 'Document',
-    studentName: studentDisplayName,
+    applicantName: applicantDisplayName,
     extension,
   });
 
-  const aiContext = { firmId: student.firm_id, relatedEntityType: 'applicant', relatedEntityId: student.id };
+  const aiContext = { firmId: applicant.firm_id, relatedEntityType: 'applicant', relatedEntityId: applicant.id };
 
   let extractedProfile = null;
   if (!skipExtraction && defData.aiExtractionEnabled) {
@@ -906,13 +906,13 @@ const processRequiredDocumentUpload = async ({ student, slug, defData, file, upl
     } catch (e) { console.error('AI document verification failed:', e); }
   }
 
-  const s3Prefix = `${student.ai_key || 'applicant'}/required/${slug}`;
+  const s3Prefix = `${applicant.ai_key || 'applicant'}/required/${slug}`;
   const uploadResult = await uploadFileToS3(file.path, renamedFileName, s3Prefix);
 
   // Insert document row
   const [docRow] = await db.insert(documents).values({
-    firm_id: student.firm_id,
-    applicant_id: student.id,
+    firm_id: applicant.firm_id,
+    applicant_id: applicant.id,
     s3_key: uploadResult.key,
     s3_bucket: uploadResult.bucket,
     mime_type: file.mimetype,
@@ -938,17 +938,17 @@ const processRequiredDocumentUpload = async ({ student, slug, defData, file, upl
           docRow.id,
           verificationResult,
           null,
-          { firmId: student.firm_id, studentId: student.id }
+          { firmId: applicant.firm_id, applicantId: applicant.id }
         );
       } catch (e) { console.error('Failed to create verification task:', e); }
     } else {
       // Dismiss any existing open verification tasks for this slot
       const slotFiles = await db.select({ id: documents.id }).from(documents)
-        .where(and(eq(documents.applicant_id, student.id), eq(documents.document_type, slug)));
+        .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, slug)));
       const fileIds = slotFiles.map((r) => r.id);
       if (fileIds.length) {
         await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
-          .where(and(eq(tasks.firm_id, student.firm_id), eq(tasks.task_type, 'ai_verification'), inArray(tasks.document_id, fileIds)));
+          .where(and(eq(tasks.firm_id, applicant.firm_id), eq(tasks.task_type, 'ai_verification'), inArray(tasks.document_id, fileIds)));
       }
     }
   }
@@ -957,7 +957,7 @@ const processRequiredDocumentUpload = async ({ student, slug, defData, file, upl
   if (extractedProfile && Object.keys(extractedProfile).length) {
     try {
       const prioritized = prioritizeFields(extractedProfile);
-      if (Object.keys(prioritized).length) await upsertApplicant({ aiKey: student.ai_key, profile: prioritized });
+      if (Object.keys(prioritized).length) await upsertApplicant({ aiKey: applicant.ai_key, profile: prioritized });
     } catch (e) { console.error('Failed to persist AI extraction:', e); }
   }
 
@@ -981,11 +981,11 @@ exports.uploadRequiredDocumentFile = async (req, res) => {
       if (!isAdmin && !isOwner) { deleteLocalFile(file.path); return res.status(403).json({ message: 'Access denied' }); }
     }
 
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) { deleteLocalFile(file.path); return res.status(404).json({ message: 'Applicant not found' }); }
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) { deleteLocalFile(file.path); return res.status(404).json({ message: 'Applicant not found' }); }
 
     let slug, defData;
-    const defs = { ...getDocDefs(student) };
+    const defs = { ...getDocDefs(applicant) };
 
     if (docId) {
       if (!defs[docId]) { deleteLocalFile(file.path); return res.status(404).json({ message: 'Document not found' }); }
@@ -1002,7 +1002,7 @@ exports.uploadRequiredDocumentFile = async (req, res) => {
         slug = createDocumentSlug(normalizedType);
         defData = { name: normalizedType, description: '', slug, aiExtractionEnabled: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
         defs[slug] = defData;
-        await saveDocDefs(student.id, defs, student);
+        await saveDocDefs(applicant.id, defs, applicant);
       }
     } else {
       deleteLocalFile(file.path);
@@ -1013,17 +1013,17 @@ exports.uploadRequiredDocumentFile = async (req, res) => {
     const uploadedBy = req.user?.id || null;
 
     const { docRow, verificationResult } = await processRequiredDocumentUpload({
-      student, slug, defData, file,
+      applicant, slug, defData, file,
       uploadOptions: { fileSource, uploadedBy, uploadedByRole: actorRole, skipVerification: false, skipExtraction: false },
     });
 
     if (file.path) deleteLocalFile(file.path);
 
-    // Reload student for fresh defs, then get files for this slot
-    const [freshStudent] = await db.select().from(applicants).where(eq(applicants.id, student.id)).limit(1);
-    const freshDefs = getDocDefs(freshStudent);
+    // Reload applicant for fresh defs, then get files for this slot
+    const [freshApplicant] = await db.select().from(applicants).where(eq(applicants.id, applicant.id)).limit(1);
+    const freshDefs = getDocDefs(freshApplicant);
     const fileRows = await db.select().from(documents)
-      .where(and(eq(documents.applicant_id, student.id), eq(documents.document_type, slug)));
+      .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, slug)));
 
     res.json({ success: true, document: formatRequiredDoc(slug, freshDefs[slug] || defData, fileRows) });
   } catch (error) {
@@ -1036,18 +1036,18 @@ exports.uploadRequiredDocumentFile = async (req, res) => {
 exports.listRequiredDocumentFiles = async (req, res) => {
   try {
     const { aiKey, docId } = req.params;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
     const isOwner = req.user?.role === 'applicant' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
     if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    const defs = getDocDefs(student);
+    const defs = getDocDefs(applicant);
     if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
     const fileRows = await db.select().from(documents)
-      .where(and(eq(documents.applicant_id, student.id), eq(documents.document_type, docId)));
+      .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId)));
     const formatted = formatRequiredDoc(docId, defs[docId], fileRows);
     res.json({ success: true, document: formatted, files: formatted.files });
   } catch (error) {
@@ -1059,18 +1059,18 @@ exports.listRequiredDocumentFiles = async (req, res) => {
 exports.getRequiredDocumentFileUrl = async (req, res) => {
   try {
     const { aiKey, docId, fileId } = req.params;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
     const isOwner = req.user?.role === 'applicant' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
     if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    const defs = getDocDefs(student);
+    const defs = getDocDefs(applicant);
     if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
     const [fileRow] = await db.select().from(documents)
-      .where(and(eq(documents.id, fileId), eq(documents.applicant_id, student.id), eq(documents.document_type, docId))).limit(1);
+      .where(and(eq(documents.id, fileId), eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId))).limit(1);
     if (!fileRow) return res.status(404).json({ message: 'File not found' });
 
     const name = fileRow.ai_verification?.name || path.basename(fileRow.s3_key || '');
@@ -1085,18 +1085,18 @@ exports.getRequiredDocumentFileUrl = async (req, res) => {
 exports.deleteRequiredDocumentFile = async (req, res) => {
   try {
     const { aiKey, docId, fileId } = req.params;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
     const isOwner = req.user?.role === 'applicant' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
     if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
-    const defs = getDocDefs(student);
+    const defs = getDocDefs(applicant);
     if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
     const [fileRow] = await db.select().from(documents)
-      .where(and(eq(documents.id, fileId), eq(documents.applicant_id, student.id), eq(documents.document_type, docId))).limit(1);
+      .where(and(eq(documents.id, fileId), eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId))).limit(1);
     if (!fileRow) return res.status(404).json({ message: 'File not found' });
 
     if (fileRow.s3_key) {
@@ -1105,12 +1105,12 @@ exports.deleteRequiredDocumentFile = async (req, res) => {
 
     // Dismiss open verification tasks for this file
     await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
-      .where(and(eq(tasks.firm_id, student.firm_id), eq(tasks.task_type, 'ai_verification'), eq(tasks.document_id, fileId)));
+      .where(and(eq(tasks.firm_id, applicant.firm_id), eq(tasks.task_type, 'ai_verification'), eq(tasks.document_id, fileId)));
 
     await db.delete(documents).where(eq(documents.id, fileId));
 
     const fileRows = await db.select().from(documents)
-      .where(and(eq(documents.applicant_id, student.id), eq(documents.document_type, docId)));
+      .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId)));
     res.json({ success: true, document: formatRequiredDoc(docId, defs[docId], fileRows) });
   } catch (error) {
     console.error('Delete required doc file error:', error);
@@ -1123,14 +1123,14 @@ exports.verifyRequiredDocumentFile = async (req, res) => {
     const { aiKey, docId, fileId } = req.params;
     if (req.user?.role !== 'admin') return res.status(403).json({ message: 'Admin access required' });
 
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
-    const defs = getDocDefs(student);
+    const defs = getDocDefs(applicant);
     if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
 
     const [fileRow] = await db.select().from(documents)
-      .where(and(eq(documents.id, fileId), eq(documents.applicant_id, student.id), eq(documents.document_type, docId))).limit(1);
+      .where(and(eq(documents.id, fileId), eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId))).limit(1);
     if (!fileRow) return res.status(404).json({ message: 'File not found' });
 
     const [updated] = await db.update(documents).set({
@@ -1146,10 +1146,10 @@ exports.verifyRequiredDocumentFile = async (req, res) => {
 
     // Dismiss open verification tasks for this file
     await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
-      .where(and(eq(tasks.firm_id, student.firm_id), eq(tasks.task_type, 'ai_verification'), eq(tasks.document_id, fileId)));
+      .where(and(eq(tasks.firm_id, applicant.firm_id), eq(tasks.task_type, 'ai_verification'), eq(tasks.document_id, fileId)));
 
     const fileRows = await db.select().from(documents)
-      .where(and(eq(documents.applicant_id, student.id), eq(documents.document_type, docId)));
+      .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId)));
     res.json({ success: true, document: formatRequiredDoc(docId, defs[docId], fileRows) });
   } catch (error) {
     console.error('Verify required doc file error:', error);
@@ -1159,19 +1159,19 @@ exports.verifyRequiredDocumentFile = async (req, res) => {
 
 // ─── Applicant Tasks (via tasks table) ─────────────────────────────────────────
 
-exports.listStudentTasks = async (req, res) => {
+exports.listApplicantTasks = async (req, res) => {
   try {
     const { aiKey } = req.params;
     const { markSeen } = req.query;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
     const isOwner = req.user?.role === 'applicant' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
     if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
     const taskRows = await db.select().from(tasks)
-      .where(and(eq(tasks.applicant_id, student.id), eq(tasks.firm_id, student.firm_id)))
+      .where(and(eq(tasks.applicant_id, applicant.id), eq(tasks.firm_id, applicant.firm_id)))
       .orderBy(desc(tasks.created_at));
 
     if (isOwner && markSeen === 'true') {
@@ -1183,21 +1183,21 @@ exports.listStudentTasks = async (req, res) => {
       }
     }
 
-    res.json({ success: true, tasks: taskRows.map(formatStudentTask) });
+    res.json({ success: true, tasks: taskRows.map(formatApplicantTask) });
   } catch (error) {
-    console.error('List student tasks error:', error);
+    console.error('List applicant tasks error:', error);
     res.status(500).json({ success: false, message: 'Failed to load tasks' });
   }
 };
 
-exports.createStudentTask = async (req, res) => {
+exports.createApplicantTask = async (req, res) => {
   try {
     const { aiKey } = req.params;
     const { title, description, dueDate } = req.body || {};
     if (!title || !title.trim()) return res.status(400).json({ message: 'Task title is required' });
 
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     let due_at = null;
     if (dueDate) {
@@ -1210,7 +1210,7 @@ exports.createStudentTask = async (req, res) => {
     if (req.file) {
       try {
         const safeName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`;
-        const uploadResult = await uploadFileToS3(req.file.path, safeName, `${student.ai_key || 'applicant'}/tasks`);
+        const uploadResult = await uploadFileToS3(req.file.path, safeName, `${applicant.ai_key || 'applicant'}/tasks`);
         attachment = { key: uploadResult.key, bucket: uploadResult.bucket, name: req.file.originalname, mimeType: req.file.mimetype, size: req.file.size };
       } finally {
         if (req.file?.path) deleteLocalFile(req.file.path);
@@ -1218,8 +1218,8 @@ exports.createStudentTask = async (req, res) => {
     }
 
     const [newTask] = await db.insert(tasks).values({
-      firm_id: student.firm_id,
-      applicant_id: student.id,
+      firm_id: applicant.firm_id,
+      applicant_id: applicant.id,
       task_type: 'general',
       title: title.trim(),
       description: description?.toString()?.trim() || null,
@@ -1229,29 +1229,29 @@ exports.createStudentTask = async (req, res) => {
       metadata: attachment ? { attachment } : {},
     }).returning();
 
-    await sendTaskAssignedEmail({ student, task: newTask });
+    await sendTaskAssignedEmail({ applicant, task: newTask });
 
     const allTasks = await db.select().from(tasks)
-      .where(and(eq(tasks.applicant_id, student.id), eq(tasks.firm_id, student.firm_id)))
+      .where(and(eq(tasks.applicant_id, applicant.id), eq(tasks.firm_id, applicant.firm_id)))
       .orderBy(desc(tasks.created_at));
 
-    res.json({ success: true, tasks: allTasks.map(formatStudentTask) });
+    res.json({ success: true, tasks: allTasks.map(formatApplicantTask) });
   } catch (error) {
-    console.error('Create student task error:', error);
+    console.error('Create applicant task error:', error);
     res.status(500).json({ success: false, message: 'Failed to create task' });
   }
 };
 
-exports.updateStudentTask = async (req, res) => {
+exports.updateApplicantTask = async (req, res) => {
   try {
     const { aiKey, taskId } = req.params;
-    const { status, seenByStudent } = req.body || {};
+    const { status, seenByApplicant } = req.body || {};
 
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const [task] = await db.select().from(tasks)
-      .where(and(eq(tasks.id, taskId), eq(tasks.applicant_id, student.id))).limit(1);
+      .where(and(eq(tasks.id, taskId), eq(tasks.applicant_id, applicant.id))).limit(1);
     if (!task) return res.status(404).json({ message: 'Task not found' });
 
     const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
@@ -1272,8 +1272,9 @@ exports.updateStudentTask = async (req, res) => {
       }
     }
 
-    if (typeof seenByStudent === 'boolean' && isOwner) {
-      updates.is_read = seenByStudent;
+    const seenFlag = typeof seenByApplicant === 'boolean' ? seenByApplicant : undefined;
+    if (typeof seenFlag === 'boolean' && isOwner) {
+      updates.is_read = seenFlag;
     }
 
     const [updated] = await db.update(tasks).set(updates).where(eq(tasks.id, taskId)).returning();
@@ -1281,12 +1282,12 @@ exports.updateStudentTask = async (req, res) => {
     if (statusUpdatedToCompleted && req.userRole === 'applicant' && task.created_by) {
       try {
         await sendNotification(
-          student.firm_id,
+          applicant.firm_id,
           task.created_by,
           'TASK_COMPLETED',
           'Task completed',
-          `${getStudentName(student)} completed: ${task.title}`,
-          { studentId: student.id, studentAiKey: student.ai_key, taskId: task.id, dueDate: task.due_at },
+          `${getApplicantName(applicant)} completed: ${task.title}`,
+          { applicantId: applicant.id, applicantAiKey: applicant.ai_key, taskId: task.id, dueDate: task.due_at },
         );
       } catch (notifyError) {
         console.error('Failed to create task completion notification:', notifyError);
@@ -1294,24 +1295,24 @@ exports.updateStudentTask = async (req, res) => {
     }
 
     const allTasks = await db.select().from(tasks)
-      .where(and(eq(tasks.applicant_id, student.id), eq(tasks.firm_id, student.firm_id)))
+      .where(and(eq(tasks.applicant_id, applicant.id), eq(tasks.firm_id, applicant.firm_id)))
       .orderBy(desc(tasks.created_at));
 
-    res.json({ success: true, tasks: allTasks.map(formatStudentTask) });
+    res.json({ success: true, tasks: allTasks.map(formatApplicantTask) });
   } catch (error) {
-    console.error('Update student task error:', error);
+    console.error('Update applicant task error:', error);
     res.status(500).json({ success: false, message: 'Failed to update task' });
   }
 };
 
-exports.getStudentTaskAttachmentUrl = async (req, res) => {
+exports.getApplicantTaskAttachmentUrl = async (req, res) => {
   try {
     const { aiKey, taskId } = req.params;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const [task] = await db.select().from(tasks)
-      .where(and(eq(tasks.id, taskId), eq(tasks.applicant_id, student.id))).limit(1);
+      .where(and(eq(tasks.id, taskId), eq(tasks.applicant_id, applicant.id))).limit(1);
     if (!task) return res.status(404).json({ message: 'Task not found' });
 
     const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
@@ -1329,14 +1330,14 @@ exports.getStudentTaskAttachmentUrl = async (req, res) => {
   }
 };
 
-exports.deleteStudentTask = async (req, res) => {
+exports.deleteApplicantTask = async (req, res) => {
   try {
     const { aiKey, taskId } = req.params;
-    const [student] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
-    if (!student) return res.status(404).json({ message: 'Applicant not found' });
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
 
     const [task] = await db.select().from(tasks)
-      .where(and(eq(tasks.id, taskId), eq(tasks.applicant_id, student.id))).limit(1);
+      .where(and(eq(tasks.id, taskId), eq(tasks.applicant_id, applicant.id))).limit(1);
     if (!task) return res.status(404).json({ message: 'Task not found' });
 
     const isAdmin = ['admin', 'senior', 'junior'].includes(req.user?.role);
@@ -1351,12 +1352,12 @@ exports.deleteStudentTask = async (req, res) => {
     await db.delete(tasks).where(eq(tasks.id, taskId));
 
     const allTasks = await db.select().from(tasks)
-      .where(and(eq(tasks.applicant_id, student.id), eq(tasks.firm_id, student.firm_id)))
+      .where(and(eq(tasks.applicant_id, applicant.id), eq(tasks.firm_id, applicant.firm_id)))
       .orderBy(desc(tasks.created_at));
 
-    res.json({ success: true, tasks: allTasks.map(formatStudentTask) });
+    res.json({ success: true, tasks: allTasks.map(formatApplicantTask) });
   } catch (error) {
-    console.error('Delete student task error:', error);
+    console.error('Delete applicant task error:', error);
     res.status(500).json({ success: false, message: 'Failed to delete task' });
   }
 };

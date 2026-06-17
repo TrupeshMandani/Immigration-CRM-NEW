@@ -46,7 +46,7 @@ const ChangePassword = () => {
     if (result.success) {
       updateUser({ ...user, isFirstLogin: false });
       toast.success("Password updated. Redirecting to your dashboard…");
-      setTimeout(() => navigate("/student/dashboard", { replace: true }), 1500);
+      setTimeout(() => navigate("/applicant/dashboard", { replace: true }), 1500);
     } else {
       toast.error(result.error || "Failed to change password.");
     }

@@ -3,10 +3,10 @@ const { describe, it, expect, jest, beforeEach } = require("@jest/globals");
 jest.mock("../services/applicant.service");
 jest.mock("../config/logger");
 
-const studentService = require("../services/applicant.service");
+const applicantService = require("../services/applicant.service");
 const taskTools = require("../tools/taskTools");
 
-const STUDENT_ID = "student-xyz-456";
+const APPLICANT_ID = "applicant-xyz-456";
 const TASK_ID = "task-001";
 
 describe("Task Tools", () => {
@@ -15,10 +15,10 @@ describe("Task Tools", () => {
   // ── Schema shape ───────────────────────────────────────────────────────────
   describe("tool structure", () => {
     const names = [
-      "getTasksForStudent",
-      "createStudentTask",
-      "updateStudentTaskStatus",
-      "deleteStudentTask",
+      "getTasksForApplicant",
+      "createApplicantTask",
+      "updateApplicantTaskStatus",
+      "deleteApplicantTask",
     ];
 
     it.each(names)("%s has description, args, and run()", (name) => {
@@ -28,36 +28,36 @@ describe("Task Tools", () => {
     });
   });
 
-  // ── getTasksForStudent ─────────────────────────────────────────────────────
-  describe("getTasksForStudent", () => {
+  // ── getTasksForApplicant ───────────────────────────────────────────────────
+  describe("getTasksForApplicant", () => {
     it("returns tasks list from service", async () => {
       const mockTasks = { tasks: [{ id: TASK_ID, title: "Upload passport" }] };
-      studentService.getStudentTasks.mockResolvedValue(mockTasks);
+      applicantService.getApplicantTasks.mockResolvedValue(mockTasks);
 
-      const result = await taskTools.getTasksForStudent.run({ applicantId: STUDENT_ID });
+      const result = await taskTools.getTasksForApplicant.run({ applicantId: APPLICANT_ID });
 
       expect(result).toEqual(mockTasks);
-      expect(studentService.getStudentTasks).toHaveBeenCalledWith(STUDENT_ID);
+      expect(applicantService.getApplicantTasks).toHaveBeenCalledWith(APPLICANT_ID);
     });
 
     it("requires applicantId in schema", () => {
-      expect(taskTools.getTasksForStudent.args.required).toContain("applicantId");
+      expect(taskTools.getTasksForApplicant.args.required).toContain("applicantId");
     });
   });
 
-  // ── createStudentTask ──────────────────────────────────────────────────────
-  describe("createStudentTask", () => {
+  // ── createApplicantTask ────────────────────────────────────────────────────
+  describe("createApplicantTask", () => {
     it("creates a task with required fields only", async () => {
       const mockCreated = { id: TASK_ID, title: "Upload IELTS", status: "pending" };
-      studentService.createStudentTask.mockResolvedValue(mockCreated);
+      applicantService.createApplicantTask.mockResolvedValue(mockCreated);
 
-      const result = await taskTools.createStudentTask.run({
-        applicantId: STUDENT_ID,
+      const result = await taskTools.createApplicantTask.run({
+        applicantId: APPLICANT_ID,
         title: "Upload IELTS",
       });
 
       expect(result).toEqual(mockCreated);
-      expect(studentService.createStudentTask).toHaveBeenCalledWith(STUDENT_ID, {
+      expect(applicantService.createApplicantTask).toHaveBeenCalledWith(APPLICANT_ID, {
         title: "Upload IELTS",
         description: undefined,
         dueDate: undefined,
@@ -66,17 +66,17 @@ describe("Task Tools", () => {
     });
 
     it("creates a task with all optional fields", async () => {
-      studentService.createStudentTask.mockResolvedValue({ id: TASK_ID });
+      applicantService.createApplicantTask.mockResolvedValue({ id: TASK_ID });
 
-      await taskTools.createStudentTask.run({
-        applicantId: STUDENT_ID,
+      await taskTools.createApplicantTask.run({
+        applicantId: APPLICANT_ID,
         title: "Submit SOP",
         description: "Write statement of purpose",
         dueDate: "2026-06-01",
         attachmentPath: "/tmp/sop.pdf",
       });
 
-      expect(studentService.createStudentTask).toHaveBeenCalledWith(STUDENT_ID, {
+      expect(applicantService.createApplicantTask).toHaveBeenCalledWith(APPLICANT_ID, {
         title: "Submit SOP",
         description: "Write statement of purpose",
         dueDate: "2026-06-01",
@@ -85,81 +85,81 @@ describe("Task Tools", () => {
     });
 
     it("requires applicantId and title in schema", () => {
-      const { required } = taskTools.createStudentTask.args;
+      const { required } = taskTools.createApplicantTask.args;
       expect(required).toContain("applicantId");
       expect(required).toContain("title");
     });
 
     it("optional fields are not required in schema", () => {
-      const { required = [] } = taskTools.createStudentTask.args;
+      const { required = [] } = taskTools.createApplicantTask.args;
       expect(required).not.toContain("description");
       expect(required).not.toContain("dueDate");
       expect(required).not.toContain("attachmentPath");
     });
   });
 
-  // ── updateStudentTaskStatus ────────────────────────────────────────────────
-  describe("updateStudentTaskStatus", () => {
+  // ── updateApplicantTaskStatus ──────────────────────────────────────────────
+  describe("updateApplicantTaskStatus", () => {
     it("updates status without notes", async () => {
       const mockResult = { id: TASK_ID, status: "completed" };
-      studentService.updateStudentTask.mockResolvedValue(mockResult);
+      applicantService.updateApplicantTask.mockResolvedValue(mockResult);
 
-      const result = await taskTools.updateStudentTaskStatus.run({
-        applicantId: STUDENT_ID,
+      const result = await taskTools.updateApplicantTaskStatus.run({
+        applicantId: APPLICANT_ID,
         taskId: TASK_ID,
         status: "completed",
       });
 
       expect(result).toEqual(mockResult);
-      expect(studentService.updateStudentTask).toHaveBeenCalledWith(
-        STUDENT_ID,
+      expect(applicantService.updateApplicantTask).toHaveBeenCalledWith(
+        APPLICANT_ID,
         TASK_ID,
         { status: "completed", notes: undefined }
       );
     });
 
     it("includes notes when provided", async () => {
-      studentService.updateStudentTask.mockResolvedValue({ id: TASK_ID });
+      applicantService.updateApplicantTask.mockResolvedValue({ id: TASK_ID });
 
-      await taskTools.updateStudentTaskStatus.run({
-        applicantId: STUDENT_ID,
+      await taskTools.updateApplicantTaskStatus.run({
+        applicantId: APPLICANT_ID,
         taskId: TASK_ID,
         status: "completed",
         notes: "Applicant uploaded the document",
       });
 
-      expect(studentService.updateStudentTask).toHaveBeenCalledWith(
-        STUDENT_ID,
+      expect(applicantService.updateApplicantTask).toHaveBeenCalledWith(
+        APPLICANT_ID,
         TASK_ID,
         { status: "completed", notes: "Applicant uploaded the document" }
       );
     });
 
     it("requires applicantId, taskId, and status in schema", () => {
-      const { required } = taskTools.updateStudentTaskStatus.args;
+      const { required } = taskTools.updateApplicantTaskStatus.args;
       expect(required).toContain("applicantId");
       expect(required).toContain("taskId");
       expect(required).toContain("status");
     });
   });
 
-  // ── deleteStudentTask ──────────────────────────────────────────────────────
-  describe("deleteStudentTask", () => {
+  // ── deleteApplicantTask ────────────────────────────────────────────────────
+  describe("deleteApplicantTask", () => {
     it("calls service with applicantId and taskId", async () => {
       const mockResult = { success: true };
-      studentService.deleteStudentTask.mockResolvedValue(mockResult);
+      applicantService.deleteApplicantTask.mockResolvedValue(mockResult);
 
-      const result = await taskTools.deleteStudentTask.run({
-        applicantId: STUDENT_ID,
+      const result = await taskTools.deleteApplicantTask.run({
+        applicantId: APPLICANT_ID,
         taskId: TASK_ID,
       });
 
       expect(result).toEqual(mockResult);
-      expect(studentService.deleteStudentTask).toHaveBeenCalledWith(STUDENT_ID, TASK_ID);
+      expect(applicantService.deleteApplicantTask).toHaveBeenCalledWith(APPLICANT_ID, TASK_ID);
     });
 
     it("requires applicantId and taskId in schema", () => {
-      const { required } = taskTools.deleteStudentTask.args;
+      const { required } = taskTools.deleteApplicantTask.args;
       expect(required).toContain("applicantId");
       expect(required).toContain("taskId");
     });
@@ -168,10 +168,10 @@ describe("Task Tools", () => {
   // ── Error propagation ──────────────────────────────────────────────────────
   describe("error propagation", () => {
     it("surfaces service errors", async () => {
-      studentService.getStudentTasks.mockRejectedValue(new Error("Unauthorized"));
+      applicantService.getApplicantTasks.mockRejectedValue(new Error("Unauthorized"));
 
       await expect(
-        taskTools.getTasksForStudent.run({ applicantId: STUDENT_ID })
+        taskTools.getTasksForApplicant.run({ applicantId: APPLICANT_ID })
       ).rejects.toThrow("Unauthorized");
     });
   });

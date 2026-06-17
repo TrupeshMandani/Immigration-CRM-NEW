@@ -21,7 +21,7 @@ const defaultFilters = {
   intake: [], modeOfStudy: [],
   tuitionBudget: "", livingBudget: "", scholarship: "", coOpPreference: "",
   pgwpEligible: "", prFriendlyProvince: "", employmentRate: "",
-  rankingMin: "", rankingMax: "", studentDiversity: "", flexibleStart: "", campusHousing: "",
+  rankingMin: "", rankingMax: "", campusDiversity: "", flexibleStart: "", campusHousing: "",
 };
 
 const intakeOptions = ["Fall", "Winter", "Spring"];
@@ -84,7 +84,7 @@ const MultiChips = ({ label, name, options, selected, onToggle }) => (
 
 const UniversityRecommendation = () => {
   const { user, token } = useAuth();
-  const studentId = user?.id || user?._id;
+  const applicantId = user?.id || user?._id;
 
   const [universities, setUniversities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,12 +95,12 @@ const UniversityRecommendation = () => {
   const [lastGenerated, setLastGenerated] = useState(null);
 
   useEffect(() => {
-    if (!studentId || !token) return;
+    if (!applicantId || !token) return;
     const fetch = async () => {
       setLoading(true);
       setError("");
       try {
-        const res = await api.get(`/recommendations/${studentId}`, {
+        const res = await api.get(`/recommendations/${applicantId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUniversities(res.data.universities || []);
@@ -122,7 +122,7 @@ const UniversityRecommendation = () => {
       }
     };
     fetch();
-  }, [studentId, token]);
+  }, [applicantId, token]);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -154,12 +154,12 @@ const UniversityRecommendation = () => {
   });
 
   const handleGenerate = async () => {
-    if (!studentId || !token) return;
+    if (!applicantId || !token) return;
     setGenerating(true);
     setError("");
     try {
       const res = await api.post(
-        `/recommendations/generate/${studentId}`,
+        `/recommendations/generate/${applicantId}`,
         { filters: buildPayload() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -331,7 +331,7 @@ const UniversityRecommendation = () => {
                     className={inputCls} placeholder="Max" />
                 </div>
               </FilterField>
-              <SelectField label="Student diversity" name="studentDiversity" value={filters.studentDiversity} onChange={handleInput}>
+              <SelectField label="Campus diversity" name="campusDiversity" value={filters.campusDiversity} onChange={handleInput}>
                 <option value="">Any</option>
                 <option value="high">High diversity</option>
                 <option value="medium">Medium diversity</option>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { studentService } from "../../services/authService";
+import { applicantService } from "../../services/authService";
 import ApplicantLayout from "../../components/layout/ApplicantLayout";
 import {
   Card,
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import ProfileFieldDisplay from "../../components/student/ProfileFieldDisplay";
+import ProfileFieldDisplay from "../../components/applicant/ProfileFieldDisplay";
 import { toast } from "sonner";
 import { Loader2, RefreshCw } from "lucide-react";
 
@@ -85,9 +85,9 @@ const PRIORITY_MAP = {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-const StudentProfile = () => {
+const ApplicantProfilePage = () => {
   const { user } = useAuth();
-  const [student, setStudent] = useState(null);
+  const [applicant, setApplicant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -100,8 +100,8 @@ const StudentProfile = () => {
   });
 
   const prioritizedProfileEntries = useMemo(() => {
-    if (!student?.profile || typeof student.profile !== "object") return [];
-    return Object.entries(student.profile)
+    if (!applicant?.profile || typeof applicant.profile !== "object") return [];
+    return Object.entries(applicant.profile)
       .filter(([k]) => k !== "passportDetails")
       .sort(([a], [b]) => {
         const pa = PRIORITY_MAP[a] ?? 999;
@@ -109,9 +109,9 @@ const StudentProfile = () => {
         return pa !== pb ? pa - pb : a.localeCompare(b);
       })
       .filter(([, v]) => Array.isArray(v) ? v.length > 0 : v !== undefined && v !== null && v !== "");
-  }, [student?.profile]);
+  }, [applicant?.profile]);
 
-  const fetchStudentData = useCallback(async (showRefresh = false) => {
+  const fetchApplicantData = useCallback(async (showRefresh = false) => {
     try {
       if (showRefresh) setRefreshing(true);
       else setLoading(true);
@@ -121,8 +121,8 @@ const StudentProfile = () => {
         return;
       }
 
-      const data = await studentService.getStudentByKey(user.aiKey);
-      setStudent(data);
+      const data = await applicantService.getApplicantByKey(user.aiKey);
+      setApplicant(data);
       const contact = data?.contactInfo || {};
       const profile = data?.profile || {};
       const passport = derivePassport(profile);
@@ -152,18 +152,18 @@ const StudentProfile = () => {
     }
   }, [user?.aiKey]);
 
-  useEffect(() => { fetchStudentData(); }, [fetchStudentData]);
+  useEffect(() => { fetchApplicantData(); }, [fetchApplicantData]);
 
   useEffect(() => {
     const handleStorage = (e) => {
       if (e.key === "profile_updated" && e.newValue) {
-        fetchStudentData(true);
+        fetchApplicantData(true);
         localStorage.removeItem("profile_updated");
       }
     };
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
-  }, [fetchStudentData]);
+  }, [fetchApplicantData]);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -185,7 +185,7 @@ const StudentProfile = () => {
     }
     setSaving(true);
     try {
-      await studentService.updateSelfProfile({
+      await applicantService.updateSelfProfile({
         contactInfo: { name: form.name, email: form.email, phone: form.phone },
         profile: {
           city: form.city, state: form.state, country: form.country,
@@ -200,7 +200,7 @@ const StudentProfile = () => {
       });
       toast.success("Profile updated successfully.");
       setForm((prev) => ({ ...prev, passportSource: "manual" }));
-      await fetchStudentData(true);
+      await fetchApplicantData(true);
     } catch (err) {
       toast.error(err.response?.data?.message || "Unable to save your profile at this time.");
     } finally {
@@ -242,7 +242,7 @@ const StudentProfile = () => {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => fetchStudentData(true)}
+                onClick={() => fetchApplicantData(true)}
                 disabled={refreshing || saving}
               >
                 {refreshing ? (
@@ -360,19 +360,19 @@ const StudentProfile = () => {
               <CardTitle>Contact Information</CardTitle>
             </CardHeader>
             <CardContent>
-              {student?.contactInfo ? (
+              {applicant?.contactInfo ? (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <ProfileField label="Full Name" value={student.contactInfo.name || "Not provided"} />
-                  <ProfileField label="Email" value={student.contactInfo.email || "Not provided"} />
-                  <ProfileField label="Phone" value={student.contactInfo.phone || "Not provided"} />
+                  <ProfileField label="Full Name" value={applicant.contactInfo.name || "Not provided"} />
+                  <ProfileField label="Email" value={applicant.contactInfo.email || "Not provided"} />
+                  <ProfileField label="Phone" value={applicant.contactInfo.phone || "Not provided"} />
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
                     <Badge
                       className="mt-1"
-                      variant={student.status === "active" ? "default" : "secondary"}
+                      variant={applicant.status === "active" ? "default" : "secondary"}
                     >
-                      {student.status
-                        ? student.status.charAt(0).toUpperCase() + student.status.slice(1)
+                      {applicant.status
+                        ? applicant.status.charAt(0).toUpperCase() + applicant.status.slice(1)
                         : "Unknown"}
                     </Badge>
                   </div>
@@ -417,22 +417,22 @@ const StudentProfile = () => {
             <CardContent>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <ProfileField label="Username" value={user?.username || "Unknown"} />
-                <ProfileField label="Student ID" value={student?.aiKey || "Unknown"} />
+                <ProfileField label="Applicant ID" value={applicant?.aiKey || "Unknown"} />
                 <ProfileField
                   label="Account Created"
-                  value={student?.createdAt ? new Date(student.createdAt).toLocaleDateString() : "Unknown"}
+                  value={applicant?.createdAt ? new Date(applicant.createdAt).toLocaleDateString() : "Unknown"}
                 />
                 <ProfileField
                   label="Last Updated"
-                  value={student?.updatedAt ? new Date(student.updatedAt).toLocaleDateString() : "Unknown"}
+                  value={applicant?.updatedAt ? new Date(applicant.updatedAt).toLocaleDateString() : "Unknown"}
                 />
               </div>
             </CardContent>
             <CardFooter className="gap-3 border-t pt-4">
               <Button asChild variant="outline">
-                <Link to="/student/change-password">Change Password</Link>
+                <Link to="/applicant/change-password">Change Password</Link>
               </Button>
-              <Button variant="outline" onClick={() => fetchStudentData(true)} disabled={refreshing}>
+              <Button variant="outline" onClick={() => fetchApplicantData(true)} disabled={refreshing}>
                 {refreshing ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Refreshing…</>
                 ) : (
@@ -454,4 +454,4 @@ const ProfileField = ({ label, value }) => (
   </div>
 );
 
-export default StudentProfile;
+export default ApplicantProfilePage;

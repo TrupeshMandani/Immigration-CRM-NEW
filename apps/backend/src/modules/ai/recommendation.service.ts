@@ -27,7 +27,7 @@ If you cannot produce valid data, return {"universities": []}.
 `;
 
 export function buildRecommendationUserPrompt(profile: Record<string, unknown>): string {
-  return `Student Profile JSON:\n${JSON.stringify(profile, null, 2)}\n
+  return `Applicant Profile JSON:\n${JSON.stringify(profile, null, 2)}\n
 Constraints:
 - Provide 5–10 university options.
 - Higher aiScore for closer matches to GPA, IELTS/TOEFL/PTE, and budget.
@@ -64,7 +64,7 @@ const FALLBACK_UNIVERSITIES = [
     country: 'United Kingdom',
     program: 'Innovation and Entrepreneurship',
     degreeLevel: 'Diploma',
-    eligibilityReason: 'Suitable for students exploring entrepreneurial pathways',
+    eligibilityReason: 'Suitable for applicants exploring entrepreneurial pathways',
     tuitionFee: 18000,
     aiScore: 0.62,
     website: 'https://www.studyuk.britishcouncil.org',

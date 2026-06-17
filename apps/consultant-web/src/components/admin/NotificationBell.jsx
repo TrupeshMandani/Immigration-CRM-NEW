@@ -197,7 +197,7 @@ useEffect(() => {
                 {task.documentField || "Document"}
               </p>
               <p className="truncate text-xs text-neutral-500">
-                {task.studentName || "Student"}
+                {task.applicantName || task.applicantName || "Applicant"}
               </p>
             </div>
             <span

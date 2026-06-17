@@ -13,19 +13,19 @@ import { useViewMode } from "../../hooks/useViewMode";
 import {
   useApplicants,
   useActivateApplicant,
-  useDeleteStudent,
+  useDeleteApplicant,
 } from "../../hooks/useApplicants";
 
-const StudentList = () => {
+const ApplicantList = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [confirmDelete, setConfirmDelete] = useState({
     open: false,
-    studentId: null,
+    applicantId: null,
   });
   const [viewMode, setViewMode] = useViewMode(
-    "studentList_viewMode",
+    "applicantList_viewMode",
     ["card", "list", "table"],
     "card"
   );
@@ -34,45 +34,45 @@ const StudentList = () => {
   if (searchTerm) params.search = searchTerm;
   if (statusFilter) params.status = statusFilter;
 
-  const { data: students = [], isLoading, isError } = useApplicants(
+  const { data: applicants = [], isLoading, isError } = useApplicants(
     Object.keys(params).length ? params : undefined
   );
-  const activateStudent = useActivateApplicant();
-  const deleteStudent = useDeleteStudent();
+  const activateApplicant = useActivateApplicant();
+  const deleteApplicant = useDeleteApplicant();
 
   const handleStatusChange = async (id, nextStatus) => {
     try {
       if (nextStatus === "active") {
-        await activateStudent.mutateAsync(id);
-        toast.success("Student activated.");
+        await activateApplicant.mutateAsync(id);
+        toast.success("Applicant activated.");
       }
     } catch {
-      toast.error("Failed to update student status.");
+      toast.error("Failed to update applicant status.");
     }
   };
 
-  const handleDelete = (id) => setConfirmDelete({ open: true, studentId: id });
+  const handleDelete = (id) => setConfirmDelete({ open: true, applicantId: id });
 
-  const confirmDeleteStudent = async () => {
-    const id = confirmDelete.studentId;
+  const confirmDeleteApplicant = async () => {
+    const id = confirmDelete.applicantId;
     if (!id) return;
     try {
-      await deleteStudent.mutateAsync(id);
-      toast.success("Student deleted.");
+      await deleteApplicant.mutateAsync(id);
+      toast.success("Applicant deleted.");
     } catch {
-      toast.error("Unable to delete student. Please try again.");
+      toast.error("Unable to delete applicant. Please try again.");
     } finally {
-      setConfirmDelete({ open: false, studentId: null });
+      setConfirmDelete({ open: false, applicantId: null });
     }
   };
 
-  const cancelDelete = () => setConfirmDelete({ open: false, studentId: null });
+  const cancelDelete = () => setConfirmDelete({ open: false, applicantId: null });
 
   if (isLoading) {
     return (
       <AdminLayout>
         <div className="flex h-96 items-center justify-center">
-          <Loading size="lg" text="Loading students..." />
+          <Loading size="lg" text="Loading applicants..." />
         </div>
       </AdminLayout>
     );
@@ -84,9 +84,9 @@ const StudentList = () => {
         {/* Page Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8 border-b border-gray-200 pb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Students</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Applicants</h1>
             <p className="text-gray-600 mt-1">
-              Manage and monitor all registered students in your system.
+              Manage and monitor all registered applicants in your system.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -94,10 +94,10 @@ const StudentList = () => {
               currentView={viewMode}
               onViewChange={setViewMode}
               views={["card", "list", "table"]}
-              storageKey="studentList_viewMode"
+              storageKey="applicantList_viewMode"
             />
-            <Link to="/admin/students/create">
-              <Button variant="primary" icon="plus">Add Student</Button>
+            <Link to="/admin/applicants/create">
+              <Button variant="primary" icon="plus">Add Applicant</Button>
             </Link>
           </div>
         </div>
@@ -146,26 +146,26 @@ const StudentList = () => {
         {isError && (
           <Card className="border border-red-200 bg-red-50 mb-6">
             <Card.Body>
-              <p className="text-sm text-red-700">Failed to load students. Please refresh and try again.</p>
+              <p className="text-sm text-red-700">Failed to load applicants. Please refresh and try again.</p>
             </Card.Body>
           </Card>
         )}
 
-        {/* Student Data */}
-        {students.length > 0 ? (
+        {/* Applicant Data */}
+        {applicants.length > 0 ? (
           <>
             {viewMode === "card" && (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {students.map((student) => (
-                  <ApplicantCard key={student._id} student={student} />
+                {applicants.map((applicant) => (
+                  <ApplicantCard key={applicant._id} applicant={applicant} />
                 ))}
               </div>
             )}
 
             {viewMode === "list" && (
               <div className="space-y-4">
-                {students.map((student) => (
-                  <ApplicantListItem key={student._id} student={student} />
+                {applicants.map((applicant) => (
+                  <ApplicantListItem key={applicant._id} applicant={applicant} />
                 ))}
               </div>
             )}
@@ -185,37 +185,37 @@ const StudentList = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 bg-white">
-                        {students.map((student) => (
+                        {applicants.map((applicant) => (
                           <tr
-                            key={student._id}
-                            onClick={() => navigate(`/admin/students/${student._id}`)}
+                            key={applicant._id}
+                            onClick={() => navigate(`/admin/applicants/${applicant._id}`)}
                             className="cursor-pointer transition hover:bg-gray-50"
                           >
                             <td className="px-6 py-4">
-                              {student.contactInfo?.name || student.username || "Unknown"}
+                              {applicant.contactInfo?.name || applicant.username || "Unknown"}
                             </td>
                             <td className="px-6 py-4">
-                              {student.contactInfo?.email || student.email || "No email"}
+                              {applicant.contactInfo?.email || applicant.email || "No email"}
                             </td>
                             <td className="px-6 py-4">
                               <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                                student.status === "active" ? "bg-green-100 text-green-700"
-                                  : student.status === "pending" ? "bg-yellow-100 text-yellow-700"
-                                  : student.status === "registered" ? "bg-sky-100 text-sky-700"
+                                applicant.status === "active" ? "bg-green-100 text-green-700"
+                                  : applicant.status === "pending" ? "bg-yellow-100 text-yellow-700"
+                                  : applicant.status === "registered" ? "bg-sky-100 text-sky-700"
                                   : "bg-gray-100 text-gray-700"
                               }`}>
-                                {student.status?.charAt(0).toUpperCase() + student.status?.slice(1)}
+                                {applicant.status?.charAt(0).toUpperCase() + applicant.status?.slice(1)}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-gray-500">
-                              {student.createdAt ? new Date(student.createdAt).toLocaleDateString() : "Unknown"}
+                              {applicant.createdAt ? new Date(applicant.createdAt).toLocaleDateString() : "Unknown"}
                             </td>
                             <td className="px-6 py-4 space-x-2">
-                              {student.status === "pending" && (
+                              {applicant.status === "pending" && (
                                 <Button
                                   variant="success"
                                   size="sm"
-                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(student._id, "active"); }}
+                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(applicant._id, "active"); }}
                                 >
                                   Activate
                                 </Button>
@@ -223,7 +223,7 @@ const StudentList = () => {
                               <Button
                                 variant="danger"
                                 size="sm"
-                                onClick={(e) => { e.stopPropagation(); handleDelete(student._id); }}
+                                onClick={(e) => { e.stopPropagation(); handleDelete(applicant._id); }}
                               >
                                 Delete
                               </Button>
@@ -243,11 +243,11 @@ const StudentList = () => {
               <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
               </svg>
-              <h3 className="font-medium text-gray-900">No students found</h3>
-              <p className="text-sm">Get started by adding a new student record.</p>
+              <h3 className="font-medium text-gray-900">No applicants found</h3>
+              <p className="text-sm">Get started by adding a new applicant record.</p>
               <div className="pt-2">
-                <Link to="/admin/students/create">
-                  <Button variant="primary">Create Student</Button>
+                <Link to="/admin/applicants/create">
+                  <Button variant="primary">Create Applicant</Button>
                 </Link>
               </div>
             </Card.Body>
@@ -256,11 +256,11 @@ const StudentList = () => {
 
         <ConfirmDialog
           open={confirmDelete.open}
-          title="Delete student?"
-          description="Are you sure you want to delete this student? This action cannot be undone."
+          title="Delete applicant?"
+          description="Are you sure you want to delete this applicant? This action cannot be undone."
           confirmText="Delete"
           cancelText="Cancel"
-          onConfirm={confirmDeleteStudent}
+          onConfirm={confirmDeleteApplicant}
           onCancel={cancelDelete}
         />
       </div>
@@ -268,4 +268,4 @@ const StudentList = () => {
   );
 };
 
-export default StudentList;
+export default ApplicantList;

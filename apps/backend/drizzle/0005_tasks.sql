@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS tasks (
   id                   TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
   firm_id              TEXT NOT NULL REFERENCES firms(id) ON DELETE CASCADE,
-  student_id           TEXT REFERENCES students(id) ON DELETE SET NULL,
+  applicant_id         TEXT REFERENCES applicants(id) ON DELETE SET NULL,
   document_id          TEXT REFERENCES documents(id) ON DELETE SET NULL,
   task_type            TEXT NOT NULL DEFAULT 'general'
                          CHECK (task_type IN ('general', 'ai_verification', 'deadline', 'reminder')),

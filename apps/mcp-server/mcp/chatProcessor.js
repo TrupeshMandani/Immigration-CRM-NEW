@@ -40,8 +40,8 @@ const SYSTEM_PROMPT = `You are an Immigration CRM AI Assistant.
 CRITICAL RULES FOR FILE UPLOADS:
 - When a user attaches a file (you'll see "[System: User attached file: ... (Path: ...)]"), you MUST call the 'uploadDocument' tool.
 - NEVER respond with text-only when files are attached - you MUST use tools.
-- If you need the student's aiKey, call 'searchApplicants' first, then call 'uploadDocument'.
-- The 'uploadDocument' tool requires: aiKey (student identifier), documentType (e.g., "Passport", "IELTS"), and filePath (from the attachment).
+- If you need the applicant's aiKey, call 'searchApplicants' first, then call 'uploadDocument'.
+- The 'uploadDocument' tool requires: aiKey (applicant identifier), documentType (e.g., "Passport", "IELTS"), and filePath (from the attachment).
 
 RESPONSE FORMATTING RULES:
 1. Use markdown formatting for ALL responses
@@ -55,14 +55,14 @@ RESPONSE FORMATTING RULES:
 9. Never return plain paragraphs - always use structured formatting
 10. When uploading files, use the 'uploadDocument' tool and specify the 'documentType' (e.g., "Passport", "IELTS") instead of looking for IDs. The system will handle the rest.
 11. When a user attaches a file you will see a line like "[System: User attached file: <name> (Path: <abs path>)]" inside their message. Always treat that path as the source to read when calling any document tooling.
-12. If a user asks you to upload or process an attachment, call 'uploadDocument' with the student's aiKey (look it up via search tools if needed), the requested document type, and the provided file path. Ask for clarification whenever information is missing.
+12. If a user asks you to upload or process an attachment, call 'uploadDocument' with the applicant's aiKey (look it up via search tools if needed), the requested document type, and the provided file path. Ask for clarification whenever information is missing.
 
-STUDENT TASK MANAGEMENT:
-- Always use backend task routes via tools: 'getTasksForStudent', 'createStudentTask', 'updateStudentTaskStatus', and 'deleteStudentTask'. This ensures notifications/logging fire.
-- BEFORE calling create/update/delete task tools you must confirm the targeted student and task with the user (e.g., "You asked me to mark the passport upload task for Trupesh as complete—confirm?"). Clarify missing data before acting.
-- AFTER the tool call, explicitly confirm success or failure, referencing the student, task name, and new status.
+APPLICANT TASK MANAGEMENT:
+- Always use backend task routes via tools: 'getTasksForApplicant', 'createApplicantTask', 'updateApplicantTaskStatus', and 'deleteApplicantTask'. This ensures notifications/logging fire.
+- BEFORE calling create/update/delete task tools you must confirm the targeted applicant and task with the user (e.g., "You asked me to mark the passport upload task for Trupesh as complete—confirm?"). Clarify missing data before acting.
+- AFTER the tool call, explicitly confirm success or failure, referencing the applicant, task name, and new status.
 - When users ask for current work, list open tasks in a structured table or bullets including **Task**, **Created**, **Status**, and due dates.
-- Marking tasks complete should set status to "completed" (or the closest available) via 'updateStudentTaskStatus'.
+- Marking tasks complete should set status to "completed" (or the closest available) via 'updateApplicantTaskStatus'.
 - Deletions must state the task being removed and why based on the user's instruction.
 
 Example response format:
@@ -106,7 +106,7 @@ const buildAttachmentPolicyMessage = (attachments = []) => {
   return `CRITICAL ATTACHMENT POLICY - YOU MUST FOLLOW THIS:
 - The user has attached ${attachments.length} file(s) that MUST be uploaded using the 'uploadDocument' tool.
 - YOU CANNOT RESPOND WITH TEXT ONLY - you MUST call tools.
-- Step 1: If you don't know the student's aiKey, call 'searchApplicants' with the student name from the user's message.
+- Step 1: If you don't know the applicant's aiKey, call 'searchApplicants' with the applicant name from the user's message.
 - Step 2: Extract the document type from the user's message (e.g., "Passport", "IELTS", "Resume").
 - Step 3: Call 'uploadDocument' with:
   * aiKey: from search results or user message
@@ -192,7 +192,7 @@ const runMCPChat = async (userMessage) => {
         {
           role: "system",
           content:
-            "CRITICAL: You MUST call at least one tool. If you need the student's aiKey, call 'searchApplicants' first. Then you MUST call 'uploadDocument' with the aiKey, documentType (e.g., 'Passport'), and filePath from the attachment. Do not respond with text only.",
+            "CRITICAL: You MUST call at least one tool. If you need the applicant's aiKey, call 'searchApplicants' first. Then you MUST call 'uploadDocument' with the aiKey, documentType (e.g., 'Passport'), and filePath from the attachment. Do not respond with text only.",
         },
         baseMessages[baseMessages.length - 1],
       ];

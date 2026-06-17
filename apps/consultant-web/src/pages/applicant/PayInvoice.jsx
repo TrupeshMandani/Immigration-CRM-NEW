@@ -45,7 +45,7 @@ const PayInvoice = () => {
       try {
         const data = await billingService.listInvoices();
         const mine = data.filter(
-          (inv) => inv.student_id === (user?.id ?? user?._id)
+          (inv) => inv.applicant_id === (user?.id ?? user?._id)
         );
         setInvoices(mine);
       } catch {

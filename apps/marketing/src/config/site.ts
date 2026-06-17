@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "CompleteCanadaVisa",
   description:
-    "Enterprise-grade immigration programs that guide students, workers, and families to Canada.",
+    "Enterprise-grade immigration programs that guide applicants, workers, and families to Canada.",
   nav: [
     { href: "/services", label: "Services" },
     { href: "/programs", label: "Programs" },

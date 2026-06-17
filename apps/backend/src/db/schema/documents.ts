@@ -5,7 +5,7 @@ import { applicants } from './applicants';
 import { cases } from './cases';
 import { users } from './users';
 
-// One row per uploaded file. Extracted from the Mongoose Student's embedded
+// One row per uploaded file. Extracted from the Mongoose Applicant's embedded
 // requiredDocuments[].files[] arrays. S3 upload logic is wired in Prompt 10.
 export const documents = pgTable('documents', {
   id: text('id').primaryKey().default(sql`gen_random_uuid()`),

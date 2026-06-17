@@ -25,33 +25,33 @@ const guessExtension = (originalName, mimetype) => {
 
 const buildRequiredDocFileName = ({
   fieldName = "Document",
-  studentName = "Student",
+  applicantName = "Applicant",
   extension = "",
   index = null,
 }) => {
   const fieldSegment = sanitizeSegment(fieldName, "Document");
-  const studentSegment = sanitizeSegment(studentName, "Student");
+  const applicantSegment = sanitizeSegment(applicantName, "Applicant");
   const suffix =
     typeof index === "number" && index >= 0 ? `_${index + 1}` : "";
   const safeExtension = extension || "";
-  return `${fieldSegment}_${studentSegment}${suffix}${safeExtension}`;
+  return `${fieldSegment}_${applicantSegment}${suffix}${safeExtension}`;
 };
 
-const getStudentDisplayName = (student = {}) => {
-  if (!student) return "Student";
+const getApplicantDisplayName = (applicant = {}) => {
+  if (!applicant) return "Applicant";
   // Postgres shape
-  if (student.first_name) {
-    return [student.first_name, student.last_name].filter(Boolean).join(" ");
+  if (applicant.first_name) {
+    return [applicant.first_name, applicant.last_name].filter(Boolean).join(" ");
   }
-  const profileData = student.profile_data || {};
+  const profileData = applicant.profile_data || {};
   if (profileData.fullName) return profileData.fullName;
   if (profileData.name) return profileData.name;
   // Legacy Mongoose shape fallback
-  const profile = student.profile || {};
+  const profile = applicant.profile || {};
   const contact =
-    student.contactInfo?.name ||
-    student.contactInfo?.fullName ||
-    student.contactInfo?.studentName ||
+    applicant.contactInfo?.name ||
+    applicant.contactInfo?.fullName ||
+    applicant.contactInfo?.applicantName ||
     "";
   const firstLast = [profile.firstName, profile.lastName]
     .filter(Boolean)
@@ -61,15 +61,15 @@ const getStudentDisplayName = (student = {}) => {
     profile.fullName ||
     profile.name ||
     firstLast ||
-    student.fullName ||
-    student.name ||
-    student.email ||
-    "Student"
+    applicant.fullName ||
+    applicant.name ||
+    applicant.email ||
+    "Applicant"
   );
 };
 
 module.exports = {
   buildRequiredDocFileName,
   guessExtension,
-  getStudentDisplayName,
+  getApplicantDisplayName,
 };

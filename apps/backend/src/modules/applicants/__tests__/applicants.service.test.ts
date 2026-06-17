@@ -1,5 +1,5 @@
 /**
- * Integration tests for the students service layer.
+ * Integration tests for the applicants service layer.
  * Hits real Postgres with RLS enforced (icrm_app role via withFirmContext).
  */
 import 'dotenv/config';
@@ -31,11 +31,11 @@ afterAll(async () => {
   await db.delete(firms).where(eq(firms.id, firmId));
 });
 
-describe('students service', () => {
-  let studentId: string;
+describe('applicants service', () => {
+  let applicantId: string;
 
   it('createApplicant — inserts a row and returns it', async () => {
-    const student = await withFirmContext(firmId, (tx) =>
+    const applicant = await withFirmContext(firmId, (tx) =>
       createApplicant(tx as typeof db, firmId, {
         email: `alice-${tag}@svc.test`,
         first_name: 'Alice',
@@ -44,11 +44,11 @@ describe('students service', () => {
         stage: 'lead',
       }),
     );
-    expect(student.id).toBeTruthy();
-    expect(student.email).toBe(`alice-${tag}@svc.test`);
-    expect(student.firm_id).toBe(firmId);
-    expect(student.ai_key).toBeTruthy();
-    studentId = student.id;
+    expect(applicant.id).toBeTruthy();
+    expect(applicant.email).toBe(`alice-${tag}@svc.test`);
+    expect(applicant.firm_id).toBe(firmId);
+    expect(applicant.ai_key).toBeTruthy();
+    applicantId = applicant.id;
   });
 
   it('createApplicant — rejects duplicate email within firm', async () => {
@@ -89,24 +89,24 @@ describe('students service', () => {
     }
   });
 
-  it('getApplicantById — returns the correct student', async () => {
-    const student = await withFirmContext(firmId, (tx) =>
-      getApplicantById(tx as typeof db, studentId),
+  it('getApplicantById — returns the correct applicant', async () => {
+    const applicant = await withFirmContext(firmId, (tx) =>
+      getApplicantById(tx as typeof db, applicantId),
     );
-    expect(student).not.toBeNull();
-    expect(student!.id).toBe(studentId);
+    expect(applicant).not.toBeNull();
+    expect(applicant!.id).toBe(applicantId);
   });
 
   it('getApplicantById — returns null for unknown id', async () => {
-    const student = await withFirmContext(firmId, (tx) =>
+    const applicant = await withFirmContext(firmId, (tx) =>
       getApplicantById(tx as typeof db, '00000000-0000-0000-0000-000000000000'),
     );
-    expect(student).toBeNull();
+    expect(applicant).toBeNull();
   });
 
   it('updateApplicant — patches fields', async () => {
     const updated = await withFirmContext(firmId, (tx) =>
-      updateApplicant(tx as typeof db, studentId, {
+      updateApplicant(tx as typeof db, applicantId, {
         first_name: 'Alicia',
         status: 'active',
       }),
@@ -117,20 +117,20 @@ describe('students service', () => {
 
   it('updateApplicantStage — changes stage', async () => {
     const updated = await withFirmContext(firmId, (tx) =>
-      updateApplicantStage(tx as typeof db, studentId, 'study_permit'),
+      updateApplicantStage(tx as typeof db, applicantId, 'study_permit'),
     );
     expect(updated.stage).toBe('study_permit');
   });
 
-  it('deleteApplicant — soft-closes the student', async () => {
+  it('deleteApplicant — soft-closes the applicant', async () => {
     const closed = await withFirmContext(firmId, (tx) =>
-      deleteApplicant(tx as typeof db, studentId),
+      deleteApplicant(tx as typeof db, applicantId),
     );
     expect(closed.status).toBe('closed');
 
     // Row still exists — just closed
     const still = await withFirmContext(firmId, (tx) =>
-      getApplicantById(tx as typeof db, studentId),
+      getApplicantById(tx as typeof db, applicantId),
     );
     expect(still).not.toBeNull();
     expect(still!.status).toBe('closed');

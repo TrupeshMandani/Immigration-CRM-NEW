@@ -15,7 +15,7 @@ const Footer = () => {
       title: "Resources",
       links: [
         { label: "FAQs", to: "/faq" },
-        { label: "Student Portal", to: "/student/dashboard" },
+        { label: "Applicant Portal", to: "/applicant/dashboard" },
         { label: "Admin Portal", to: "/admin/dashboard" },
         { label: "Support", to: "/contact" },
       ],

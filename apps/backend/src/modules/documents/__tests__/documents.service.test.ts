@@ -19,7 +19,7 @@ import { eq } from 'drizzle-orm';
 import { db, withFirmContext } from '../../../db/postgres';
 import { firms } from '../../../db/schema/firms';
 import { documents } from '../../../db/schema/documents';
-import { createStudent } from '../../students/applicants.service';
+import { createApplicant } from '../../applicants/applicants.service';
 
 // ---------------------------------------------------------------------------
 // Mock presigned URL generation — doesn't actually call AWS.
@@ -44,7 +44,7 @@ import {
   generateUploadUrl,
   finalizeUpload,
   getDownloadUrl,
-  listStudentDocuments,
+  listApplicantDocuments,
   deleteDocument,
 } from '../documents.service';
 
@@ -53,7 +53,7 @@ import {
 // ---------------------------------------------------------------------------
 const tag = Date.now();
 let firmId: string;
-let studentId: string;
+let applicantId: string;
 
 beforeAll(async () => {
   const [firm] = await db
@@ -62,14 +62,14 @@ beforeAll(async () => {
     .returning();
   firmId = firm.id;
 
-  const student = await withFirmContext(firmId, (tx) =>
-    createStudent(tx as typeof db, firmId, {
-      email: `doc-student-${tag}@test.com`,
+  const applicant = await withFirmContext(firmId, (tx) =>
+    createApplicant(tx as typeof db, firmId, {
+      email: `doc-applicant-${tag}@test.com`,
       first_name: 'Doc',
       last_name: 'Tester',
     }),
   );
-  studentId = student.id;
+  applicantId = applicant.id;
 });
 
 afterAll(async () => {
@@ -86,7 +86,7 @@ describe('documents service', () => {
   it('generateUploadUrl — creates DB row and returns presigned URL', async () => {
     const result = await withFirmContext(firmId, (tx) =>
       generateUploadUrl(tx as typeof db, firmId, null, {
-        studentId,
+        applicantId,
         documentType: 'passport',
         fileName: 'passport.pdf',
         mimeType: 'application/pdf',
@@ -103,11 +103,11 @@ describe('documents service', () => {
     docS3Key = result.s3Key;
   });
 
-  it('generateUploadUrl — rejects unknown studentId', async () => {
+  it('generateUploadUrl — rejects unknown applicantId', async () => {
     await expect(
       withFirmContext(firmId, (tx) =>
         generateUploadUrl(tx as typeof db, firmId, null, {
-          studentId: '00000000-0000-0000-0000-000000000000',
+          applicantId: '00000000-0000-0000-0000-000000000000',
           documentType: 'passport',
           fileName: 'x.pdf',
           mimeType: 'application/pdf',
@@ -121,7 +121,7 @@ describe('documents service', () => {
     await expect(
       withFirmContext(firmId, (tx) =>
         generateUploadUrl(tx as typeof db, firmId, null, {
-          studentId,
+          applicantId,
           documentType: 'passport',
           fileName: 'x.pdf',
           mimeType: 'application/pdf',
@@ -157,7 +157,7 @@ describe('documents service', () => {
     // Create a fresh doc row with a key that doesn't exist in S3
     const { documentId: newId } = await withFirmContext(firmId, (tx) =>
       generateUploadUrl(tx as typeof db, firmId, null, {
-        studentId,
+        applicantId,
         documentType: 'ielts',
         fileName: 'ielts.pdf',
         mimeType: 'application/pdf',
@@ -183,13 +183,13 @@ describe('documents service', () => {
     expect(url).toBeTruthy();
   });
 
-  it('listStudentDocuments — returns documents for the student', async () => {
+  it('listApplicantDocuments — returns documents for the applicant', async () => {
     const rows = await withFirmContext(firmId, (tx) =>
-      listStudentDocuments(tx as typeof db, studentId),
+      listApplicantDocuments(tx as typeof db, applicantId),
     );
     expect(rows.length).toBeGreaterThan(0);
     for (const r of rows) {
-      expect(r.applicant_id).toBe(studentId);
+      expect(r.applicant_id).toBe(applicantId);
       expect(r.firm_id).toBe(firmId);
     }
   });
@@ -198,7 +198,7 @@ describe('documents service', () => {
     // Seed a throwaway row
     const { documentId: tmpId } = await withFirmContext(firmId, (tx) =>
       generateUploadUrl(tx as typeof db, firmId, null, {
-        studentId,
+        applicantId,
         documentType: 'photo',
         fileName: 'photo.jpg',
         mimeType: 'image/jpeg',
@@ -211,7 +211,7 @@ describe('documents service', () => {
     );
 
     const remaining = await withFirmContext(firmId, (tx) =>
-      listStudentDocuments(tx as typeof db, studentId),
+      listApplicantDocuments(tx as typeof db, applicantId),
     );
     expect(remaining.find((r) => r.id === tmpId)).toBeUndefined();
   });

@@ -127,7 +127,7 @@ const NotificationsPage = () => {
           >
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-neutral-900">
-                {notification.actorName || "Student"}
+                {notification.actorName || "Applicant"}
               </p>
               <p className="text-xs text-neutral-500">
                 {notification.taskTitle || "Task"}

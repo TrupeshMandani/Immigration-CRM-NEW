@@ -111,8 +111,8 @@ const DocumentUpload = ({
   const uploadOneFile = async (file) => {
     // Step 1 — request presigned PUT URL from backend
     const { data } = await api.post("/documents/upload-url", {
-      studentId: user.id,
-      // documentType omitted → backend defaults to null → appears in getStudentFiles
+      applicantId: user.id,
+      // documentType omitted → backend defaults to null → appears in getApplicantFiles
       fileName: file.name,
       mimeType: file.type || "application/octet-stream",
       sizeBytes: file.size,

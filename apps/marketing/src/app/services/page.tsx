@@ -39,7 +39,7 @@ export default function ServicesPage() {
       <PageHero
         eyebrow="Services"
         title="Enterprise immigration services built for velocity"
-        description="Integrate your teams, students, and families inside a single transparent workflow designed for IRCC success."
+        description="Integrate your teams, applicants, and families inside a single transparent workflow designed for IRCC success."
       >
         <div className="flex flex-wrap gap-4">
           <Button href="/contact" variant="secondary">

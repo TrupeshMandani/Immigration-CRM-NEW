@@ -149,7 +149,7 @@ export const trustHighlights = [
   },
   {
     title: "Global Back Office",
-    description: "Follow-the-sun support for students, HR teams, and families.",
+    description: "Follow-the-sun support for applicants, HR teams, and families.",
     icon: Building2,
   },
 ];

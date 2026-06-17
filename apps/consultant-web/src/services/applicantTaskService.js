@@ -2,7 +2,7 @@ import api from "./api";
 
 const applicantTaskService = {
   list: async (aiKey, params = {}) => {
-    const res = await api.get(`/students/${aiKey}/tasks`, { params });
+    const res = await api.get(`/applicants/${aiKey}/tasks`, { params });
     return res.data.tasks || [];
   },
   create: async (aiKey, payload = {}) => {
@@ -17,21 +17,21 @@ const applicantTaskService = {
     if (payload.attachment) {
       formData.append("attachment", payload.attachment);
     }
-    const res = await api.post(`/students/${aiKey}/tasks`, formData, {
+    const res = await api.post(`/applicants/${aiKey}/tasks`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return res.data.tasks || [];
   },
   update: async (aiKey, taskId, payload = {}) => {
-    const res = await api.patch(`/students/${aiKey}/tasks/${taskId}`, payload);
+    const res = await api.patch(`/applicants/${aiKey}/tasks/${taskId}`, payload);
     return res.data.tasks || [];
   },
   attachmentUrl: async (aiKey, taskId) => {
-    const res = await api.get(`/students/${aiKey}/tasks/${taskId}/attachment`);
+    const res = await api.get(`/applicants/${aiKey}/tasks/${taskId}/attachment`);
     return res.data.url;
   },
   delete: async (aiKey, taskId) => {
-    const res = await api.delete(`/students/${aiKey}/tasks/${taskId}`);
+    const res = await api.delete(`/applicants/${aiKey}/tasks/${taskId}`);
     return res.data.tasks || [];
   },
 };

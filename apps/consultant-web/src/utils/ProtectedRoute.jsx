@@ -4,9 +4,9 @@ import { useAuth } from "../context/AuthContext";
 const ProtectedRoute = ({
   children,
   requireAdmin = false,
-  requireStudent = false,
+  requireApplicant = false,
 }) => {
-  const { isAuthenticated, isAdmin, isStudent, loading, user } = useAuth();
+  const { isAuthenticated, isAdmin, isApplicant, loading, user } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -25,15 +25,15 @@ const ProtectedRoute = ({
     return <Navigate to="/" replace />;
   }
 
-  if (requireStudent && !isStudent) {
+  if (requireApplicant && !isApplicant) {
     return <Navigate to="/" replace />;
   }
 
-  if (requireStudent && user?.status && user.status !== "active") {
+  if (requireApplicant && user?.status && user.status !== "active") {
     const allowedPrefixes = [
-      "/student/profile",
-      "/student/university-recommendations",
-      "/student/change-password",
+      "/applicant/profile",
+      "/applicant/university-recommendations",
+      "/applicant/change-password",
     ];
 
     const isAllowed = allowedPrefixes.some((prefix) =>
@@ -43,7 +43,7 @@ const ProtectedRoute = ({
     if (!isAllowed) {
       return (
         <Navigate
-          to="/student/university-recommendations"
+          to="/applicant/university-recommendations"
           state={{ from: location }}
           replace
         />
@@ -52,12 +52,12 @@ const ProtectedRoute = ({
   }
 
   if (
-    requireStudent &&
+    requireApplicant &&
     user?.isFirstLogin &&
-    location.pathname !== "/student/change-password"
+    location.pathname !== "/applicant/change-password"
   ) {
     return (
-      <Navigate to="/student/change-password" state={{ from: location }} replace />
+      <Navigate to="/applicant/change-password" state={{ from: location }} replace />
     );
   }
 

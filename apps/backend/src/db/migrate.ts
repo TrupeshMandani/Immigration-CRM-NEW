@@ -33,7 +33,7 @@ async function main() {
   // Hand-written migrations run after Drizzle's managed ones.
   // Each is idempotent (DROP IF EXISTS / CREATE OR REPLACE / etc.).
   await applyCustomSql(client, join(__dirname, '../../drizzle/0002_rls_users.sql'));
-  await applyCustomSql(client, join(__dirname, '../../drizzle/0003_rls_students_documents.sql'));
+  await applyCustomSql(client, join(__dirname, '../../drizzle/0003_rls_applicants_documents.sql'));
   await applyCustomSql(client, join(__dirname, '../../drizzle/0004_ai_jobs.sql'));
   await applyCustomSql(client, join(__dirname, '../../drizzle/0005_tasks.sql'));
   await applyCustomSql(client, join(__dirname, '../../drizzle/0006_notifications.sql'));

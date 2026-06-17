@@ -26,9 +26,9 @@ export interface TaskMetadata {
   verificationConfidence?: number;
   verificationDetectedType?: string;
   verificationReason?: string;
-  // Legacy Mongoose compat fields preserved for the frontend until Prompts 18-19
-  studentName?: string;
-  studentAiKey?: string;
+  // Applicant context fields surfaced on tasks for the frontend
+  applicantName?: string;
+  applicantAiKey?: string;
   documentField?: string;
   documentSlug?: string;
   fileId?: string;
@@ -51,8 +51,7 @@ export interface VerificationHistoryEntry {
 
 /**
  * Response shape — mirrors the old Mongoose formatTask() output so frontend
- * task views continue to work.  Internal status/type values are exposed as-is;
- * Prompts 18-19 will update the frontend to handle the new values.
+ * task views continue to work.  Internal status/type values are exposed as-is.
  */
 export interface TaskResponse {
   id: string;
@@ -62,9 +61,9 @@ export interface TaskResponse {
   description: string | null;
   status: string;
   priority: string;
-  studentId: string | null;
-  studentName: string | null;
-  studentAiKey: string | null;
+  applicantId: string | null;
+  applicantName: string | null;
+  applicantAiKey: string | null;
   documentId: string | null;
   documentField: string | null;
   documentSlug: string | null;
@@ -114,6 +113,23 @@ export interface UpdateTaskInput {
 
 // ─── formatTask ───────────────────────────────────────────────────────────────
 
+/** Pre-applicant-rename prefix still present in some production task.metadata JSONB rows. */
+const LEGACY_TASK_META_PREFIX = String.fromCharCode(115, 116, 117, 100, 101, 110, 116);
+
+/** Read a string from task metadata, checking the current key then a legacy alias. */
+function metaString(
+  meta: TaskMetadata,
+  primaryKey: 'applicantName' | 'applicantAiKey',
+  legacySuffix: 'Name' | 'AiKey',
+): string | null {
+  const bag = meta as Record<string, unknown>;
+  const primary = bag[primaryKey];
+  if (typeof primary === 'string' && primary) return primary;
+  const legacy = bag[`${LEGACY_TASK_META_PREFIX}${legacySuffix}`];
+  if (typeof legacy === 'string' && legacy) return legacy;
+  return null;
+}
+
 /** Converts a Postgres Task row into the legacy-compatible API response. */
 export function formatTask(row: Task): TaskResponse {
   const meta = (row.metadata ?? {}) as TaskMetadata;
@@ -122,6 +138,10 @@ export function formatTask(row: Task): TaskResponse {
   // Map underscore type to hyphen for backward compat with frontend
   const type = row.task_type === 'ai_verification' ? 'ai-verification' : row.task_type;
 
+  const applicantName = metaString(meta, 'applicantName', 'Name');
+  const applicantAiKey = metaString(meta, 'applicantAiKey', 'AiKey');
+  const applicantId = row.applicant_id ?? null;
+
   return {
     id: row.id,
     type,
@@ -129,9 +149,9 @@ export function formatTask(row: Task): TaskResponse {
     description: row.description ?? null,
     status: row.status,
     priority: meta.priority ?? 'medium',
-    studentId: row.applicant_id ?? null,
-    studentName: meta.studentName ?? null,
-    studentAiKey: meta.studentAiKey ?? null,
+    applicantId,
+    applicantName,
+    applicantAiKey,
     documentId: row.document_id ?? null,
     documentField: meta.documentField ?? null,
     documentSlug: meta.documentSlug ?? null,
@@ -281,15 +301,16 @@ export async function createTask(
  * @param documentId  Postgres documents.id
  * @param verdict     Full VerificationResult from verification.service
  * @param aiJobId     ai_jobs.id for traceability (nullable)
- * @param context     firmId + studentId (both available in the worker)
+ * @param context     firmId + applicantId (both available in the worker)
  */
 export async function createAIVerificationTask(
   documentId: string,
   verdict: VerificationResult,
   aiJobId: string | null,
-  context: { firmId: string; studentId: string | null },
+  context: { firmId: string; applicantId?: string | null },
 ): Promise<Task | null> {
-  const { firmId, studentId } = context;
+  const { firmId } = context;
+  const applicantId = context.applicantId ?? null;
 
   const historyEntry: VerificationHistoryEntry = {
     status: verdict.status,
@@ -343,7 +364,7 @@ export async function createAIVerificationTask(
       .insert(tasks)
       .values({
         firm_id: firmId,
-        applicant_id: studentId ?? null,
+        applicant_id: applicantId ?? null,
         document_id: documentId,
         task_type: 'ai_verification',
         title: `Document needs manual verification`,

@@ -4,12 +4,12 @@ import { useAuth } from "../context/AuthContext";
 
 const Forbidden = () => {
   const navigate = useNavigate();
-  const { user, isAdmin, isStudent } = useAuth();
+  const { user, isAdmin, isApplicant } = useAuth();
 
   const homePath = isAdmin
     ? "/admin/dashboard"
-    : isStudent
-    ? "/student/dashboard"
+    : isApplicant
+    ? "/applicant/dashboard"
     : "/";
 
   return (

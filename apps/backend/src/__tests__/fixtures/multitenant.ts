@@ -42,11 +42,11 @@ export interface TwoFirmFixture {
   firmB: Firm;
   userA: User;
   userB: User;
-  studentA: Applicant;
-  studentB: Applicant;
-  /** One seeded document for studentA — no real S3 object, just DB metadata. */
+  applicantA: Applicant;
+  applicantB: Applicant;
+  /** One seeded document for applicantA — no real S3 object, just DB metadata. */
   documentA: Document;
-  /** One seeded document for studentB. */
+  /** One seeded document for applicantB. */
   documentB: Document;
   /** One seeded task for firmA. */
   taskA: Task;
@@ -109,17 +109,17 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .then((r) => r[0]),
   );
 
-  const studentA = await seedInFirm(firmA.id, (tx) =>
+  const applicantA = await seedInFirm(firmA.id, (tx) =>
     createApplicant(tx as typeof db, firmA.id, {
-      email: `student-a-${tag}@ct.test`,
+      email: `applicant-a-${tag}@ct.test`,
       first_name: 'Applicant',
       last_name: 'Alpha',
     }),
   );
 
-  const studentB = await seedInFirm(firmB.id, (tx) =>
+  const applicantB = await seedInFirm(firmB.id, (tx) =>
     createApplicant(tx as typeof db, firmB.id, {
-      email: `student-b-${tag}@ct.test`,
+      email: `applicant-b-${tag}@ct.test`,
       first_name: 'Applicant',
       last_name: 'Beta',
     }),
@@ -131,9 +131,9 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .insert(documents)
       .values({
         firm_id: firmA.id,
-        applicant_id: studentA.id,
+        applicant_id: applicantA.id,
         document_type: 'passport',
-        s3_key: `${studentA.ai_key}/documents/passport/test-a.pdf`,
+        s3_key: `${applicantA.ai_key}/documents/passport/test-a.pdf`,
         s3_bucket: 'test-bucket',
         mime_type: 'application/pdf',
         size_bytes: 102_400,
@@ -147,9 +147,9 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .insert(documents)
       .values({
         firm_id: firmB.id,
-        applicant_id: studentB.id,
+        applicant_id: applicantB.id,
         document_type: 'passport',
-        s3_key: `${studentB.ai_key}/documents/passport/test-b.pdf`,
+        s3_key: `${applicantB.ai_key}/documents/passport/test-b.pdf`,
         s3_bucket: 'test-bucket',
         mime_type: 'application/pdf',
         size_bytes: 98_304,
@@ -163,7 +163,7 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .insert(tasks)
       .values({
         firm_id: firmA.id,
-        applicant_id: studentA.id,
+        applicant_id: applicantA.id,
         task_type: 'general',
         title: `CT Task A ${tag}`,
         status: 'open',
@@ -177,7 +177,7 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
       .insert(tasks)
       .values({
         firm_id: firmB.id,
-        applicant_id: studentB.id,
+        applicant_id: applicantB.id,
         task_type: 'general',
         title: `CT Task B ${tag}`,
         status: 'open',
@@ -219,8 +219,8 @@ export async function provisionTwoFirmsWithData(): Promise<TwoFirmFixture> {
     firmB,
     userA,
     userB,
-    studentA,
-    studentB,
+    applicantA,
+    applicantB,
     documentA,
     documentB,
     taskA,

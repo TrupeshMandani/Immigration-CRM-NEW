@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { studentService } from "../../services/authService";
+import { applicantService } from "../../services/authService";
 import ApplicantLayout from "../../components/layout/ApplicantLayout";
 import {
   Card,
@@ -11,7 +11,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import StudentJourneyWorkflow from "../../components/student/StudentJourneyFlow";
+import ApplicantJourneyWorkflow from "../../components/applicant/ApplicantJourneyFlow";
 import { mapFilesWithDisplayName } from "../../utils/fileName";
 import {
   UserCircle2,
@@ -26,25 +26,25 @@ const QUICK_ACTIONS = [
   {
     label: "View Profile",
     description: "Review personal info and keep it current.",
-    to: "/student/profile",
+    to: "/applicant/profile",
     icon: UserCircle2,
   },
   {
     label: "Manage Documents",
     description: "Upload or replace essential paperwork.",
-    to: "/student/documents",
+    to: "/applicant/documents",
     icon: FolderOpen,
   },
   {
     label: "Change Password",
     description: "Update your security credentials.",
-    to: "/student/change-password",
+    to: "/applicant/change-password",
     icon: ShieldCheck,
   },
   {
     label: "Upload New Document",
     description: "Start a new upload session.",
-    to: "/student/documents",
+    to: "/applicant/documents",
     icon: Upload,
   },
 ];
@@ -60,32 +60,32 @@ const formatDate = (value) => {
   });
 };
 
-const StudentDashboard = () => {
+const ApplicantDashboardPage = () => {
   const { user } = useAuth();
-  const [student, setStudent] = useState(null);
+  const [applicant, setApplicant] = useState(null);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchStudentData = async () => {
+    const fetchApplicantData = async () => {
       try {
         setLoading(true);
         if (user?.aiKey) {
-          const [studentData, filesData] = await Promise.all([
-            studentService.getStudentByKey(user.aiKey),
-            studentService.getStudentFiles(user.aiKey),
+          const [applicantData, filesData] = await Promise.all([
+            applicantService.getApplicantByKey(user.aiKey),
+            applicantService.getApplicantFiles(user.aiKey),
           ]);
-          setStudent(studentData);
+          setApplicant(applicantData);
           setFiles(mapFilesWithDisplayName(filesData.files || []));
         }
       } catch {
-        setError("Failed to load student data");
+        setError("Failed to load applicant data");
       } finally {
         setLoading(false);
       }
     };
-    fetchStudentData();
+    fetchApplicantData();
   }, [user?.aiKey]);
 
   if (loading) {
@@ -99,15 +99,15 @@ const StudentDashboard = () => {
   }
 
   const documentsUploaded = files.length;
-  const extractedFields = student?.profile
-    ? Object.keys(student.profile).length
+  const extractedFields = applicant?.profile
+    ? Object.keys(applicant.profile).length
     : 0;
-  const lastUpdated = student?.updatedAt
-    ? new Date(student.updatedAt).toLocaleDateString()
+  const lastUpdated = applicant?.updatedAt
+    ? new Date(applicant.updatedAt).toLocaleDateString()
     : "Not yet";
-  const currentJourneyStep = Number(student?.journeyStep) || 1;
-  const completedJourneySteps = Array.isArray(student?.completedSteps)
-    ? student.completedSteps
+  const currentJourneyStep = Number(applicant?.journeyStep) || 1;
+  const completedJourneySteps = Array.isArray(applicant?.completedSteps)
+    ? applicant.completedSteps
     : [];
 
   return (
@@ -122,7 +122,7 @@ const StudentDashboard = () => {
 
         <Card>
           <CardContent className="px-2 py-4 sm:px-4">
-            <StudentJourneyWorkflow
+            <ApplicantJourneyWorkflow
               currentStep={currentJourneyStep}
               completedSteps={completedJourneySteps}
             />
@@ -213,7 +213,7 @@ const StudentDashboard = () => {
             </CardContent>
             <CardFooter>
               <Button asChild className="w-full">
-                <Link to="/student/documents">Go to Documents</Link>
+                <Link to="/applicant/documents">Go to Documents</Link>
               </Button>
             </CardFooter>
           </Card>
@@ -257,4 +257,4 @@ const StatsCard = ({ title, value, icon }) => (
   </Card>
 );
 
-export default StudentDashboard;
+export default ApplicantDashboardPage;

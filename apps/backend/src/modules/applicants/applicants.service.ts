@@ -106,7 +106,7 @@ export async function createApplicant(
 
   const aiKey = parsed.ai_key ?? generateAiKey(parsed.email);
 
-  const newStudent: NewApplicant = {
+  const newApplicant: NewApplicant = {
     firm_id: firmId,
     email: parsed.email,
     first_name: parsed.first_name ?? null,
@@ -119,7 +119,7 @@ export async function createApplicant(
     assigned_to: parsed.assigned_to ?? null,
   };
 
-  const rows = await dbClient.insert(applicants).values(newStudent).returning();
+  const rows = await dbClient.insert(applicants).values(newApplicant).returning();
   return rows[0];
 }
 

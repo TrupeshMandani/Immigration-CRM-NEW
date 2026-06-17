@@ -11,7 +11,7 @@ import applicantTaskService from "../../services/applicantTaskService";
 import { toast } from "sonner";
 import { Loader2, RefreshCw, Calendar, Clock, Paperclip } from "lucide-react";
 
-const StudentTasks = () => {
+const ApplicantTasksPage = () => {
   const { user } = useAuth();
   const aiKey = user?.aiKey;
   const [tasks, setTasks] = useState([]);
@@ -213,4 +213,4 @@ const StudentTasks = () => {
   );
 };
 
-export default StudentTasks;
+export default ApplicantTasksPage;

@@ -18,7 +18,7 @@ describe("Document Tools Module", () => {
   describe("Module Structure", () => {
     it("should export all implemented tools", () => {
       expect(documentTools).toHaveProperty("uploadDocument");
-      expect(documentTools).toHaveProperty("getStudentDocuments");
+      expect(documentTools).toHaveProperty("getApplicantDocuments");
       expect(documentTools).toHaveProperty("getDocumentById");
       expect(documentTools).toHaveProperty("verifyDocument");
       expect(documentTools).toHaveProperty("renameDocument");
@@ -36,7 +36,7 @@ describe("Document Tools Module", () => {
     it("should have proper tool structure with description, args, and run", () => {
       const tools = [
         "uploadDocument",
-        "getStudentDocuments",
+        "getApplicantDocuments",
         "getDocumentById",
         "verifyDocument",
         "renameDocument",
@@ -104,14 +104,14 @@ describe("Document Tools Module", () => {
     });
   });
 
-  describe("getStudentDocuments", () => {
+  describe("getApplicantDocuments", () => {
     it("should reject when aiKey is missing", async () => {
       await expect(
-        documentTools.getStudentDocuments.run({})
+        documentTools.getApplicantDocuments.run({})
       ).rejects.toThrow("Missing required argument: aiKey");
     });
 
-    it("should fetch student documents successfully", async () => {
+    it("should fetch applicant documents successfully", async () => {
       const mockFiles = [
         { id: "1", name: "passport.pdf", url: "https://s3.example.com/1" },
         { id: "2", name: "ielts.pdf", url: "https://s3.example.com/2" },
@@ -124,7 +124,7 @@ describe("Document Tools Module", () => {
         },
       });
 
-      const result = await documentTools.getStudentDocuments.run({
+      const result = await documentTools.getApplicantDocuments.run({
         aiKey: "test-key",
       });
 
@@ -250,8 +250,8 @@ describe("Document Tools Module", () => {
       httpClient.get = jest.fn().mockRejectedValue(new Error("Network error"));
 
       await expect(
-        documentTools.getStudentDocuments.run({ aiKey: "test-key" })
-      ).rejects.toThrow("getStudentDocuments failed: Network error");
+        documentTools.getApplicantDocuments.run({ aiKey: "test-key" })
+      ).rejects.toThrow("getApplicantDocuments failed: Network error");
     });
 
     it("should format error messages consistently", async () => {
@@ -278,7 +278,7 @@ describe("Document Tools Module", () => {
       });
 
       const agentRequest = {
-        aiKey: "student-123",
+        aiKey: "applicant-123",
         documentType: "Passport",
         filePath: "/tmp/passport.pdf",
       };
@@ -296,7 +296,7 @@ describe("Document Tools Module", () => {
       });
 
       await documentTools.verifyDocument.run({
-        aiKey: "student-123",
+        aiKey: "applicant-123",
         docId: "doc-1",
         fileId: "file-1",
         verified: true,
@@ -310,8 +310,8 @@ describe("Document Tools Module", () => {
         },
       });
 
-      const result = await documentTools.getStudentDocuments.run({
-        aiKey: "student-123",
+      const result = await documentTools.getApplicantDocuments.run({
+        aiKey: "applicant-123",
       });
 
       expect(result.files[0].verified).toBe(true);

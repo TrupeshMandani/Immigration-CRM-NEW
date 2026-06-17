@@ -9,27 +9,27 @@ const withAuth = (token) =>
       }
     : {};
 
-export const enableRecommendation = async (studentId, enabled, token) => {
+export const enableRecommendation = async (applicantId, enabled, token) => {
   const res = await api.patch(
-    `/recommendations/enable/${studentId}`,
+    `/recommendations/enable/${applicantId}`,
     { enabled },
     withAuth(token)
   );
   return res.data;
 };
 
-export const generateRecommendation = async (studentId, token) => {
+export const generateRecommendation = async (applicantId, token) => {
   const res = await api.post(
-    `/recommendations/generate/${studentId}`,
+    `/recommendations/generate/${applicantId}`,
     {},
     withAuth(token)
   );
   return res.data;
 };
 
-export const getRecommendations = async (studentId, token) => {
+export const getRecommendations = async (applicantId, token) => {
   const res = await api.get(
-    `/recommendations/${studentId}`,
+    `/recommendations/${applicantId}`,
     withAuth(token)
   );
   return res.data;

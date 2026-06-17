@@ -5,7 +5,7 @@ const sanitize = (value) =>
     .replace(/[^a-zA-Z]/g, "");
 
 const buildBaseKey = (firstName, lastName) => {
-  const cleanFirst = sanitize(firstName) || "student";
+  const cleanFirst = sanitize(firstName) || "applicant";
   const cleanLast = sanitize(lastName) || "user";
 
   const now = new Date();
@@ -20,7 +20,7 @@ const buildBaseKey = (firstName, lastName) => {
 
 const generateAiKey = (fullName = "") => {
   const parts = fullName.trim().split(/\s+/);
-  const firstName = parts[0] || "student";
+  const firstName = parts[0] || "applicant";
   const lastName = parts.slice(1).join(" ") || "user";
   return buildBaseKey(firstName, lastName);
 };

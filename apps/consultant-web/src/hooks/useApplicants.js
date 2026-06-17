@@ -1,39 +1,39 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
-export const studentKeys = {
-  all: ["students"],
-  list: (params) => ["students", "list", params ?? {}],
-  registered: () => ["students", "registered"],
-  pendingContacts: () => ["students", "pending-contacts"],
-  detail: (id) => ["students", "detail", id],
+export const applicantKeys = {
+  all: ["applicants"],
+  list: (params) => ["applicants", "list", params ?? {}],
+  registered: () => ["applicants", "registered"],
+  pendingContacts: () => ["applicants", "pending-contacts"],
+  detail: (id) => ["applicants", "detail", id],
 };
 
 export function useApplicants(params) {
   return useQuery({
-    queryKey: studentKeys.list(params),
-    queryFn: () => api.students.list(params),
+    queryKey: applicantKeys.list(params),
+    queryFn: () => api.applicants.list(params),
   });
 }
 
 export function useRegisteredApplicants() {
   return useQuery({
-    queryKey: studentKeys.registered(),
-    queryFn: () => api.students.registered(),
+    queryKey: applicantKeys.registered(),
+    queryFn: () => api.applicants.registered(),
   });
 }
 
 export function usePendingContacts() {
   return useQuery({
-    queryKey: studentKeys.pendingContacts(),
-    queryFn: () => api.students.pendingContacts(),
+    queryKey: applicantKeys.pendingContacts(),
+    queryFn: () => api.applicants.pendingContacts(),
   });
 }
 
-export function useStudent(id) {
+export function useApplicant(id) {
   return useQuery({
-    queryKey: studentKeys.detail(id),
-    queryFn: () => api.students.byId(id),
+    queryKey: applicantKeys.detail(id),
+    queryFn: () => api.applicants.byId(id),
     enabled: Boolean(id),
   });
 }
@@ -41,18 +41,18 @@ export function useStudent(id) {
 export function useCreateApplicant() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => api.students.create(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: studentKeys.all }),
+    mutationFn: (payload) => api.applicants.create(payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: applicantKeys.all }),
   });
 }
 
-export function useUpdateStudent(id) {
+export function useUpdateApplicant(id) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (updates) => api.students.update(id, updates),
+    mutationFn: (updates) => api.applicants.update(id, updates),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: studentKeys.detail(id) });
-      qc.invalidateQueries({ queryKey: studentKeys.all });
+      qc.invalidateQueries({ queryKey: applicantKeys.detail(id) });
+      qc.invalidateQueries({ queryKey: applicantKeys.all });
     },
   });
 }
@@ -60,24 +60,24 @@ export function useUpdateStudent(id) {
 export function useActivateApplicant() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id) => api.students.activate(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: studentKeys.all }),
+    mutationFn: (id) => api.applicants.activate(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: applicantKeys.all }),
   });
 }
 
-export function useDeleteStudent() {
+export function useDeleteApplicant() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id) => api.students.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: studentKeys.all }),
+    mutationFn: (id) => api.applicants.delete(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: applicantKeys.all }),
   });
 }
 
 export function useApproveContact() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id) => api.students.approveContact(id),
+    mutationFn: (id) => api.applicants.approveContact(id),
     onSuccess: () =>
-      qc.invalidateQueries({ queryKey: studentKeys.pendingContacts() }),
+      qc.invalidateQueries({ queryKey: applicantKeys.pendingContacts() }),
   });
 }
