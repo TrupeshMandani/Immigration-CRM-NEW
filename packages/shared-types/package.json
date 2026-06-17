@@ -5,7 +5,8 @@
   "exports": {
     "./applicants": "./applicants.ts",
     "./documents": "./documents.ts",
-    "./mcp": "./mcp.ts"
+    "./mcp": "./mcp.ts",
+    "./cases": "./cases.ts"
   },
   "peerDependencies": {
     "zod": "^3.0.0"

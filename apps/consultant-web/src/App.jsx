@@ -40,6 +40,9 @@ const RegisteredApplicants    = lazy(() => import("./pages/admin/RegisteredAppli
 const TasksPage             = lazy(() => import("./pages/admin/Tasks"));
 const NotificationsPage     = lazy(() => import("./pages/admin/Notifications"));
 const AIAssistantPage       = lazy(() => import("./pages/admin/AIAssistant"));
+const CaseList              = lazy(() => import("./pages/admin/CaseList"));
+const CreateCase            = lazy(() => import("./pages/admin/CreateCase"));
+const CaseDetail            = lazy(() => import("./pages/admin/CaseDetail"));
 
 const PageFallback = () => (
   <div className="flex h-screen items-center justify-center">
@@ -93,6 +96,9 @@ function App() {
               <Route path="/admin/applicants"              element={<ApplicantList />} />
               <Route path="/admin/applicants/create"       element={<CreateApplicant />} />
               <Route path="/admin/applicants/:id"          element={<ApplicantDetail />} />
+              <Route path="/admin/cases"                 element={<CaseList />} />
+              <Route path="/admin/cases/create"          element={<CreateCase />} />
+              <Route path="/admin/cases/:id"             element={<CaseDetail />} />
               <Route path="/admin/tasks"                 element={<TasksPage />} />
               <Route path="/admin/assistant"             element={<AIAssistantPage />} />
               <Route path="/admin/notifications"         element={<NotificationsPage />} />

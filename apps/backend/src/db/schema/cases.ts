@@ -1,4 +1,4 @@
-import { pgTable, text, jsonb, timestamp, check } from 'drizzle-orm/pg-core';
+import { pgTable, text, jsonb, timestamp, check, unique } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { firms } from './firms';
 import { applicants } from './applicants';
@@ -20,15 +20,17 @@ export const cases = pgTable(
     case_type: text('case_type').notNull(),
     status: text('status').notNull().default('open'),
     title: text('title').notNull(),
+    matter_number: text('matter_number'),
     description: text('description'),
     metadata: jsonb('metadata').default({}),
     created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
     updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow(),
   },
   (table) => [
+    unique('cases_matter_number_firm_key').on(table.firm_id, table.matter_number),
     check(
       'cases_case_type_check',
-      sql`case_type IN ('study_permit','pgwp','pr','citizenship','visitor_visa','work_permit','other')`,
+      sql`case_type IN ('express_entry','pnp','family_sponsorship','work_permit','lmia','study_permit','pgwp','visitor_visa','citizenship','refugee_asylum','hc')`,
     ),
     check(
       'cases_status_check',

@@ -2,6 +2,7 @@ export * from './firms';
 export * from './users';
 export * from './applicants';
 export * from './cases';
+export * from './case_events';
 export * from './documents';
 export * from './ai_jobs';
 export * from './tasks';

@@ -38,6 +38,8 @@ async function main() {
   await applyCustomSql(client, join(__dirname, '../../drizzle/0005_tasks.sql'));
   await applyCustomSql(client, join(__dirname, '../../drizzle/0006_notifications.sql'));
   await applyCustomSql(client, join(__dirname, '../../drizzle/0007_billing.sql'));
+  await applyCustomSql(client, join(__dirname, '../../drizzle/0008_cases_module.sql'));
+  await applyCustomSql(client, join(__dirname, '../../drizzle/0009_cases_matter_number_scope.sql'));
 
   console.log('All migrations applied.');
   await client.end();

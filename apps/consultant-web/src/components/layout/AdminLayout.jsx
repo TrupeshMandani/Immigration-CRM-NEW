@@ -26,6 +26,13 @@ const navItems = [
     excludePrefixes: ["/admin/applicants/registered", "/admin/applicants/create"],
     icon: UsersIcon,
   },
+  {
+    label: "Cases / Matters",
+    to: "/admin/cases",
+    matchPrefixes: ["/admin/cases"],
+    excludePrefixes: ["/admin/cases/create"],
+    icon: FolderIcon,
+  },
   { label: "Tasks", to: "/admin/tasks", icon: TasksIcon },
   { label: "Notifications", to: "/admin/notifications", icon: BellIcon },
   {
@@ -141,6 +148,19 @@ function SparklesIcon(props) {
         strokeLinejoin="round"
         strokeWidth={1.5}
         d="M6 17l.8 2.2L9 20l-2.2.8L6 23l-.8-2.2L3 20l2.2-.8L6 17zM17 14l.6 1.6L19 16l-1.4.4L17 18l-.6-1.6L15 16l1.4-.4L17 14z"
+      />
+    </svg>
+  );
+}
+
+function FolderIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
       />
     </svg>
   );

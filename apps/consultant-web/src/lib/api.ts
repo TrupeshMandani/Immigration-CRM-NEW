@@ -178,6 +178,54 @@ export interface NotificationsResponse {
   meta?: { total: number; page: number; pages: number };
 }
 
+// ─── Case types ───────────────────────────────────────────────────────────────
+
+export type CaseType =
+  | "express_entry" | "pnp" | "family_sponsorship" | "work_permit" | "lmia"
+  | "study_permit" | "pgwp" | "visitor_visa" | "citizenship" | "refugee_asylum" | "hc";
+
+export type CaseStatus = "open" | "in_progress" | "submitted" | "approved" | "rejected" | "closed";
+
+export interface CaseRecord {
+  id: string;
+  firm_id: string;
+  applicant_id: string;
+  assigned_to?: string | null;
+  case_type: CaseType;
+  status: CaseStatus;
+  title: string;
+  matter_number?: string | null;
+  description?: string | null;
+  metadata?: Record<string, unknown>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateCasePayload {
+  applicant_id: string;
+  case_type: CaseType;
+  title: string;
+  status?: CaseStatus;
+  description?: string;
+  assigned_to?: string | null;
+  metadata?: Record<string, unknown>;
+}
+
+export type UpdateCasePayload = Partial<Omit<CreateCasePayload, "applicant_id">>;
+
+export interface CaseEvent {
+  id: string;
+  firm_id: string;
+  case_id: string;
+  actor_id?: string | null;
+  event_type: string;
+  label: string;
+  old_value?: unknown;
+  new_value?: unknown;
+  metadata?: Record<string, unknown>;
+  created_at?: string;
+}
+
 // ─── API methods ──────────────────────────────────────────────────────────────
 
 export const api = {
@@ -252,6 +300,27 @@ export const api = {
   contact: {
     submit: (payload: { name: string; email: string; phone?: string; message?: string }) =>
       request<unknown>("POST", "/contact", payload),
+  },
+
+  // Cases / Matter management
+  cases: {
+    list: (params?: Record<string, string | number>) => {
+      const qs = params
+        ? `?${new URLSearchParams(
+            Object.fromEntries(
+              Object.entries(params)
+                .filter(([, v]) => v !== undefined && v !== "")
+                .map(([k, v]) => [k, String(v)])
+            )
+          ).toString()}`
+        : "";
+      return request<CaseRecord[]>("GET", `/cases${qs}`);
+    },
+    byId: (id: string) => request<CaseRecord>("GET", `/cases/${id}`),
+    create: (payload: CreateCasePayload) => request<CaseRecord>("POST", "/cases", payload),
+    update: (id: string, patch: UpdateCasePayload) => request<CaseRecord>("PATCH", `/cases/${id}`, patch),
+    delete: (id: string) => request<void>("DELETE", `/cases/${id}`),
+    events: (id: string) => request<CaseEvent[]>("GET", `/cases/${id}/events`),
   },
 };
 

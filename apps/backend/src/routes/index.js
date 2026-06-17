@@ -40,6 +40,8 @@ protectedRouter.use("/recommendations", require("../AI/ai-recommendation/recomme
 // New AI module: orchestrator + ai_jobs ledger + multi-provider router
 protectedRouter.use("/ai", require("../modules/ai/ai.routes").aiRouter);
 protectedRouter.use("/files", require("./file.routes"));
+// Cases / Matter management — Sprint 1
+protectedRouter.use("/cases", require("../modules/cases/cases.routes").casesRouter);
 // Billing module — Stripe Connect, invoices, trust ledger, retainer agreements
 protectedRouter.use("/billing", require("../modules/billing/billing.routes").billingRouter);
 
