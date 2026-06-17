@@ -90,6 +90,12 @@ async function startupChecks() {
       const { startVerifyWorker } = require('./modules/ai/ai.worker');
       startVerifyWorker();
       console.log('  ✅  Worker           AI verify started');
+
+      const { startDeadlineWorker } = require('./modules/deadlines/deadline.worker');
+      startDeadlineWorker();
+      const { scheduleDeadlineScan } = require('./modules/deadlines/deadline.queue');
+      scheduleDeadlineScan().catch(console.error);
+      console.log('  ✅  Worker           Deadline notifications started (daily 08:00 UTC)');
     } catch (err) {
       console.log('  ❌  Redis            NOT connected —', err.message);
       console.log('      → Run: docker compose -f docker-compose.dev.yml up -d');

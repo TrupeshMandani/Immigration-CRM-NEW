@@ -7,6 +7,7 @@ import {
   deleteCase,
   listCaseEvents,
 } from './cases.service';
+import { listDeadlines } from '../deadlines/deadlines.service';
 import { send as sendNotification } from '../notifications/notifications.service';
 
 async function getSocketEmitters() {
@@ -54,6 +55,14 @@ casesRouter.get('/:id', async (req: Request, res: Response) => {
 casesRouter.get('/:id/events', async (req: Request, res: Response) => {
   const events = await listCaseEvents(req.db, String(req.params.id));
   res.json(events);
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/cases/:id/deadlines
+// ---------------------------------------------------------------------------
+casesRouter.get('/:id/deadlines', async (req: Request, res: Response) => {
+  const rows = await listDeadlines(req.db, { case_id: String(req.params.id) });
+  res.json(rows);
 });
 
 // ---------------------------------------------------------------------------

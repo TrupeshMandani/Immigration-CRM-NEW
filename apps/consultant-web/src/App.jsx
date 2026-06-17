@@ -43,6 +43,8 @@ const AIAssistantPage       = lazy(() => import("./pages/admin/AIAssistant"));
 const CaseList              = lazy(() => import("./pages/admin/CaseList"));
 const CreateCase            = lazy(() => import("./pages/admin/CreateCase"));
 const CaseDetail            = lazy(() => import("./pages/admin/CaseDetail"));
+const DeadlineCalendar      = lazy(() => import("./pages/admin/DeadlineCalendar"));
+const CreateDeadline        = lazy(() => import("./pages/admin/CreateDeadline"));
 
 const PageFallback = () => (
   <div className="flex h-screen items-center justify-center">
@@ -99,6 +101,8 @@ function App() {
               <Route path="/admin/cases"                 element={<CaseList />} />
               <Route path="/admin/cases/create"          element={<CreateCase />} />
               <Route path="/admin/cases/:id"             element={<CaseDetail />} />
+              <Route path="/admin/calendar"             element={<DeadlineCalendar />} />
+              <Route path="/admin/deadlines/create"     element={<CreateDeadline />} />
               <Route path="/admin/tasks"                 element={<TasksPage />} />
               <Route path="/admin/assistant"             element={<AIAssistantPage />} />
               <Route path="/admin/notifications"         element={<NotificationsPage />} />

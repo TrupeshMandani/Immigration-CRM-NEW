@@ -5,6 +5,7 @@ import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
 import Loading from "../../components/common/Loading";
 import { useApplicants, usePendingContacts } from "../../hooks/useApplicants";
+import UpcomingDeadlinesSidebar from "../../components/admin/UpcomingDeadlinesSidebar";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -89,6 +90,9 @@ const AdminDashboard = () => {
             </Card.Body>
           </Card>
         </div>
+
+        {/* Upcoming Deadlines */}
+        <UpcomingDeadlinesSidebar />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Applicants */}

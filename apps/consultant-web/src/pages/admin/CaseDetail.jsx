@@ -10,6 +10,8 @@ import ConfirmDialog from "../../components/common/ConfirmDialog";
 import CaseStatusBadge from "../../components/admin/CaseStatusBadge";
 import CaseTypeBadge, { CASE_TYPE_LABELS } from "../../components/admin/CaseTypeBadge";
 import { useCase, useCaseEvents, useUpdateCase, useDeleteCase } from "../../hooks/useCases";
+import { useCaseDeadlines, useAcknowledgeDeadline } from "../../hooks/useDeadlines";
+import DeadlineUrgencyBadge from "../../components/admin/DeadlineUrgencyBadge";
 
 const CASE_TYPES = Object.entries(CASE_TYPE_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -23,13 +25,16 @@ const STATUSES = [
 ];
 
 const EVENT_ICONS = {
-  case_created:       "✦",
-  status_changed:     "↔",
-  assignment_changed: "👤",
-  document_added:     "📄",
-  task_added:         "✅",
-  note_added:         "💬",
-  metadata_updated:   "✏",
+  case_created:          "✦",
+  status_changed:        "↔",
+  assignment_changed:    "👤",
+  document_added:        "📄",
+  task_added:            "✅",
+  note_added:            "💬",
+  metadata_updated:      "✏",
+  deadline_added:        "📅",
+  deadline_updated:      "✏",
+  deadline_acknowledged: "✓",
 };
 
 function formatRelativeTime(dateStr) {
@@ -78,6 +83,8 @@ const CaseDetail = () => {
 
   const { data: caseRecord, isLoading, isError } = useCase(id);
   const { data: events = [] } = useCaseEvents(id);
+  const { data: caseDeadlines = [] } = useCaseDeadlines(id);
+  const acknowledgeDeadline = useAcknowledgeDeadline();
   const updateCase = useUpdateCase(id);
   const deleteCase = useDeleteCase();
 
@@ -91,13 +98,14 @@ const CaseDetail = () => {
   );
 
   const sections = useMemo(() => [
-    { id: "overview",  label: "Overview" },
-    { id: "details",   label: "Details" },
-    { id: "documents", label: "Documents" },
-    { id: "tasks",     label: "Tasks" },
-    { id: "timeline",  label: "Timeline" },
-    { id: "actions",   label: "Actions" },
-  ], []);
+    { id: "overview",   label: "Overview" },
+    { id: "details",    label: "Details" },
+    { id: "documents",  label: "Documents" },
+    { id: "tasks",      label: "Tasks" },
+    { id: "deadlines",  label: `Deadlines${caseDeadlines.length ? ` (${caseDeadlines.length})` : ""}` },
+    { id: "timeline",   label: "Timeline" },
+    { id: "actions",    label: "Actions" },
+  ], [caseDeadlines.length]);
 
   const startEdit = () => {
     if (!caseRecord) return;
@@ -324,6 +332,75 @@ const CaseDetail = () => {
                 <p className="text-sm font-medium text-gray-600">Tasks linked to this case will appear here.</p>
                 <p className="mt-1 text-xs text-gray-400">Workflow templates are coming in Sprint 4.</p>
               </div>
+            </Card.Body>
+          </Card>
+        </section>
+
+        {/* ── Deadlines ─────────────────────────────────────────────────── */}
+        <section id="deadlines" className="scroll-mt-20">
+          <Card>
+            <Card.Header className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Deadlines</h2>
+              <Link to={`/admin/deadlines/create?case_id=${id}`}>
+                <Button variant="outline" size="sm">+ Add Deadline</Button>
+              </Link>
+            </Card.Header>
+            <Card.Body>
+              {caseDeadlines.length === 0 ? (
+                <div className="rounded-lg border-2 border-dashed border-gray-200 py-10 text-center text-gray-500">
+                  <p className="text-sm font-medium text-gray-600">No deadlines for this case.</p>
+                  <Link
+                    to={`/admin/deadlines/create?case_id=${id}`}
+                    className="mt-2 inline-block text-sm text-primary hover:underline"
+                  >
+                    Add the first deadline
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {caseDeadlines.map((d) => (
+                    <div
+                      key={d.id}
+                      className={`flex items-start justify-between rounded-lg border px-4 py-3 ${
+                        d.acknowledged_at
+                          ? "bg-gray-50 border-gray-200 opacity-60"
+                          : "bg-white border-gray-200"
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <DeadlineUrgencyBadge urgency={d.urgency} />
+                          <span className="text-xs text-gray-500">{d.due_date}</span>
+                        </div>
+                        <p className="font-medium text-gray-900 text-sm">{d.label}</p>
+                        {d.description && (
+                          <p className="text-xs text-gray-500 mt-1">{d.description}</p>
+                        )}
+                        {d.acknowledged_at && (
+                          <p className="text-xs text-green-600 mt-1">
+                            Acknowledged {new Date(d.acknowledged_at).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                      {!d.acknowledged_at && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="ml-4 shrink-0"
+                          onClick={() =>
+                            acknowledgeDeadline.mutateAsync(d.id).catch((err) =>
+                              toast.error(err?.message || "Failed to acknowledge")
+                            )
+                          }
+                          loading={acknowledgeDeadline.isPending}
+                        >
+                          Acknowledge
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </Card.Body>
           </Card>
         </section>

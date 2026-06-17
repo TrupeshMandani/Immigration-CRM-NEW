@@ -11,3 +11,4 @@ export * from './firm_stripe_accounts';
 export * from './retainer_agreements';
 export * from './invoices';
 export * from './trust_ledger';
+export * from './deadlines';

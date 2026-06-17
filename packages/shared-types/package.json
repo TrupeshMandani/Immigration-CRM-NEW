@@ -6,7 +6,8 @@
     "./applicants": "./applicants.ts",
     "./documents": "./documents.ts",
     "./mcp": "./mcp.ts",
-    "./cases": "./cases.ts"
+    "./cases": "./cases.ts",
+    "./deadlines": "./deadlines.ts"
   },
   "peerDependencies": {
     "zod": "^3.0.0"

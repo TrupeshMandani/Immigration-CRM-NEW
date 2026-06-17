@@ -226,6 +226,52 @@ export interface CaseEvent {
   created_at?: string;
 }
 
+// ─── Deadline types ───────────────────────────────────────────────────────────
+
+export type DeadlineType =
+  | "work_permit_expiry" | "study_permit_expiry" | "visitor_visa_expiry"
+  | "pr_card_expiry" | "passport_expiry" | "rfe_response" | "filing_deadline"
+  | "biometrics_appointment" | "medical_exam" | "interview_date"
+  | "ita_expiry" | "copr_expiry" | "bridging_permit_expiry" | "lmia_expiry" | "custom";
+
+export type DeadlineUrgency = "overdue" | "critical" | "warning" | "upcoming" | "future";
+
+export interface DeadlineRecord {
+  id: string;
+  firm_id: string;
+  case_id: string;
+  applicant_id: string;
+  assigned_to?: string | null;
+  deadline_type: DeadlineType;
+  label: string;
+  due_date: string;
+  description?: string | null;
+  auto_calculated: boolean;
+  days_before_notification: number[];
+  acknowledged_at?: string | null;
+  acknowledged_by?: string | null;
+  metadata?: Record<string, unknown>;
+  created_by?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  urgency: DeadlineUrgency;
+  days_until: number;
+}
+
+export interface CreateDeadlinePayload {
+  case_id: string;
+  applicant_id: string;
+  deadline_type: DeadlineType;
+  label?: string;
+  due_date: string;
+  description?: string;
+  assigned_to?: string | null;
+  days_before_notification?: number[];
+  metadata?: Record<string, unknown>;
+}
+
+export type UpdateDeadlinePayload = Partial<Omit<CreateDeadlinePayload, "case_id" | "applicant_id">>;
+
 // ─── API methods ──────────────────────────────────────────────────────────────
 
 export const api = {
@@ -300,6 +346,28 @@ export const api = {
   contact: {
     submit: (payload: { name: string; email: string; phone?: string; message?: string }) =>
       request<unknown>("POST", "/contact", payload),
+  },
+
+  // Deadlines / Calendar
+  deadlines: {
+    list: (params?: Record<string, unknown>) => {
+      const qs = params
+        ? `?${new URLSearchParams(
+            Object.fromEntries(
+              Object.entries(params)
+                .filter(([, v]) => v !== undefined && v !== "")
+                .map(([k, v]) => [k, String(v)])
+            )
+          ).toString()}`
+        : "";
+      return request<DeadlineRecord[]>("GET", `/deadlines${qs}`);
+    },
+    byId:        (id: string) => request<DeadlineRecord>("GET", `/deadlines/${id}`),
+    create:      (payload: CreateDeadlinePayload) => request<DeadlineRecord>("POST", "/deadlines", payload),
+    update:      (id: string, patch: UpdateDeadlinePayload) => request<DeadlineRecord>("PATCH", `/deadlines/${id}`, patch),
+    delete:      (id: string) => request<void>("DELETE", `/deadlines/${id}`),
+    acknowledge: (id: string) => request<DeadlineRecord>("POST", `/deadlines/${id}/acknowledge`),
+    forCase:     (caseId: string) => request<DeadlineRecord[]>("GET", `/cases/${caseId}/deadlines`),
   },
 
   // Cases / Matter management

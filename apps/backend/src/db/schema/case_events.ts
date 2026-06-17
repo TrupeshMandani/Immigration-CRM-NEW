@@ -25,7 +25,7 @@ export const caseEvents = pgTable(
   (table) => [
     check(
       'case_events_event_type_check',
-      sql`event_type IN ('case_created','status_changed','assignment_changed','document_added','task_added','note_added','metadata_updated')`,
+      sql`event_type IN ('case_created','status_changed','assignment_changed','document_added','task_added','note_added','metadata_updated','deadline_added','deadline_updated','deadline_acknowledged')`,
     ),
   ],
 );

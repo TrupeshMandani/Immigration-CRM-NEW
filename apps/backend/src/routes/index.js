@@ -12,6 +12,11 @@ router.use("/auth", require("../modules/auth/auth.route").authRouter);
 router.use("/contact", require("../modules/contact/contact.route"));
 
 // ---------------------------------------------------------------------------
+// Public calendar feed — no JWT; token in query param IS the auth
+// ---------------------------------------------------------------------------
+router.get("/deadlines/ical", require("../modules/deadlines/deadlines.routes").icalFeedHandler);
+
+// ---------------------------------------------------------------------------
 // Protected routes — authenticateToken runs first (sets req.context),
 // then tenantContextMiddleware opens a transaction scoped to req.context.firmId
 // and attaches it as req.db.
@@ -42,6 +47,8 @@ protectedRouter.use("/ai", require("../modules/ai/ai.routes").aiRouter);
 protectedRouter.use("/files", require("./file.routes"));
 // Cases / Matter management — Sprint 1
 protectedRouter.use("/cases", require("../modules/cases/cases.routes").casesRouter);
+// Deadlines / Calendar engine — Sprint 2
+protectedRouter.use("/deadlines", require("../modules/deadlines/deadlines.routes").deadlinesRouter);
 // Billing module — Stripe Connect, invoices, trust ledger, retainer agreements
 protectedRouter.use("/billing", require("../modules/billing/billing.routes").billingRouter);
 
