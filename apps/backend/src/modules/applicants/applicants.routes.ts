@@ -27,13 +27,8 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 // GET /api/applicants
 // ---------------------------------------------------------------------------
 applicantsRouter.get('/', async (req: Request, res: Response) => {
-  const rows = await listApplicants(req.db, {
-    status: req.query.status as string | undefined,
-    stage: req.query.stage as string | undefined,
-    search: req.query.search as string | undefined,
-    limit: req.query.limit ? Number(req.query.limit) : undefined,
-    offset: req.query.offset ? Number(req.query.offset) : undefined,
-  });
+  // Pass req.query directly; ApplicantFiltersSchema.parse() coerces + validates inside listApplicants.
+  const rows = await listApplicants(req.db, req.query as any);
   res.json(rows);
 });
 
@@ -41,10 +36,11 @@ applicantsRouter.get('/', async (req: Request, res: Response) => {
 // GET /api/applicants/:id  (UUID only — falls through to legacy for aiKey)
 // ---------------------------------------------------------------------------
 applicantsRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
-  if (!UUID_RE.test(req.params.id)) {
+  const id = String(req.params.id);
+  if (!UUID_RE.test(id)) {
     return next(); // Let legacy router handle /:aiKey and /registered etc.
   }
-  const applicant = await getApplicantById(req.db, req.params.id);
+  const applicant = await getApplicantById(req.db, id);
   if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
   res.json(applicant);
 });
@@ -61,7 +57,9 @@ applicantsRouter.post('/', async (req: Request, res: Response) => {
     if (err.name === 'ZodError') {
       return res.status(400).json({ message: 'Validation error', errors: err.errors });
     }
-    if (err.code === '23505') {
+    // Drizzle + postgres.js can nest the Postgres error code at err.code or err.cause?.code
+    const pgCode = err?.code ?? err?.cause?.code ?? '';
+    if (pgCode === '23505') {
       return res.status(409).json({ message: 'An applicant with that email already exists in this firm' });
     }
     throw err;
@@ -72,9 +70,10 @@ applicantsRouter.post('/', async (req: Request, res: Response) => {
 // PATCH /api/applicants/:id
 // ---------------------------------------------------------------------------
 applicantsRouter.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
-  if (!UUID_RE.test(req.params.id)) return next();
+  const id = String(req.params.id);
+  if (!UUID_RE.test(id)) return next();
   try {
-    const applicant = await updateApplicant(req.db, req.params.id, req.body);
+    const applicant = await updateApplicant(req.db, id, req.body);
     res.json(applicant);
   } catch (err: any) {
     if (err.name === 'ZodError') {
@@ -91,9 +90,10 @@ applicantsRouter.patch('/:id', async (req: Request, res: Response, next: NextFun
 // DELETE /api/applicants/:id  (soft — sets status = 'closed')
 // ---------------------------------------------------------------------------
 applicantsRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
-  if (!UUID_RE.test(req.params.id)) return next();
+  const id = String(req.params.id);
+  if (!UUID_RE.test(id)) return next();
   try {
-    const applicant = await deleteApplicant(req.db, req.params.id);
+    const applicant = await deleteApplicant(req.db, id);
     res.json({ message: 'Applicant closed', applicant });
   } catch (err: any) {
     if (err.statusCode === 404) {

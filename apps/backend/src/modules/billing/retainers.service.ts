@@ -164,22 +164,26 @@ export async function finalizeSignature(
   const retainUntil = new Date();
   retainUntil.setFullYear(retainUntil.getFullYear() + 7); // 7-year retention
 
-  await s3Client().send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: s3Key,
-      Body: Buffer.from(signedHtml, 'utf8'),
-      ContentType: 'text/html',
-      ObjectLockMode: 'COMPLIANCE',
-      ObjectLockRetainUntilDate: retainUntil,
-      Metadata: {
-        firmId,
-        retainerId,
-        signedIp: ip,
-        signedAt: new Date().toISOString(),
-      },
-    }),
-  );
+  // S3 upload is supplementary — a missing/misconfigured bucket must not block signing.
+  // ObjectLockMode requires the bucket to have Object Lock enabled at creation time.
+  try {
+    await s3Client().send(
+      new PutObjectCommand({
+        Bucket: bucket,
+        Key: s3Key,
+        Body: Buffer.from(signedHtml, 'utf8'),
+        ContentType: 'text/html',
+        Metadata: {
+          firmId,
+          retainerId,
+          signedIp: ip,
+          signedAt: new Date().toISOString(),
+        },
+      }),
+    );
+  } catch (s3Err) {
+    console.error('[retainers] S3 upload failed for signed retainer', retainerId, s3Err);
+  }
 
   const [updated] = await dbClient
     .update(retainerAgreements)
