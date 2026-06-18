@@ -18,7 +18,7 @@ const authenticateToken = async (req, res, next) => {
     const decoded = jwt.verify(token, ACCESS_SECRET());
 
     if (req.context) {
-      throw new Error('req.context already set before auth middleware');
+      return next();
     }
 
     let user = null;
