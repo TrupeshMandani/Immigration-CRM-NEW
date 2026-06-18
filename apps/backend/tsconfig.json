@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "paths": {
-      "@icrm/shared-types/*": ["../../packages/shared-types/*"]
+      "@icrm/shared-types/*": ["../../packages/shared-types/dist/*", "../../packages/shared-types/*"]
     }
   },
   "include": ["src/**/*"]

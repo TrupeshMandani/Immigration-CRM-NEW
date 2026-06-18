@@ -65,7 +65,7 @@ billingRouter.get('/invoices', async (req: Request, res: Response) => {
 billingRouter.get('/invoices/:id', async (req: Request, res: Response) => {
   try {
     const { firmId, role, userId } = req.context!;
-    const inv = await invoicesService.getInvoice(req.db, firmId, req.params.id);
+    const inv = await invoicesService.getInvoice(req.db, firmId, String(req.params.id));
     if (role === 'applicant' && inv.applicant_id !== userId) {
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
@@ -100,7 +100,7 @@ billingRouter.post('/invoices/:id/checkout', async (req: Request, res: Response)
   try {
     const firmId = req.context!.firmId;
     const base = process.env.APP_BASE_URL ?? 'http://localhost:5173';
-    const result = await invoicesService.createCheckoutSession(req.db, firmId, req.params.id, base);
+    const result = await invoicesService.createCheckoutSession(req.db, firmId, String(req.params.id), base);
     res.json({ success: true, ...result });
   } catch (err) { svcError(res, err); }
 });
@@ -109,7 +109,7 @@ billingRouter.post('/invoices/:id/checkout', async (req: Request, res: Response)
 billingRouter.post('/invoices/:id/send', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
-    const inv = await invoicesService.sendInvoice(req.db, firmId, req.params.id);
+    const inv = await invoicesService.sendInvoice(req.db, firmId, String(req.params.id));
     res.json({ success: true, invoice: inv });
   } catch (err) { svcError(res, err); }
 });
@@ -206,7 +206,7 @@ billingRouter.get('/retainers', async (req: Request, res: Response) => {
 billingRouter.get('/retainers/:id', async (req: Request, res: Response) => {
   try {
     const { firmId, role, userId } = req.context!;
-    const agreement = await retainersService.getRetainer(req.db, firmId, req.params.id);
+    const agreement = await retainersService.getRetainer(req.db, firmId, String(req.params.id));
     if (role === 'applicant' && agreement.applicant_id !== userId) {
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
@@ -239,7 +239,7 @@ billingRouter.post('/retainers/:id/send', async (req: Request, res: Response) =>
   try {
     const firmId = req.context!.firmId;
     const base = process.env.APP_BASE_URL ?? 'http://localhost:5173';
-    const result = await retainersService.sendForSignature(req.db, firmId, req.params.id, base);
+    const result = await retainersService.sendForSignature(req.db, firmId, String(req.params.id), base);
     res.json({ success: true, ...result });
   } catch (err) { svcError(res, err); }
 });
@@ -257,7 +257,7 @@ billingRouter.post('/retainers/:id/sign', async (req: Request, res: Response) =>
       ?? 'unknown';
     const userAgent = req.headers['user-agent'] ?? 'unknown';
     const agreement = await retainersService.finalizeSignature(
-      req.db, firmId, req.params.id, signature, ip, userAgent,
+      req.db, firmId, String(req.params.id), signature, ip, userAgent,
     );
     res.json({ success: true, retainer: agreement });
   } catch (err) { svcError(res, err); }

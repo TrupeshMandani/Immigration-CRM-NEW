@@ -20,6 +20,7 @@ declare global {
     interface Request {
       context?: { firmId: string; userId: string; role: string };
       db: typeof db;
+      user?: any;
     }
   }
 }

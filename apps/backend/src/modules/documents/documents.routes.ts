@@ -40,7 +40,7 @@ documentsRouter.post('/upload-url', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 documentsRouter.get('/applicant/:applicantId', async (req: Request, res: Response) => {
   try {
-    const rows = await listApplicantDocuments(req.db, req.params.applicantId);
+    const rows = await listApplicantDocuments(req.db, String(req.params.applicantId));
     res.json(rows);
   } catch (err) {
     serviceError(res, err);
@@ -55,7 +55,7 @@ documentsRouter.get('/applicant/:applicantId', async (req: Request, res: Respons
 documentsRouter.post('/:id/finalize', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
-    const result = await finalizeUpload(req.db, req.params.id, firmId);
+    const result = await finalizeUpload(req.db, String(req.params.id), firmId);
     const httpStatus = 'status' in result && result.status === 'hashing_queued' ? 202 : 200;
     res.status(httpStatus).json(result);
   } catch (err) {
@@ -69,7 +69,7 @@ documentsRouter.post('/:id/finalize', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 documentsRouter.get('/:id/download-url', async (req: Request, res: Response) => {
   try {
-    const url = await getDownloadUrl(req.db, req.params.id);
+    const url = await getDownloadUrl(req.db, String(req.params.id));
     res.json({ url });
   } catch (err) {
     serviceError(res, err);
@@ -82,7 +82,7 @@ documentsRouter.get('/:id/download-url', async (req: Request, res: Response) => 
 // ---------------------------------------------------------------------------
 documentsRouter.delete('/:id', async (req: Request, res: Response) => {
   try {
-    await deleteDocument(req.db, req.params.id);
+    await deleteDocument(req.db, String(req.params.id));
     res.status(204).end();
   } catch (err) {
     serviceError(res, err);

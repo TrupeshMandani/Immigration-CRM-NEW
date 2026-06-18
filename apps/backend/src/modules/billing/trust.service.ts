@@ -146,7 +146,7 @@ export async function generateMonthlyReconciliation(
       const balance = await stripe().balance.retrieve({
         stripeAccount: acct.trust_account_id,
       } as any);
-      const cadBalance = balance.available.find((b) => b.currency === 'cad');
+      const cadBalance = balance.available.find((b: { currency: string; amount: number }) => b.currency === 'cad');
       stripeBalanceCents = cadBalance?.amount ?? 0;
     }
   } catch {
