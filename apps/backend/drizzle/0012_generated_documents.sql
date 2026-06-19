@@ -15,5 +15,12 @@ CREATE INDEX IF NOT EXISTS idx_gd_applicant_type ON generated_documents(applican
 --> statement-breakpoint
 ALTER TABLE generated_documents ENABLE ROW LEVEL SECURITY;
 --> statement-breakpoint
-CREATE POLICY IF NOT EXISTS "firm_admin_generated_docs" ON generated_documents
-  USING (firm_id = current_setting('app.current_firm_id', true));
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'generated_documents' AND policyname = 'firm_admin_generated_docs'
+  ) THEN
+    EXECUTE 'CREATE POLICY firm_admin_generated_docs ON generated_documents
+      USING (firm_id = current_setting(''app.current_firm_id'', true))';
+  END IF;
+END $$;
