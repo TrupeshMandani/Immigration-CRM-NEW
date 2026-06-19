@@ -9,6 +9,8 @@ const {
   requireAdmin,
   requireApplicant,
 } = require("../../middleware/auth");
+const { handleApplicantChat, getChatHistory } = require("../ai/applicant-assistant/index");
+const { deleteLocalFile } = require("../s3/s3.service");
 
 const uploadDir = path.join(__dirname, "../../tmp/required-docs");
 fs.mkdirSync(uploadDir, { recursive: true });
@@ -148,6 +150,68 @@ router.delete(
   authenticateToken,
   ctrl.deleteApplicantTask
 );
+// ─── Applicant AI Assistant ───────────────────────────────────────────────────
+
+const ALLOWED_CHAT_MIMETYPES = new Set([
+  'application/pdf', 'image/jpeg', 'image/png', 'image/webp',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]);
+const MAX_CHAT_FILE_BYTES = 25 * 1024 * 1024; // 25 MB
+
+router.post(
+  "/:aiKey/chat",
+  authenticateToken,
+  requireApplicant,
+  upload.single("file"),
+  async (req, res) => {
+    const { aiKey } = req.params;
+    const { message } = req.body;
+
+    if (!message || typeof message !== "string" || !message.trim()) {
+      if (req.file) deleteLocalFile(req.file.path);
+      return res.status(400).json({ error: "message is required" });
+    }
+    if (message.length > 2000) {
+      if (req.file) deleteLocalFile(req.file.path);
+      return res.status(400).json({ error: "message too long (max 2000 chars)" });
+    }
+    if (req.file) {
+      if (!ALLOWED_CHAT_MIMETYPES.has(req.file.mimetype)) {
+        deleteLocalFile(req.file.path);
+        return res.status(415).json({ error: "Unsupported file type. Attach PDF, JPG, PNG, WEBP, DOC or DOCX." });
+      }
+      if (req.file.size > MAX_CHAT_FILE_BYTES) {
+        deleteLocalFile(req.file.path);
+        return res.status(413).json({ error: "File too large (max 25 MB)." });
+      }
+    }
+
+    const firmId = req.context?.firmId;
+    await handleApplicantChat(aiKey, firmId, message.trim(), req.file ?? null, res);
+  }
+);
+
+router.get(
+  "/:aiKey/chat/history",
+  authenticateToken,
+  requireApplicant,
+  async (req, res) => {
+    try {
+      const isOwner =
+        req.user?.role === "applicant" &&
+        (req.user?.ai_key || req.user?.aiKey) === req.params.aiKey;
+      if (!isOwner) return res.status(403).json({ error: "Access denied" });
+
+      const history = await getChatHistory(req.userId);
+      res.json({ messages: history.reverse() });
+    } catch (err) {
+      console.error("[chat-history]", err);
+      res.status(500).json({ error: "Failed to load chat history" });
+    }
+  }
+);
+
 router.get("/:aiKey", ctrl.getApplicantByKey);
 
 module.exports = router;

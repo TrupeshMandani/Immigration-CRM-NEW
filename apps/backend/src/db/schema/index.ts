@@ -12,3 +12,4 @@ export * from './retainer_agreements';
 export * from './invoices';
 export * from './trust_ledger';
 export * from './deadlines';
+export * from './applicant_chat_messages';

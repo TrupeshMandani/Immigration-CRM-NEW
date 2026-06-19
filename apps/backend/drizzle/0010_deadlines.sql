@@ -63,6 +63,7 @@ CREATE INDEX IF NOT EXISTS idx_deadlines_unacked ON deadlines(firm_id, due_date)
 -- 4. Row Level Security
 ALTER TABLE deadlines ENABLE ROW LEVEL SECURITY;
 ALTER TABLE deadlines FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON deadlines;
 CREATE POLICY tenant_isolation ON deadlines
   USING (firm_id = current_setting('app.current_firm_id', true));
 

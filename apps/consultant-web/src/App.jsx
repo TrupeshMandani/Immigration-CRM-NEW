@@ -29,6 +29,7 @@ const ChangePassword        = lazy(() => import("./pages/applicant/ChangePasswor
 const UniversityRecommendation = lazy(() => import("./pages/applicant/UniversityRecommendations"));
 const Retainer              = lazy(() => import("./pages/applicant/Retainer"));
 const PayInvoice            = lazy(() => import("./pages/applicant/PayInvoice"));
+const ApplicantAssistant    = lazy(() => import("./pages/applicant/AssistantPage"));
 
 // ── Admin pages — lazy ────────────────────────────────────────────────────────
 const AdminDashboard        = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -88,6 +89,7 @@ function App() {
               <Route path="/applicant/university-recommendations" element={<UniversityRecommendation />} />
               <Route path="/applicant/retainer"                element={<Retainer />} />
               <Route path="/applicant/pay-invoice"             element={<PayInvoice />} />
+              <Route path="/applicant/assistant"               element={<ApplicantAssistant />} />
             </Route>
 
             {/* ── Admin routes ──────────────────────────────────────────── */}

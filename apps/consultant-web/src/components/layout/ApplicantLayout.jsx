@@ -55,6 +55,13 @@ const navItems = [
     requiresActive: false,
   },
   {
+    label: "AI Assistant",
+    to: "/applicant/assistant",
+    icon: AssistantIcon,
+    matchPrefixes: ["/applicant/assistant"],
+    requiresActive: true,
+  },
+  {
     label: "Change Password",
     to: "/applicant/change-password",
     icon: LockIcon,
@@ -176,6 +183,15 @@ function InvoiceIcon(props) {
         d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
         d="M9 22V12h6v10" />
+    </svg>
+  );
+}
+
+function AssistantIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
     </svg>
   );
 }

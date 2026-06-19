@@ -1361,3 +1361,7 @@ exports.deleteApplicantTask = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to delete task' });
   }
 };
+
+// ─── Exports for internal use (applicant-assistant tools) ─────────────────────
+exports.processRequiredDocumentUpload = processRequiredDocumentUpload;
+exports.createDocumentSlug = createDocumentSlug;
