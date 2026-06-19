@@ -13,3 +13,4 @@ export * from './invoices';
 export * from './trust_ledger';
 export * from './deadlines';
 export * from './applicant_chat_messages';
+export * from './generated_documents';

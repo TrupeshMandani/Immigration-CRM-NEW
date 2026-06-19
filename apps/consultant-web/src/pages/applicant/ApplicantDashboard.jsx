@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ApplicantJourneyWorkflow from "../../components/applicant/ApplicantJourneyFlow";
+import ExpiryAlertBanner from "../../components/applicant/ExpiryAlertBanner";
 import { mapFilesWithDisplayName } from "../../utils/fileName";
 import {
   UserCircle2,
@@ -119,6 +120,8 @@ const ApplicantDashboardPage = () => {
             Keep track of your immigration documents and profile progress.
           </p>
         </header>
+
+        <ExpiryAlertBanner applicant={applicant} />
 
         <Card>
           <CardContent className="px-2 py-4 sm:px-4">

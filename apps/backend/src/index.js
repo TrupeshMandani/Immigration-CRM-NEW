@@ -96,6 +96,12 @@ async function startupChecks() {
       const { scheduleDeadlineScan } = require('./modules/deadlines/deadline.queue');
       scheduleDeadlineScan().catch(console.error);
       console.log('  ✅  Worker           Deadline notifications started (daily 08:00 UTC)');
+
+      const { startDocumentExpiryWorker } = require('./modules/documents/document-expiry.worker');
+      startDocumentExpiryWorker();
+      const { scheduleExpiryScan } = require('./modules/documents/document-expiry.queue');
+      scheduleExpiryScan().catch(console.error);
+      console.log('  ✅  Worker           Document expiry scanner started (daily 09:00 UTC)');
     } catch (err) {
       console.log('  ❌  Redis            NOT connected —', err.message);
       console.log('      → Run: docker compose -f docker-compose.dev.yml up -d');

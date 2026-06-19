@@ -1,4 +1,6 @@
 const path = require('path');
+const fs = require('fs');
+const { createHash } = require('crypto');
 const {
   getPresignedUrl,
   deleteS3Object,
@@ -28,6 +30,27 @@ const { applicants, documents, users, tasks } = require('../../db/schema');
 const { eq, and, or, ilike, inArray, isNull, ne, desc } = require('drizzle-orm');
 
 const DEFAULT_FIRM_ID = () => process.env.DEFAULT_FIRM_ID ?? '';
+
+// ─── Field label map for extraction feedback ──────────────────────────────────
+const FIELD_LABELS = {
+  FullName: 'Full Name', fullName: 'Full Name',
+  DateOfBirth: 'Date of Birth', dateOfBirth: 'Date of Birth',
+  ExpiryDate: 'Passport Expiry Date', expiryDate: 'Passport Expiry Date',
+  PassportNumber: 'Passport Number', passportNumber: 'Passport Number',
+  Nationality: 'Nationality', nationality: 'Nationality',
+  IELTS_overall: 'IELTS Overall Band',
+  IELTS_listening: 'IELTS Listening', IELTS_reading: 'IELTS Reading',
+  IELTS_writing: 'IELTS Writing', IELTS_speaking: 'IELTS Speaking',
+  GPA: 'GPA', degree: 'Degree', field: 'Field of Study', university: 'University',
+};
+
+const computeLocalHash = (filePath) => new Promise((resolve, reject) => {
+  const hash = createHash('sha256');
+  const stream = fs.createReadStream(filePath);
+  stream.on('data', (chunk) => hash.update(chunk));
+  stream.on('end', () => resolve(hash.digest('hex')));
+  stream.on('error', reject);
+});
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -875,7 +898,7 @@ exports.updateRequiredDocumentSettings = async (req, res) => {
 
 // ─── Required-doc file upload ─────────────────────────────────────────────────
 
-const processRequiredDocumentUpload = async ({ applicant, slug, defData, file, uploadOptions = {} }) => {
+const processRequiredDocumentUpload = async ({ applicant, slug, defData, file, fileHash = null, uploadOptions = {} }) => {
   const {
     fileSource = 'manual',
     uploadedBy = null,
@@ -919,6 +942,7 @@ const processRequiredDocumentUpload = async ({ applicant, slug, defData, file, u
     size_bytes: file.size,
     document_type: slug,
     uploaded_by: uploadedBy,
+    file_hash: fileHash,
     ai_verification: {
       name: renamedFileName,
       uploadedByRole,
@@ -1012,12 +1036,53 @@ exports.uploadRequiredDocumentFile = async (req, res) => {
     const fileSource = isAISystemUpload ? 'ai' : actorRole === 'admin' ? 'admin' : 'manual';
     const uploadedBy = req.user?.id || null;
 
-    const { docRow, verificationResult } = await processRequiredDocumentUpload({
-      applicant, slug, defData, file,
+    // Duplicate file detection: hash local file before upload
+    let fileHash = null;
+    try {
+      fileHash = await computeLocalHash(file.path);
+      const [existingDoc] = await db
+        .select({ id: documents.id, document_type: documents.document_type })
+        .from(documents)
+        .where(and(eq(documents.applicant_id, applicant.id), eq(documents.file_hash, fileHash)));
+      if (existingDoc) {
+        deleteLocalFile(file.path);
+        return res.status(409).json({
+          error: 'duplicate_file',
+          message: 'This file has already been uploaded.',
+          existingDocumentId: existingDoc.id,
+          existingDocumentType: existingDoc.document_type,
+        });
+      }
+    } catch (hashErr) {
+      console.error('Hash computation failed (non-fatal):', hashErr.message);
+    }
+
+    const { docRow, verificationResult, extractedProfile } = await processRequiredDocumentUpload({
+      applicant, slug, defData, file, fileHash,
       uploadOptions: { fileSource, uploadedBy, uploadedByRole: actorRole, skipVerification: false, skipExtraction: false },
     });
 
     if (file.path) deleteLocalFile(file.path);
+
+    // Extraction feedback via Socket.IO
+    if (extractedProfile && Object.keys(extractedProfile).length) {
+      try {
+        const { emitToUser } = require('../../socket');
+        const extractedFields = Object.entries(extractedProfile).map(([key, value]) => ({
+          field: key,
+          value: String(value ?? ''),
+          label: FIELD_LABELS[key] ?? key,
+        }));
+        emitToUser(applicant.firm_id, applicant.id, 'document:extracted', {
+          docSlug: slug,
+          docName: defData.name,
+          extractedFields,
+          fieldsCount: extractedFields.length,
+        });
+      } catch (emitErr) {
+        console.error('[socket] extraction feedback emit failed:', emitErr.message);
+      }
+    }
 
     // Reload applicant for fresh defs, then get files for this slot
     const [freshApplicant] = await db.select().from(applicants).where(eq(applicants.id, applicant.id)).limit(1);

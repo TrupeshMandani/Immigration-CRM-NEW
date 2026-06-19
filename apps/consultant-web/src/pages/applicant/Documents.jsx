@@ -12,6 +12,8 @@ import DocumentUpload from "../../components/applicant/DocumentUpload";
 import DocumentManager from "../../components/applicant/DocumentManager";
 import ErrorBoundary from "../../components/common/ErrorBoundary";
 import RequiredDocuments from "../../components/applicant/RequiredDocuments";
+import ExtractionResultModal from "../../components/applicant/ExtractionResultModal";
+import DocumentGenerationPanel from "../../components/applicant/DocumentGenerationPanel";
 import { toast } from "sonner";
 
 const Documents = () => {
@@ -34,6 +36,9 @@ const Documents = () => {
 
   return (
     <ApplicantLayout>
+      {/* Listens for document:extracted socket events and shows a modal */}
+      <ExtractionResultModal />
+
       <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
         <div>
           <h1 className="text-3xl font-bold">My Documents</h1>
@@ -97,6 +102,9 @@ const Documents = () => {
               </ErrorBoundary>
             </CardContent>
           </Card>
+
+          {/* AI Document Generation */}
+          <DocumentGenerationPanel aiKey={user?.aiKey} />
 
           {/* Guidelines */}
           <Card>
