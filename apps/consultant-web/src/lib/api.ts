@@ -105,8 +105,8 @@ async function request<T>(
 // ─── Applicant types ──────────────────────────────────────────────────────────
 
 export interface Applicant {
-  _id: string;
-  id?: string;
+  id: string;
+  _id?: string;
   username?: string;
   email?: string;
   status: "pending" | "registered" | "active" | "inactive" | "closed";

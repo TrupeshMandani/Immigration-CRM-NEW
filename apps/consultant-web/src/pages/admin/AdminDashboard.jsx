@@ -33,7 +33,7 @@ const AdminDashboard = () => {
       <div className="mx-auto w-full max-w-7xl space-y-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-primary-900">
-            Welcome back, {user?.username}!
+            Welcome back, {user?.displayName || user?.name || user?.username?.split("@")[0]}!
           </h1>
           <p className="text-primary-600 mt-2">
             Here&apos;s an overview of your immigration business
@@ -110,8 +110,8 @@ const AdminDashboard = () => {
                 <div className="space-y-4">
                   {recentApplicants.map((applicant) => (
                     <Link
-                      key={applicant._id}
-                      to={`/admin/applicants/${applicant._id}`}
+                      key={applicant._id || applicant.id}
+                      to={`/admin/applicants/${applicant._id || applicant.id}`}
                       className="flex items-center justify-between rounded-lg border border-transparent bg-primary-200/30 p-3 transition hover:border-primary-400/40 hover:bg-primary-200"
                     >
                       <div>
