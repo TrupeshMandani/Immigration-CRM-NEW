@@ -76,4 +76,6 @@ sprints/STUDENT_SPRINT_04_SECURE_MESSAGING_HUB.md
 API_Test_Demos/API_TEST_REPORT.md
 API_Test_Demos/api_test_results.json
 API_Test_Demos/run_all_api_tests.sh
-Testing_results
+Testing_result
+.playwright-mcp
+instructions.txt
