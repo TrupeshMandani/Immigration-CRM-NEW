@@ -575,24 +575,52 @@ exports.updateSelfProfile = async (req, res) => {
 
 // ─── Create applicant (admin) ───────────────────────────────────────────────────
 
+// RFC 5322-leaning, intentionally pragmatic (matches the frontend Zod check).
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// HTML-escape user-controlled strings before embedding them in notification email bodies.
+const escapeHtml = (input) =>
+  String(input ?? '').replace(/[&<>"']/g, (ch) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch])
+  );
+
 exports.createApplicant = async (req, res) => {
   try {
-    const { name, email, phone, message, status = 'active', profile = {} } = req.body;
-    if (!name || !email) return res.status(400).json({ message: 'Name and email are required' });
+    const body = req.body ?? {};
+    const rawName = typeof body.name === 'string' ? body.name.trim() : '';
+    const rawEmail = typeof body.email === 'string' ? body.email.trim() : '';
+    const rawPhone = typeof body.phone === 'string' ? body.phone.trim() : '';
+    const rawMessage = typeof body.message === 'string' ? body.message.trim() : '';
+    const rawStatus = typeof body.status === 'string' ? body.status : 'active';
+    const profile =
+      body.profile && typeof body.profile === 'object' && !Array.isArray(body.profile)
+        ? body.profile
+        : {};
 
-    const normalizedEmail = email.trim().toLowerCase();
+    if (!rawName) return res.status(400).json({ message: 'Full name is required' });
+    if (rawName.length > 200) return res.status(400).json({ message: 'Full name is too long' });
+    if (!rawEmail) return res.status(400).json({ message: 'Email is required' });
+    if (!EMAIL_RE.test(rawEmail) || rawEmail.length > 254) {
+      return res.status(400).json({ message: 'Must be a valid email' });
+    }
+    if (rawPhone.length > 50) return res.status(400).json({ message: 'Phone number is too long' });
+    if (rawMessage.length > 4000) return res.status(400).json({ message: 'Message is too long' });
+
+    const normalizedEmail = rawEmail.toLowerCase();
     const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
+    if (!firmId) {
+      return res.status(401).json({ message: 'Tenant context required — authenticate first' });
+    }
 
     const [existingApplicant] = await db.select({ id: applicants.id }).from(applicants)
       .where(and(eq(applicants.email, normalizedEmail), eq(applicants.firm_id, firmId))).limit(1);
-    if (existingApplicant) return res.status(400).json({ message: 'An applicant with this email already exists' });
+    if (existingApplicant) return res.status(409).json({ message: 'An applicant with this email already exists' });
 
     const [existingAdmin] = await db.select({ id: users.id }).from(users)
       .where(and(eq(users.email, normalizedEmail), eq(users.firm_id, firmId))).limit(1);
-    if (existingAdmin) return res.status(400).json({ message: 'An admin already uses this email' });
+    if (existingAdmin) return res.status(409).json({ message: 'An admin already uses this email' });
 
     const validStatuses = ['active', 'pending', 'registered'];
-    const nameParts = name.trim().split(' ');
+    const nameParts = rawName.split(/\s+/).filter(Boolean);
     const aiKey = `admin-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     const defs = {};
@@ -601,23 +629,25 @@ exports.createApplicant = async (req, res) => {
     const [inserted] = await db.insert(applicants).values({
       firm_id: firmId,
       ai_key: aiKey,
-      status: validStatuses.includes(status) ? status : 'registered',
+      status: validStatuses.includes(rawStatus) ? rawStatus : 'registered',
       email: normalizedEmail,
-      first_name: nameParts[0] || name,
+      first_name: nameParts[0] || rawName,
       last_name: nameParts.slice(1).join(' ') || null,
-      profile_data: { ...profile, fullName: name, email: normalizedEmail, phone: phone || '', message: message || '' },
+      profile_data: { ...profile, fullName: rawName, email: normalizedEmail, phone: rawPhone, message: rawMessage },
       state_data: { doc_defs: defs },
     }).returning();
 
-    const invite = await sendApplicantInviteEmail({ email: normalizedEmail, name });
+    const invite = await sendApplicantInviteEmail({ email: normalizedEmail, name: rawName });
 
     try {
       const adminRecipients = await getAdminNotificationEmails();
       if (adminRecipients.length) {
+        const safeName = escapeHtml(rawName);
+        const safeEmail = escapeHtml(normalizedEmail);
         await sendEmail({
           to: adminRecipients.join(', '),
           subject: 'Applicant account created',
-          html: `<p>${name} (${normalizedEmail}) has been added${invite.emailSent ? ' and login instructions were delivered.' : '.'}</p>`,
+          html: `<p>${safeName} (${safeEmail}) has been added${invite.emailSent ? ' and login instructions were delivered.' : '.'}</p>`,
         });
       }
     } catch (notifyError) {
@@ -633,6 +663,11 @@ exports.createApplicant = async (req, res) => {
       loginLink: invite.loginLink,
     });
   } catch (error) {
+    // Drizzle + postgres.js can surface Postgres errors at err.code or err.cause?.code
+    const pgCode = error?.code ?? error?.cause?.code ?? '';
+    if (pgCode === '23505') {
+      return res.status(409).json({ message: 'An applicant with this email already exists' });
+    }
     console.error('Create applicant error:', error);
     res.status(500).json({ message: 'Failed to create applicant' });
   }

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev:backend": "pnpm --filter @icrm/backend dev",
-    "dev:web": "pnpm --filter @icrm/consultant-web dev",
+    "dev:frontend": "pnpm --filter @icrm/consultant-web dev",
     "dev:mcp": "pnpm --filter @icrm/mcp-server dev",
     "dev:db": "pnpm --filter @icrm/backend db:studio",
     "build": "pnpm -r build",

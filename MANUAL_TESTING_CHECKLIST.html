@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Immigration CRM — Manual Testing Checklist</title>
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-light: #dbeafe;
+      --success: #166534;
+      --success-light: #dcfce7;
+      --danger: #991b1b;
+      --danger-light: #fee2e2;
+      --warn: #854d0e;
+      --warn-light: #fef9c3;
+      --neutral: #374151;
+      --neutral-light: #f3f4f6;
+      --border: #e5e7eb;
+      --radius: 8px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: #f8fafc;
+      color: var(--neutral);
+      line-height: 1.6;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    .app-header {
+      background: var(--primary);
+      color: white;
+      padding: 24px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+    .app-header h1 { font-size: 1.4rem; font-weight: 700; }
+    .app-header p  { font-size: .85rem; opacity: .85; margin-top: 2px; }
+    .header-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .progress-pill {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 99px;
+      padding: 6px 16px;
+      font-size: .85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .progress-bar-wrap { width: 100%; height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; margin-top: 12px; }
+    .progress-bar      { height: 4px; background: #22d3ee; border-radius: 2px; transition: width .4s; }
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-action {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .8rem;
+      font-weight: 600;
+      transition: background .2s;
+    }
+    .btn-action:hover { background: rgba(255,255,255,.25); }
+
+    /* ── Layout ─────────────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+
+    /* ── TOC ─────────────────────────────────────────── */
+    .toc {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .toc h2 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--primary); }
+    .toc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+    .toc-link {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--neutral);
+      font-size: .85rem;
+      font-weight: 500;
+      transition: background .15s, color .15s;
+    }
+    .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+    .toc-link .badge {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: .7rem;
+      background: var(--neutral-light);
+      border-radius: 99px;
+      padding: 1px 7px;
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    /* ── Section ─────────────────────────────────────── */
+    .section {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .section-header:hover { background: #fafafa; }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .section-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .section-title h2 { font-size: 1rem; font-weight: 700; }
+    .section-title p  { font-size: .78rem; color: #6b7280; margin-top: 1px; }
+    .section-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .section-progress {
+      font-size: .78rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: var(--neutral-light);
+      color: #4b5563;
+      white-space: nowrap;
+    }
+    .section-progress.done { background: var(--success-light); color: var(--success); }
+    .chevron { font-size: .9rem; transition: transform .2s; }
+    .chevron.open { transform: rotate(90deg); }
+    .section-body { display: none; padding: 0; }
+    .section-body.open { display: block; }
+
+    /* ── Sub-section ─────────────────────────────────── */
+    .sub-section { padding: 0 20px 8px; }
+    .sub-section-title {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #9ca3af;
+      padding: 16px 0 8px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 4px;
+    }
+
+    /* ── Test Item ───────────────────────────────────── */
+    .test-item {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f9f9f9;
+      align-items: start;
+    }
+    .test-item:last-child { border-bottom: none; }
+    .test-item input[type="checkbox"] {
+      width: 18px; height: 18px;
+      margin-top: 2px;
+      cursor: pointer;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+    }
+    .test-item-right { display: flex; flex-direction: column; gap: 4px; }
+    .test-label {
+      font-size: .88rem;
+      color: var(--neutral);
+      line-height: 1.45;
+      cursor: pointer;
+    }
+    .test-label.checked { text-decoration: line-through; color: #9ca3af; }
+    .test-scenario {
+      font-size: .78rem;
+      color: #6b7280;
+      background: var(--neutral-light);
+      border-radius: 5px;
+      padding: 5px 9px;
+      margin-top: 2px;
+      line-height: 1.5;
+    }
+    .test-scenario strong { color: var(--neutral); }
+    .notes-toggle {
+      font-size: .75rem;
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-top: 3px;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+    }
+    .notes-toggle:hover { text-decoration: underline; }
+    .notes-area {
+      display: none;
+      margin-top: 6px;
+    }
+    .notes-area.open { display: block; }
+    .notes-area textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: .82rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 56px;
+      color: var(--neutral);
+      background: #fafafa;
+      transition: border-color .2s;
+    }
+    .notes-area textarea:focus { outline: none; border-color: var(--primary); background: white; }
+    .notes-area textarea::placeholder { color: #bbb; }
+    .has-notes-dot {
+      width: 7px; height: 7px;
+      background: #f59e0b;
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+
+    /* ── Status tag ──────────────────────────────────── */
+    .tag {
+      display: inline-block;
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .tag-admin    { background: #dbeafe; color: #1e40af; }
+    .tag-applicant{ background: #f0fdf4; color: #166534; }
+    .tag-critical { background: #fee2e2; color: #991b1b; }
+    .tag-ai       { background: #faf5ff; color: #6d28d9; }
+
+    /* ── Footer ─────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      font-size: .8rem;
+      color: #9ca3af;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Modal ───────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      max-width: 560px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+    .modal pre {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: .8rem;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+    .btn-modal-close {
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: white;
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+    .btn-modal-copy {
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .app-header { padding: 16px; }
+      .container { padding: 16px 12px 60px; }
+      .section-header { padding: 14px 14px; }
+      .sub-section { padding: 0 14px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="app-header">
+  <div class="header-row">
+    <div>
+      <h1>Immigration CRM — Manual Testing Checklist</h1>
+      <p>End-to-end testing: Consultant (Admin) side &amp; Applicant (Student) side</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-action" onclick="expandAll()">Expand All</button>
+      <button class="btn-action" onclick="collapseAll()">Collapse All</button>
+      <button class="btn-action" onclick="resetAll()">Reset All</button>
+      <button class="btn-action" onclick="showExport()">Export Notes</button>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="globalProgressBar"></div>
+  </div>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
+    <span style="font-size:.8rem; opacity:.75;" id="globalProgressLabel">0 of 0 completed</span>
+    <span class="progress-pill" id="globalProgressPill">0%</span>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <h3>Export Test Results</h3>
+    <pre id="exportContent"></pre>
+    <div class="modal-actions">
+      <button class="btn-modal-close" onclick="closeExport()">Close</button>
+      <button class="btn-modal-copy" onclick="copyExport()">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <div class="toc-grid" id="tocGrid"></div>
+  </div>
+
+  <!-- Sections inserted by JS -->
+  <div id="sections"></div>
+
+  <div class="footer">
+    Generated for Immigration CRM · <span id="footerDate"></span> · Progress auto-saved to browser storage
+  </div>
+</div>
+
+<script>
+// ────────────────────────────────────────────────────────────────
+// DATA
+// ────────────────────────────────────────────────────────────────
+const SECTIONS = [
+  {
+    id: "setup",
+    icon: "⚙️",
+    iconBg: "#f3f4f6",
+    title: "Setup & Prerequisites",
+    desc: "Before any testing — get the environment ready",
+    items: [
+      {
+        id: "setup-01",
+        label: "Backend server is running (port 4000)",
+        scenario: "How to test: Run `pnpm dev` from root, confirm backend logs show 'Server running on port 4000'. Check http://localhost:4000/health returns 200."
+      },
+      {
+        id: "setup-02",
+        label: "Frontend (consultant-web) is running (port 5173)",
+        scenario: "How to test: Open http://localhost:5173 in browser. Should load the login page without errors."
+      },
+      {
+        id: "setup-03",
+        label: "MCP server is running (port 3002)",
+        scenario: "How to test: Check MCP server logs or curl http://localhost:3002. Required for AI assistant features."
+      },
+      {
+        id: "setup-04",
+        label: "PostgreSQL database is connected",
+        scenario: "How to test: Backend logs should say 'Database connected'. No DB connection errors in console."
+      },
+      {
+        id: "setup-05",
+        label: "Admin test account exists and credentials are known",
+        scenario: "Scenario: You need a valid admin username and password to log in. Create one via backend if needed."
+      },
+      {
+        id: "setup-06",
+        label: "Applicant test account exists (created by admin, invite sent)",
+        scenario: "Scenario: Admin should have created at least one applicant with a valid email so Firebase email link login can be tested."
+      },
+      {
+        id: "setup-07",
+        label: "S3 / file storage is configured and accessible",
+        scenario: "How to test: Try uploading a document. If upload fails immediately, S3 config is broken."
+      },
+      {
+        id: "setup-08",
+        label: "Stripe keys are set (for billing features)",
+        scenario: "How to test: Navigate to applicant invoices page — should load without 'Stripe not configured' errors."
+      },
+      {
+        id: "setup-09",
+        label: "Firebase is configured (for applicant email/Google login)",
+        scenario: "How to test: On the login page, the applicant section should NOT show the 'Firebase authentication is not configured' warning."
+      },
+      {
+        id: "setup-10",
+        label: "Browser console is open to catch any JS errors throughout testing",
+        scenario: "Keep DevTools → Console open during all testing sessions."
+      }
+    ]
+  },
+  {
+    id: "auth",
+    icon: "🔐",
+    iconBg: "#dbeafe",
+    title: "Authentication & Login",
+    desc: "Login page, admin credentials, applicant email/Google login",
+    items: [
+      {
+        id: "auth-01",
+        label: "[Admin] Login page loads at /login with no errors",
+        scenario: "Navigate to http://localhost:5173/login. Should show the Immigration CRM login card with Admin Access and Applicant Access sections."
+      },
+      {
+        id: "auth-02",
+        label: "[Admin] Username/password login succeeds with valid credentials",
+        scenario: "Enter correct admin username and password → click Sign in → should redirect to /admin/dashboard."
+      },
+      {
+        id: "auth-03",
+        label: "[Admin] Login shows error on wrong credentials",
+        scenario: "Enter wrong password → click Sign in → red error message appears below the form. Page stays on login."
+      },
+      {
+        id: "auth-04",
+        label: "[Admin] Register link is visible and navigates to /register",
+        scenario: "Click 'Register now' link → should go to the registration page."
+      },
+      {
+        id: "auth-05",
+        label: "[Applicant] Google sign-in button is visible and clickable",
+        scenario: "In the Applicant Access section, 'Continue with Google' button exists. Click it → Google account picker popup appears."
+      },
+      {
+        id: "auth-06",
+        label: "[Applicant] Google sign-in completes and redirects to applicant dashboard",
+        scenario: "Select a Google account that was linked to an applicant → should redirect to /applicant/dashboard."
+      },
+      {
+        id: "auth-07",
+        label: "[Applicant] Email link login: enter email → 'Send login email' sends link",
+        scenario: "Enter applicant email address → click 'Send login email' → blue message appears: 'We've emailed you a sign-in link.' Check email."
+      },
+      {
+        id: "auth-08",
+        label: "[Applicant] Clicking email link completes login and redirects",
+        scenario: "Open the login link from email on same device → auto-completes sign-in → redirects to /applicant/dashboard (or /applicant/change-password if first login)."
+      },
+      {
+        id: "auth-09",
+        label: "[Applicant] First-login flag redirects to Change Password page",
+        scenario: "If applicant has isFirstLogin=true, after login they should land on /applicant/change-password instead of dashboard."
+      },
+      {
+        id: "auth-10",
+        label: "[Both] Already-authenticated users are redirected away from /login",
+        scenario: "While logged in, navigate directly to /login → should redirect to appropriate dashboard."
+      },
+      {
+        id: "auth-11",
+        label: "[Both] Unauthenticated access to protected routes redirects to /login",
+        scenario: "Log out, then try navigating to /admin/dashboard or /applicant/dashboard → should redirect to /login."
+      }
+    ]
+  },
+  {
+    id: "admin-dashboard",
+    icon: "📊",
+    iconBg: "#dbeafe",
+    title: "Admin — Dashboard",
+    desc: "Stats, recent applicants, quick actions, upcoming deadlines",
+    items: [
+      {
+        id: "adash-01",
+        label: "Dashboard loads and shows 'Welcome back, [username]' heading",
+        scenario: "After admin login → /admin/dashboard. Page should display personalized welcome message."
+      },
+      {
+        id: "adash-02",
+        label: "Total Applicants stat card shows correct count",
+        scenario: "Stat card #1 shows total number of applicants in the system."
+      },
+      {
+        id: "adash-03",
+        label: "Pending Contacts stat card shows correct count",
+        scenario: "Stat card #2 shows number of unapproved contact requests waiting."
+      },
+      {
+        id: "adash-04",
+        label: "Active Applicants stat card shows correct count",
+        scenario: "Stat card #3 shows applicants with status = 'active'."
+      },
+      {
+        id: "adash-05",
+        label: "Upcoming Deadlines sidebar component renders",
+        scenario: "Below the stat cards, an upcoming deadlines component should show if there are any deadlines."
+      },
+      {
+        id: "adash-06",
+        label: "Recent Applicants list shows last 5 applicants",
+        scenario: "The Recent Applicants card lists up to 5 most recent applicants with name, email, and status badge."
+      },
+      {
+        id: "adash-07",
+        label: "Status badges render with correct colors (active=green, pending=yellow)",
+        scenario: "Active applicants should show green badge, pending should show yellow/amber badge."
+      },
+      {
+        id: "adash-08",
+        label: "Clicking an applicant in the Recent list navigates to their detail page",
+        scenario: "Click any applicant row → URL changes to /admin/applicants/:id and applicant detail loads."
+      },
+      {
+        id: "adash-09",
+        label: "'View All' button on Recent Applicants navigates to /admin/applicants",
+        scenario: "Click 'View All' button → navigates to applicant list page."
+      },
+      {
+        id: "adash-10",
+        label: "Quick Action: 'Review Contact Requests' navigates to /admin/requests",
+        scenario: "Click the button → navigates to contact requests page."
+      },
+      {
+        id: "adash-11",
+        label: "Quick Action: 'Manage Applicants' navigates to /admin/applicants",
+        scenario: "Click button → navigates to applicant list."
+      },
+      {
+        id: "adash-12",
+        label: "Quick Action: 'Create New Applicant' navigates to /admin/applicants/create",
+        scenario: "Click button → navigates to create applicant form."
+      }
+    ]
+  },
+  {
+    id: "admin-applicants",
+    icon: "👥",
+    iconBg: "#dbeafe",
+    title: "Admin — Applicant Management",
+    desc: "Create, list, view, edit, delete applicants",
+    subsections: [
+      {
+        title: "Applicant List Page (/admin/applicants)",
+        items: [
+          {
+            id: "alist-01",
+            label: "Page loads and shows all applicants",
+            scenario: "Navigate to /admin/applicants. List of all applicants renders without error."
+          },
+          {
+            id: "alist-02",
+            label: "Applicant count shows correctly in header/description",
+            scenario: "Check that the number shown matches the actual count of applicants displayed."
+          },
+          {
+            id: "alist-03",
+            label: "Clicking an applicant row navigates to detail page",
+            scenario: "Click any applicant → URL changes to /admin/applicants/:id."
+          },
+          {
+            id: "alist-04",
+            label: "'Create New Applicant' button is visible and working",
+            scenario: "Click the button → navigates to /admin/applicants/create."
+          }
+        ]
+      },
+      {
+        title: "Create Applicant (/admin/applicants/create)",
+        items: [
+          {
+            id: "acreate-01",
+            label: "Create Applicant form renders all required fields",
+            scenario: "Form should show fields like: name, email, and any other required fields."
+          },
+          {
+            id: "acreate-02",
+            label: "Submitting with empty required fields shows validation error",
+            scenario: "Leave required fields blank → click submit → error messages appear without submitting."
+          },
+          {
+            id: "acreate-03",
+            label: "Submitting with valid data creates applicant and navigates back",
+            scenario: "Fill all required fields with valid data → submit → new applicant created, redirected to list or detail page."
+          }
+        ]
+      },
+      {
+        title: "Applicant Detail — Section Navigation",
+        items: [
+          {
+            id: "adetail-nav-01",
+            label: "Section navigation bar shows 7 tabs: Contact & Status, Recommendations, Profile Data, Required Documents, Tasks, Documents, Actions",
+            scenario: "At the top of the detail page, confirm all 7 section tabs are visible."
+          },
+          {
+            id: "adetail-nav-02",
+            label: "Clicking each section tab scrolls to or highlights that section",
+            scenario: "Click 'Profile Data' → page scrolls to the Profile Data section. Active tab is highlighted in primary color."
+          }
+        ]
+      },
+      {
+        title: "Applicant Detail — Contact & Status Section",
+        items: [
+          {
+            id: "adetail-cs-01",
+            label: "Contact & Status form loads with applicant's existing data",
+            scenario: "Name, email, phone, notes fields pre-filled with saved values."
+          },
+          {
+            id: "adetail-cs-02",
+            label: "Status dropdown shows Pending / Active / Inactive options",
+            scenario: "Click the Status dropdown — 3 options available."
+          },
+          {
+            id: "adetail-cs-03",
+            label: "Username field is read-only",
+            scenario: "Try clicking or typing in the Username field — should not be editable."
+          },
+          {
+            id: "adetail-cs-04",
+            label: "AI Key field is read-only",
+            scenario: "Try clicking or typing in the AI Key field — should not be editable."
+          },
+          {
+            id: "adetail-cs-05",
+            label: "Edit Contact Name, Email, Phone, Notes and save — changes persist",
+            scenario: "Change each field → click 'Save changes' → success, refresh page, fields still show new values."
+          },
+          {
+            id: "adetail-cs-06",
+            label: "Change status from Pending → Active → save — status updates",
+            scenario: "Select 'Active' from dropdown → save → Account Summary sidebar shows 'Active'."
+          },
+          {
+            id: "adetail-cs-07",
+            label: "Account Summary sidebar shows: Status, First Login Pending, Email, Last Updated, Profile Complete",
+            scenario: "Right sidebar card shows all 5 fields with correct values."
+          }
+        ]
+      },
+      {
+        title: "Applicant Detail — AI Recommendations Section",
+        items: [
+          {
+            id: "adetail-rec-01",
+            label: "Recommendations section shows 'disabled' message when recommendations are off",
+            scenario: "If recommendations disabled for this applicant → message: 'Recommendations are currently disabled for this applicant.'"
+          },
+          {
+            id: "adetail-rec-02",
+            label: "Recommendations show university cards when enabled and generated",
+            scenario: "If enabled and generated → grid of university cards showing name, program, tuition fee, AI score %, country."
+          },
+          {
+            id: "adetail-rec-03",
+            label: "Each university card shows 'Visit Program →' link when website is present",
+            scenario: "University with website field → link renders and opens in new tab."
+          },
+          {
+            id: "adetail-rec-04",
+            label: "Source label shows 'AI-generated' vs 'Fallback' correctly",
+            scenario: "Below recommendations grid, a small text shows the source type."
+          }
+        ]
+      },
+      {
+        title: "Applicant Detail — Profile Data Section",
+        items: [
+          {
+            id: "adetail-prof-01",
+            label: "Profile Data section shows extracted fields in 2-column grid",
+            scenario: "If documents were processed, fields like Full Name, Date of Birth, Nationality, etc. appear sorted by priority."
+          },
+          {
+            id: "adetail-prof-02",
+            label: "Empty state message shows when no profile data exists",
+            scenario: "Applicant with no processed docs shows: 'No profile data captured yet. Once documents are processed...'"
+          }
+        ]
+      },
+      {
+        title: "Applicant Detail — Required Documents Section",
+        items: [
+          {
+            id: "adetail-req-01",
+            label: "Required Documents component loads without error",
+            scenario: "The RequiredDocumentsAdmin component renders inside the section."
+          },
+          {
+            id: "adetail-req-02",
+            label: "Required document items show verification status",
+            scenario: "Each required doc shows its verification status (pending/verified/failed)."
+          }
+        ]
+      },
+      {
+        title: "Applicant Detail — Tasks Section",
+        items: [
+          {
+            id: "adetail-task-01",
+            label: "Task creation form shows: Title, Due Date, Description, Attachment fields",
+            scenario: "The form has all 4 fields visible."
+          },
+          {
+            id: "adetail-task-02",
+            label: "Submitting task with empty title shows error",
+            scenario: "Leave title blank → click 'Assign Task' → error message: 'Task title is required.'"
+          },
+          {
+            id: "adetail-task-03",
+            label: "Creating a task with title only succeeds",
+            scenario: "Enter title → click 'Assign Task' → task appears in Existing Tasks list."
+          },
+          {
+            id: "adetail-task-04",
+            label: "Creating a task with all fields (title, due date, description, attachment) succeeds",
+            scenario: "Fill all fields including attaching a file → submit → task created with all data shown."
+          },
+          {
+            id: "adetail-task-05",
+            label: "Existing task shows: title, due date, description, status badge (Pending/Completed), assigned date",
+            scenario: "Each task in the list displays all its metadata."
+          },
+          {
+            id: "adetail-task-06",
+            label: "'Download attachment' link is visible and works when task has attachment",
+            scenario: "Task with attachment → 'Download attachment' button appears → click → file opens/downloads."
+          },
+          {
+            id: "adetail-task-07",
+            label: "Delete task shows confirmation and removes task on confirm",
+            scenario: "Click 'Delete' on a task → browser confirm dialog → confirm → task removed from list."
+          }
+        ]
+      },
+      {
+        title: "Applicant Detail — Documents Section",
+        items: [
+          {
+            id: "adetail-doc-01",
+            label: "Documents list loads and shows uploaded files",
+            scenario: "Files show with name, MIME type, size in KB."
+          },
+          {
+            id: "adetail-doc-02",
+            label: "Clicking a document opens DocumentViewer modal",
+            scenario: "Click any document row → DocumentViewer modal opens showing the file."
+          },
+          {
+            id: "adetail-doc-03",
+            label: "Right-click on document shows context menu (View, Download, Rename, Delete)",
+            scenario: "Right-click a document → context menu appears at cursor position with 4 options."
+          },
+          {
+            id: "adetail-doc-04",
+            label: "Context menu: 'View' opens DocumentViewer",
+            scenario: "Right-click → View → DocumentViewer opens."
+          },
+          {
+            id: "adetail-doc-05",
+            label: "Context menu: 'Download' triggers file download",
+            scenario: "Right-click → Download → browser downloads the file."
+          },
+          {
+            id: "adetail-doc-06",
+            label: "Context menu: 'Rename' opens prompt, entering new name renames file",
+            scenario: "Right-click → Rename → browser prompt appears → enter new name → confirm → document name updates in list."
+          },
+          {
+            id: "adetail-doc-07",
+            label: "Context menu: 'Delete' opens confirm dialog, confirming removes document",
+            scenario: "Right-click → Delete → confirm dialog → confirm → document removed from list."
+          },
+          {
+            id: "adetail-doc-08",
+            label: "Clicking outside context menu closes it",
+            scenario: "After right-clicking, click anywhere else → context menu disappears."
+          },
+          {
+            id: "adetail-doc-09",
+            label: "Empty state shown when no documents exist",
+            scenario: "Applicant with no uploads → shows 'No documents available yet. Uploads completed by the applicant will appear here automatically.'"
+          }
+        ]
+      },
+      {
+        title: "Applicant Detail — Actions Section (Danger Zone)",
+        items: [
+          {
+            id: "adetail-act-01",
+            label: "Delete Applicant button is visible in red danger zone",
+            scenario: "Bottom of the page, red-bordered section with 'Delete Applicant' button."
+          },
+          {
+            id: "adetail-act-02",
+            label: "Clicking Delete Applicant shows confirm dialog",
+            scenario: "Click 'Delete Applicant' → modal dialog: 'Delete applicant? This action cannot be undone.' with Delete and Cancel buttons."
+          },
+          {
+            id: "adetail-act-03",
+            label: "Cancelling the confirm dialog does NOT delete the applicant",
+            scenario: "Click Delete → dialog appears → click Cancel → dialog closes, applicant still exists."
+          },
+          {
+            id: "adetail-act-04",
+            label: "Confirming delete removes applicant and redirects to /admin/applicants",
+            scenario: "Click Delete → confirm → applicant deleted → redirected to applicant list, applicant no longer appears."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "admin-contact-requests",
+    icon: "📬",
+    iconBg: "#fef9c3",
+    title: "Admin — Contact Requests",
+    desc: "Review and approve prospective applicant enquiries",
+    items: [
+      {
+        id: "cr-01",
+        label: "Contact Requests page loads at /admin/requests",
+        scenario: "Navigate to /admin/requests. Page shows list of pending contact form submissions."
+      },
+      {
+        id: "cr-02",
+        label: "Each request shows submitter name, email, phone, message",
+        scenario: "Review card for each request — all submitted fields visible."
+      },
+      {
+        id: "cr-03",
+        label: "'Approve Access' button sends invite email to applicant",
+        scenario: "Click 'Approve Access' on a pending request → success toast: '[Name]'s access has been approved. A welcome email was sent.'"
+      },
+      {
+        id: "cr-04",
+        label: "Error toast shows if approval fails",
+        scenario: "Simulate or observe: if email delivery fails, toast says 'Email delivery failed — ask the applicant to request a sign-in link manually.'"
+      },
+      {
+        id: "cr-05",
+        label: "Empty state shows when no pending requests",
+        scenario: "After approving all requests (or none submitted), page shows empty state."
+      }
+    ]
+  },
+  {
+    id: "admin-tasks",
+    icon: "✅",
+    iconBg: "#f0fdf4",
+    title: "Admin — AI Verification Tasks",
+    desc: "Monitor AI document verification follow-ups in real time",
+    items: [
+      {
+        id: "atasks-01",
+        label: "Tasks page loads at /admin/tasks",
+        scenario: "Navigate to /admin/tasks. Table of verification tasks appears."
+      },
+      {
+        id: "atasks-02",
+        label: "Summary counters show Pending, Verified, Failed counts",
+        scenario: "Top-right area shows 3 count badges with correct numbers matching the task list."
+      },
+      {
+        id: "atasks-03",
+        label: "Filter by type: 'AI verification' (default) shows only AI tasks",
+        scenario: "Default filter is 'AI verification'. Only AI-type tasks appear."
+      },
+      {
+        id: "atasks-04",
+        label: "Filter by type: 'All tasks' shows all tasks",
+        scenario: "Click 'All tasks' pill → filter applies, all task types shown."
+      },
+      {
+        id: "atasks-05",
+        label: "Filter by status: Pending, Verified, Failed each filter correctly",
+        scenario: "Click each status pill → list updates to show only tasks with that status."
+      },
+      {
+        id: "atasks-06",
+        label: "Refresh button reloads task list",
+        scenario: "Click 'Refresh' → spinner → list reloads with latest data."
+      },
+      {
+        id: "atasks-07",
+        label: "Task row shows: Applicant name, AI Key, Document field name, Detected type, Uploaded timestamp, Confidence %, Status badge",
+        scenario: "Each row in the table displays all these columns with correct data."
+      },
+      {
+        id: "atasks-08",
+        label: "'View document' button opens UploadedFilesModal",
+        scenario: "Click 'View document' on a task → modal opens showing uploaded files for that required document."
+      },
+      {
+        id: "atasks-09",
+        label: "In UploadedFilesModal: file list renders",
+        scenario: "Modal shows list of files uploaded against the required document."
+      },
+      {
+        id: "atasks-10",
+        label: "In UploadedFilesModal: clicking a file opens DocumentViewer",
+        scenario: "Click a file in the modal → DocumentViewer opens to show file preview."
+      },
+      {
+        id: "atasks-11",
+        label: "In DocumentViewer: 'Verify' button triggers AI verification",
+        scenario: "Click 'Verify' → loading state → document gets AI verified → status badge updates (verified/failed)."
+      },
+      {
+        id: "atasks-12",
+        label: "'Open profile' button navigates to the applicant's detail page",
+        scenario: "Click 'Open profile' on a task → navigates to /admin/applicants/:id."
+      },
+      {
+        id: "atasks-13",
+        label: "'Delete' task shows confirm → task removed on confirm",
+        scenario: "Click Delete on a task → browser confirm → confirm → task disappears from list."
+      },
+      {
+        id: "atasks-14",
+        label: "Real-time update: uploading a document creates a new task automatically",
+        scenario: "Have admin tasks page open. From another tab, upload a document as applicant → within seconds, a new task appears in admin tasks without refreshing."
+      }
+    ]
+  },
+  {
+    id: "admin-deadlines",
+    icon: "📅",
+    iconBg: "#faf5ff",
+    title: "Admin — Deadlines Calendar",
+    desc: "Full-calendar view of all case deadlines with urgency filtering",
+    items: [
+      {
+        id: "adl-01",
+        label: "Calendar page loads at /admin/calendar with FullCalendar rendered",
+        scenario: "Navigate to /admin/calendar. A full monthly calendar renders with events plotted on dates."
+      },
+      {
+        id: "adl-02",
+        label: "Header shows overdue/critical counts in red/orange",
+        scenario: "If any overdue deadlines exist, red text 'X overdue' appears in header. Critical shows orange."
+      },
+      {
+        id: "adl-03",
+        label: "Urgency filter pills: All, Overdue, Critical, Warning, Upcoming, Future each filter calendar",
+        scenario: "Click each urgency pill → calendar updates to show only events of that urgency tier."
+      },
+      {
+        id: "adl-04",
+        label: "Deadline type dropdown filter works",
+        scenario: "Select a specific deadline type → only deadlines of that type appear on calendar."
+      },
+      {
+        id: "adl-05",
+        label: "'Show acknowledged' checkbox toggles acknowledged deadlines on/off",
+        scenario: "Check the checkbox → previously acknowledged deadlines appear. Uncheck → they hide."
+      },
+      {
+        id: "adl-06",
+        label: "Urgency color legend is visible (red=overdue, orange=critical, etc.)",
+        scenario: "Below filters, 5 colored dots with labels identify each urgency tier."
+      },
+      {
+        id: "adl-07",
+        label: "Calendar view switcher: Month / Week / List views all render correctly",
+        scenario: "Click 'timeGridWeek' and 'listMonth' buttons on calendar toolbar — view changes."
+      },
+      {
+        id: "adl-08",
+        label: "Clicking a deadline event navigates to its Case page (with #deadlines anchor)",
+        scenario: "Click any event on calendar → navigates to /admin/cases/:case_id#deadlines."
+      },
+      {
+        id: "adl-09",
+        label: "'Copy iCal Link' button copies URL to clipboard with success toast",
+        scenario: "Click 'Copy iCal Link' → toast: 'iCal URL copied — paste into Google Calendar or Outlook'."
+      },
+      {
+        id: "adl-10",
+        label: "'Add Deadline' button navigates to /admin/deadlines/create",
+        scenario: "Click 'Add Deadline' → navigates to deadline creation form."
+      }
+    ]
+  },
+  {
+    id: "admin-cases",
+    icon: "📁",
+    iconBg: "#fef3c7",
+    title: "Admin — Cases / Matters",
+    desc: "Create, list, filter, view, and manage immigration cases",
+    subsections: [
+      {
+        title: "Cases List (/admin/cases)",
+        items: [
+          {
+            id: "cases-01",
+            label: "Cases list loads showing all cases with count",
+            scenario: "Navigate to /admin/cases. Shows 'X cases in your firm' in the header."
+          },
+          {
+            id: "cases-02",
+            label: "View toggle: Card / List / Table all switch the layout",
+            scenario: "Click Card, List, Table toggle buttons — the case list re-renders in the selected layout."
+          },
+          {
+            id: "cases-03",
+            label: "Search field filters by title or matter number",
+            scenario: "Type part of a case title → list narrows to matching cases."
+          },
+          {
+            id: "cases-04",
+            label: "Case Type dropdown filters by type",
+            scenario: "Select a specific case type → only cases of that type shown."
+          },
+          {
+            id: "cases-05",
+            label: "Status dropdown filters by status (Open, In Progress, Submitted, Approved, Rejected, Closed)",
+            scenario: "Select each status → list updates accordingly."
+          },
+          {
+            id: "cases-06",
+            label: "'Clear Filters' button resets all filters",
+            scenario: "Apply filters → click Clear Filters → all cases shown again, fields reset."
+          },
+          {
+            id: "cases-07",
+            label: "Case card shows: matter number, title, type badge, status badge, delete button",
+            scenario: "In card view, each card shows these 5 elements."
+          },
+          {
+            id: "cases-08",
+            label: "Clicking a case (any view) navigates to /admin/cases/:id",
+            scenario: "Click a case card/row → navigates to case detail page."
+          },
+          {
+            id: "cases-09",
+            label: "Delete button shows confirm dialog, confirming deletes case",
+            scenario: "Click Delete on a case → confirm dialog → confirm → case removed from list."
+          },
+          {
+            id: "cases-10",
+            label: "'Create Case' button navigates to /admin/cases/create",
+            scenario: "Click 'Create Case' → navigates to case creation form."
+          }
+        ]
+      },
+      {
+        title: "Case Detail (/admin/cases/:id)",
+        items: [
+          {
+            id: "casedetail-01",
+            label: "Section nav shows: Overview, Details, Deadlines, Events, Actions",
+            scenario: "Case detail page has section navigation with these tabs."
+          },
+          {
+            id: "casedetail-02",
+            label: "Case title, matter number, type badge, status badge all display",
+            scenario: "Overview section shows case metadata."
+          },
+          {
+            id: "casedetail-03",
+            label: "Edit title, description, type, status and save — changes persist",
+            scenario: "Edit fields → Save → refresh → saved values shown."
+          },
+          {
+            id: "casedetail-04",
+            label: "Deadlines sub-section shows list of deadlines for this case",
+            scenario: "Navigate to #deadlines anchor → list of case deadlines with urgency badges."
+          },
+          {
+            id: "casedetail-05",
+            label: "Acknowledge deadline button marks it as acknowledged",
+            scenario: "Click 'Acknowledge' on an overdue/pending deadline → it gets marked acknowledged and moves to acknowledged state."
+          },
+          {
+            id: "casedetail-06",
+            label: "Events timeline shows all case events with icons and timestamps",
+            scenario: "Events section shows a chronological list of case events (status changes, notes, docs, etc.)."
+          },
+          {
+            id: "casedetail-07",
+            label: "Delete case in actions section with confirm dialog",
+            scenario: "Delete Case button → confirm dialog → confirm → case deleted, redirected to cases list."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "admin-notifications",
+    icon: "🔔",
+    iconBg: "#fef9c3",
+    title: "Admin — Notifications",
+    desc: "System notification inbox and real-time bell",
+    items: [
+      {
+        id: "notif-01",
+        label: "Notifications page loads at /admin/notifications",
+        scenario: "Navigate to /admin/notifications. Notification inbox renders."
+      },
+      {
+        id: "notif-02",
+        label: "Default filter is 'Unread' — shows only unread notifications",
+        scenario: "Page opens with Unread tab active, only UNREAD notifications shown."
+      },
+      {
+        id: "notif-03",
+        label: "Filter tabs: Unread / Read / All each filter correctly",
+        scenario: "Click each filter tab → list updates to show notifications of that status."
+      },
+      {
+        id: "notif-04",
+        label: "Notification item shows: actor name, task title, summary text, timestamp, 'Pending review' label (if unread)",
+        scenario: "Each notification card shows these fields."
+      },
+      {
+        id: "notif-05",
+        label: "'Open task' button navigates to /admin/tasks?taskId=X and opens the task",
+        scenario: "Click 'Open task' → navigates to Tasks page with that task's modal auto-opened."
+      },
+      {
+        id: "notif-06",
+        label: "'Mark read' button marks individual notification as read",
+        scenario: "Click 'Mark read' on an unread notification → button changes to 'Read', notification stays but status updates."
+      },
+      {
+        id: "notif-07",
+        label: "'Mark all read' button marks all notifications as read",
+        scenario: "Click 'Mark all read' → all notifications flip to Read status, unread count drops to 0."
+      },
+      {
+        id: "notif-08",
+        label: "Refresh button reloads notifications",
+        scenario: "Click Refresh → spinner → fresh list loads."
+      },
+      {
+        id: "notif-09",
+        label: "Pagination works (Previous / Page X of Y / Next) when there are many notifications",
+        scenario: "If notifications exceed 1 page, prev/next buttons work correctly."
+      },
+      {
+        id: "notif-10",
+        label: "Notification Bell in top navbar shows red badge with unread count",
+        scenario: "Top navbar shows bell icon with a number badge indicating unread count. Badge updates when notifications are read."
+      }
+    ]
+  },
+  {
+    id: "admin-ai-assistant",
+    icon: "🤖",
+    iconBg: "#f3e8ff",
+    title: "Admin — AI Assistant",
+    desc: "Consultant-facing AI chat for immigration guidance",
+    items: [
+      {
+        id: "adminai-01",
+        label: "AI Assistant page loads at /admin/ai-assistant",
+        scenario: "Navigate to /admin/ai-assistant. Chat interface renders."
+      },
+      {
+        id: "adminai-02",
+        label: "Chat input field is visible and focusable",
+        scenario: "Click the chat input → cursor appears, can type."
+      },
+      {
+        id: "adminai-03",
+        label: "Typing a message and pressing Enter or clicking Send sends the message",
+        scenario: "Type 'What are the requirements for Express Entry?' → send → message appears in chat."
+      },
+      {
+        id: "adminai-04",
+        label: "AI response appears after a short delay (streaming or full response)",
+        scenario: "After sending, a response from the AI appears. Should be immigration-context-aware."
+      },
+      {
+        id: "adminai-05",
+        label: "Conversation history is maintained within the session",
+        scenario: "Send 2-3 messages → all appear in the chat history in order."
+      }
+    ]
+  },
+  {
+    id: "applicant-first-login",
+    icon: "🔑",
+    iconBg: "#f0fdf4",
+    title: "Applicant — First Login & Change Password",
+    desc: "First-time login flow and password management",
+    items: [
+      {
+        id: "fpw-01",
+        label: "First-login redirect: applicant with isFirstLogin=true lands on /applicant/change-password",
+        scenario: "Log in as an applicant whose account was just created → automatically redirected to Change Password page instead of dashboard."
+      },
+      {
+        id: "fpw-02",
+        label: "Change Password page renders with required fields",
+        scenario: "Page shows password change form with appropriate fields."
+      },
+      {
+        id: "fpw-03",
+        label: "Submitting with a new password updates it and redirects to dashboard",
+        scenario: "Enter valid new password → submit → redirected to /applicant/dashboard."
+      },
+      {
+        id: "fpw-04",
+        label: "Change Password accessible from navigation for returning applicants",
+        scenario: "Returning applicant (not first login) can find Change Password in nav/sidebar and use it."
+      }
+    ]
+  },
+  {
+    id: "applicant-dashboard",
+    icon: "🏠",
+    iconBg: "#f0fdf4",
+    title: "Applicant — Dashboard",
+    desc: "Applicant's home screen with stats, journey flow, quick actions",
+    items: [
+      {
+        id: "appdash-01",
+        label: "Dashboard loads at /applicant/dashboard with 'Welcome back, [username]!'",
+        scenario: "After applicant login, dashboard should show personalized greeting."
+      },
+      {
+        id: "appdash-02",
+        label: "ExpiryAlertBanner shows when documents are expiring soon",
+        scenario: "If applicant has documents expiring within threshold, a banner appears at top of dashboard. (May not show if no expiring docs.)"
+      },
+      {
+        id: "appdash-03",
+        label: "Journey Workflow component renders with current step highlighted",
+        scenario: "A multi-step journey progress component shows applicant's current step in their immigration journey."
+      },
+      {
+        id: "appdash-04",
+        label: "Stats: 'Documents Uploaded' shows correct count",
+        scenario: "Stat card shows number of documents the applicant has uploaded."
+      },
+      {
+        id: "appdash-05",
+        label: "Stats: 'Profile Fields Captured' shows count of extracted fields",
+        scenario: "Stat card shows how many profile fields were extracted from uploaded documents."
+      },
+      {
+        id: "appdash-06",
+        label: "Stats: 'Last Updated' shows the last activity date",
+        scenario: "Third stat card shows the last updated date from applicant record."
+      },
+      {
+        id: "appdash-07",
+        label: "Quick Actions: 'View Profile' links to /applicant/profile",
+        scenario: "Click 'View Profile' card → navigates to profile page."
+      },
+      {
+        id: "appdash-08",
+        label: "Quick Actions: 'Manage Documents' links to /applicant/documents",
+        scenario: "Click 'Manage Documents' → navigates to documents page."
+      },
+      {
+        id: "appdash-09",
+        label: "Quick Actions: 'Change Password' links to /applicant/change-password",
+        scenario: "Click 'Change Password' → navigates to change password page."
+      },
+      {
+        id: "appdash-10",
+        label: "Quick Actions: 'Upload New Document' links to /applicant/documents",
+        scenario: "Click 'Upload New Document' → navigates to documents page."
+      },
+      {
+        id: "appdash-11",
+        label: "Recent Documents card shows last 4 uploaded files",
+        scenario: "Right card shows up to 4 most recent docs with name, date, and 'View' link."
+      },
+      {
+        id: "appdash-12",
+        label: "'View' link on recent document opens file in new tab",
+        scenario: "Click 'View' → file opens in a new browser tab (signed S3 URL)."
+      },
+      {
+        id: "appdash-13",
+        label: "'+X more in your library' shows when more than 4 docs exist",
+        scenario: "Upload 5+ documents → text '+X more in your library' appears below the 4 shown."
+      },
+      {
+        id: "appdash-14",
+        label: "'Go to Documents' button at bottom of Recent Documents card navigates to documents",
+        scenario: "Click 'Go to Documents' → navigates to /applicant/documents."
+      },
+      {
+        id: "appdash-15",
+        label: "Empty state in Recent Documents when no documents uploaded",
+        scenario: "Applicant with no uploads sees: 'You haven't uploaded any documents yet.'"
+      }
+    ]
+  },
+  {
+    id: "applicant-documents",
+    icon: "📄",
+    iconBg: "#f0fdf4",
+    title: "Applicant — Documents Page",
+    desc: "Required docs, upload, library, AI generation, expiry tracking",
+    subsections: [
+      {
+        title: "Required Documents Section",
+        items: [
+          {
+            id: "appdoc-req-01",
+            label: "Required Documents section loads showing list of required document types",
+            scenario: "The RequiredDocuments component renders inside the card showing what the applicant needs to provide."
+          },
+          {
+            id: "appdoc-req-02",
+            label: "Each required document shows its name and current verification status",
+            scenario: "Required doc items show: name, status badge (pending/verified/failed)."
+          },
+          {
+            id: "appdoc-req-03",
+            label: "Clicking a required document allows uploading a file against it",
+            scenario: "Click a required document → upload interface appears to attach a file to it."
+          }
+        ]
+      },
+      {
+        title: "Upload Section",
+        items: [
+          {
+            id: "appdoc-up-01",
+            label: "Upload section renders with drag-and-drop area",
+            scenario: "The DocumentUpload component shows a drop zone with 'drag and drop' instructions."
+          },
+          {
+            id: "appdoc-up-02",
+            label: "Drag and drop a PDF onto the upload zone — file is accepted",
+            scenario: "Drag a PDF file onto the drop zone → file name appears, ready to upload."
+          },
+          {
+            id: "appdoc-up-03",
+            label: "Click to browse and select files works",
+            scenario: "Click inside the drop zone → file picker opens → select file → accepted."
+          },
+          {
+            id: "appdoc-up-04",
+            label: "Uploading a valid file (PDF) shows success toast with extracted fields count",
+            scenario: "After successful upload → toast: 'Uploaded 1 file(s) · X profile fields extracted.'"
+          },
+          {
+            id: "appdoc-up-05",
+            label: "Uploading an invalid file type shows error",
+            scenario: "Try uploading a .exe or .zip file → error shown: file type not supported."
+          },
+          {
+            id: "appdoc-up-06",
+            label: "Uploading a file > 10MB shows size error",
+            scenario: "Try uploading a file larger than 10MB → error message about file size limit."
+          },
+          {
+            id: "appdoc-up-07",
+            label: "Attempting to upload more than 20 files at once shows error",
+            scenario: "Select 21+ files at once → error about maximum files per upload."
+          },
+          {
+            id: "appdoc-up-08",
+            label: "After upload success, Document Library refreshes automatically",
+            scenario: "Upload a file → Document Library section updates to show the new file without manual refresh."
+          },
+          {
+            id: "appdoc-up-09",
+            label: "ExtractionResultModal appears after AI processing completes",
+            scenario: "After uploading a document, a socket event triggers a modal showing what fields were extracted from the document."
+          }
+        ]
+      },
+      {
+        title: "Document Library Section",
+        items: [
+          {
+            id: "appdoc-lib-01",
+            label: "Document Library shows all uploaded documents",
+            scenario: "DocumentManager component renders with all applicant's uploaded files."
+          },
+          {
+            id: "appdoc-lib-02",
+            label: "Search functionality filters documents by name",
+            scenario: "Type part of a document name in the search box → list filters to matching documents."
+          },
+          {
+            id: "appdoc-lib-03",
+            label: "Category filters narrow the document list",
+            scenario: "Click a category filter → only documents in that category show."
+          },
+          {
+            id: "appdoc-lib-04",
+            label: "View/preview a document from the library",
+            scenario: "Click a document → opens preview or download."
+          }
+        ]
+      },
+      {
+        title: "AI Document Generation",
+        items: [
+          {
+            id: "appdoc-gen-01",
+            label: "DocumentGenerationPanel renders at the bottom of the documents page",
+            scenario: "A section/card for AI document generation is visible below the library."
+          },
+          {
+            id: "appdoc-gen-02",
+            label: "Generate document button triggers AI generation",
+            scenario: "Click generate → loading state → generated document appears or download link provided."
+          }
+        ]
+      },
+      {
+        title: "Upload Guidelines Section",
+        items: [
+          {
+            id: "appdoc-guide-01",
+            label: "Guidelines section shows supported file types: PDF, JPG, PNG, DOC, DOCX",
+            scenario: "Supported File Types list shows all 5 types."
+          },
+          {
+            id: "appdoc-guide-02",
+            label: "Guidelines show: 10MB max, 20 files max, clear docs work best",
+            scenario: "File Requirements list shows all 3 rules."
+          },
+          {
+            id: "appdoc-guide-03",
+            label: "AI Processing explanation is visible",
+            scenario: "The section explains that documents are processed by AI to extract information."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "applicant-tasks",
+    icon: "📋",
+    iconBg: "#f0fdf4",
+    title: "Applicant — Tasks Page",
+    desc: "View and manage tasks assigned by the advisor",
+    items: [
+      {
+        id: "apptask-01",
+        label: "Tasks page loads at /applicant/tasks showing assigned tasks",
+        scenario: "Navigate to /applicant/tasks. List of tasks assigned by admin appears."
+      },
+      {
+        id: "apptask-02",
+        label: "Tasks are sorted: pending first, then by due date",
+        scenario: "Pending tasks appear before completed ones. Within pending, tasks with earlier due dates appear first."
+      },
+      {
+        id: "apptask-03",
+        label: "Each task card shows: title, description, due date, assigned date, status badge",
+        scenario: "All task metadata is visible on each card."
+      },
+      {
+        id: "apptask-04",
+        label: "'Mark Complete' button changes task status to Completed",
+        scenario: "Click 'Mark Complete' on a pending task → badge changes to 'Completed' (green), button becomes 'Mark Pending'."
+      },
+      {
+        id: "apptask-05",
+        label: "'Mark Pending' button on completed task changes it back to Pending",
+        scenario: "Click 'Mark Pending' on a completed task → badge reverts to amber 'Pending'."
+      },
+      {
+        id: "apptask-06",
+        label: "'Download' button appears and works when task has an attachment",
+        scenario: "Task with attachment → Download button with paperclip icon → click → file opens in new tab."
+      },
+      {
+        id: "apptask-07",
+        label: "'Delete' button with confirm removes task from list",
+        scenario: "Click Delete on a task → browser confirm dialog → confirm → task removed."
+      },
+      {
+        id: "apptask-08",
+        label: "Refresh button reloads task list",
+        scenario: "Click Refresh (top right) → spinner → list reloads."
+      },
+      {
+        id: "apptask-09",
+        label: "Empty state shows 'No tasks assigned' when list is empty",
+        scenario: "If no tasks assigned → shows empty state with icon and 'You're all caught up!'"
+      }
+    ]
+  },
+  {
+    id: "applicant-invoices",
+    icon: "💳",
+    iconBg: "#f0fdf4",
+    title: "Applicant — Invoices (Pay)",
+    desc: "View and pay outstanding invoices via Stripe",
+    items: [
+      {
+        id: "inv-01",
+        label: "Invoices page loads at /applicant/pay-invoice",
+        scenario: "Navigate to /applicant/pay-invoice. Invoice list for this applicant loads."
+      },
+      {
+        id: "inv-02",
+        label: "Invoice card shows: Invoice # (truncated ID), due date, issued date, status badge",
+        scenario: "Each invoice card shows these 4 pieces of info in the header."
+      },
+      {
+        id: "inv-03",
+        label: "Line items breakdown table shows description and amount for each item",
+        scenario: "Expandable or visible line items table in the invoice card."
+      },
+      {
+        id: "inv-04",
+        label: "Total amount shown with CAD currency format",
+        scenario: "e.g., 'Total CA$1,500.00' formatted correctly."
+      },
+      {
+        id: "inv-05",
+        label: "'Pay Now' button appears only on sent/overdue invoices",
+        scenario: "Draft invoices do NOT show Pay Now. Sent and Overdue invoices DO show it."
+      },
+      {
+        id: "inv-06",
+        label: "Clicking 'Pay Now' redirects to Stripe checkout",
+        scenario: "Click Pay Now → loading spinner 'Redirecting to Stripe...' → browser redirects to Stripe payment page."
+      },
+      {
+        id: "inv-07",
+        label: "Return from Stripe success: success banner and toast show",
+        scenario: "Complete payment on Stripe → return to app with ?status=success → green banner and success toast appear."
+      },
+      {
+        id: "inv-08",
+        label: "Return from Stripe cancel: cancel banner and info toast show",
+        scenario: "Cancel payment on Stripe → return with ?status=cancel → amber banner and info toast appear."
+      },
+      {
+        id: "inv-09",
+        label: "Paid invoice shows 'Paid on [date]' message in green",
+        scenario: "Invoice with status=paid shows a green 'Paid on [date]' strip with check icon."
+      },
+      {
+        id: "inv-10",
+        label: "Empty state when no invoices issued",
+        scenario: "Applicant with no invoices sees: Receipt icon and 'No invoices yet. Your advisor hasn't issued any invoices yet.'"
+      }
+    ]
+  },
+  {
+    id: "applicant-retainer",
+    icon: "📝",
+    iconBg: "#f0fdf4",
+    title: "Applicant — Retainer Agreement",
+    desc: "Review and sign the service agreement",
+    items: [
+      {
+        id: "ret-01",
+        label: "Retainer page loads at /applicant/retainer",
+        scenario: "Navigate to /applicant/retainer. Agreement(s) listed."
+      },
+      {
+        id: "ret-02",
+        label: "If multiple retainers exist: agreement selector list shows",
+        scenario: "Multiple retainers → list of clickable buttons to select which one to view."
+      },
+      {
+        id: "ret-03",
+        label: "Selected retainer shows: title, issued date, status badge, full body text",
+        scenario: "The agreement card shows all metadata and the formatted body text."
+      },
+      {
+        id: "ret-04",
+        label: "Unsigned retainer shows signature form (legal name input + Sign Agreement button)",
+        scenario: "Status is 'draft' or 'sent' → signature form visible at the bottom."
+      },
+      {
+        id: "ret-05",
+        label: "Signing with empty name shows error toast",
+        scenario: "Leave signature field blank → click 'Sign Agreement' → toast: 'Please type your full legal name to sign.'"
+      },
+      {
+        id: "ret-06",
+        label: "Signing with full legal name succeeds — status changes to 'signed'",
+        scenario: "Type legal name → click Sign Agreement → success toast → retainer status badge changes to 'signed'."
+      },
+      {
+        id: "ret-07",
+        label: "Signed retainer shows 'Signed on [date] · Signature: [name]' in green",
+        scenario: "After signing, a green strip shows the signature confirmation details."
+      },
+      {
+        id: "ret-08",
+        label: "Signed retainer hides the signature form",
+        scenario: "Once signed, the signature form is no longer visible."
+      },
+      {
+        id: "ret-09",
+        label: "Empty state when no retainer sent",
+        scenario: "No retainer issued → shows FileText icon and 'No retainer yet. Your advisor hasn't sent a retainer agreement yet.'"
+      }
+    ]
+  },
+  {
+    id: "applicant-university-recs",
+    icon: "🎓",
+    iconBg: "#f0fdf4",
+    title: "Applicant — University Recommendations",
+    desc: "AI-powered university matching with detailed filter controls",
+    subsections: [
+      {
+        title: "Page Load & Existing Recommendations",
+        items: [
+          {
+            id: "urec-01",
+            label: "Page loads at /applicant/university-recommendations",
+            scenario: "Navigate to the page. Academic profile, Location, and Budget cards render."
+          },
+          {
+            id: "urec-02",
+            label: "Existing recommendations load automatically on page open",
+            scenario: "If recommendations were previously generated, they appear automatically below the filter cards."
+          },
+          {
+            id: "urec-03",
+            label: "Saved preferences from last generation are pre-filled in filter fields",
+            scenario: "Previously used filter values are restored into the form on load."
+          }
+        ]
+      },
+      {
+        title: "Academic Profile Filters",
+        items: [
+          {
+            id: "urec-acad-01",
+            label: "Language test dropdown: IELTS / TOEFL / PTE options available",
+            scenario: "Click language test dropdown → 3 options appear."
+          },
+          {
+            id: "urec-acad-02",
+            label: "4 score inputs (Listening, Reading, Writing, Speaking) accept numbers",
+            scenario: "Enter numeric values in all 4 score fields."
+          },
+          {
+            id: "urec-acad-03",
+            label: "Last education level dropdown: all 5 levels selectable",
+            scenario: "High school, Diploma, Bachelor's, Master's, PhD — all options available."
+          },
+          {
+            id: "urec-acad-04",
+            label: "Field of study text input accepts free text",
+            scenario: "Type 'Computer Science' → value saved in field."
+          }
+        ]
+      },
+      {
+        title: "Location & Institution Filters",
+        items: [
+          {
+            id: "urec-loc-01",
+            label: "Country, Province, City text fields accept input",
+            scenario: "Enter values in all 3 location fields."
+          },
+          {
+            id: "urec-loc-02",
+            label: "Institution type: College / University / Polytechnic options",
+            scenario: "Dropdown shows all 3 institution types."
+          },
+          {
+            id: "urec-loc-03",
+            label: "Public/Private dropdown works",
+            scenario: "Select Public or Private."
+          },
+          {
+            id: "urec-loc-04",
+            label: "Program duration: 1 year / 2 years / 4 years options",
+            scenario: "Dropdown shows all 3 duration options."
+          },
+          {
+            id: "urec-loc-05",
+            label: "Intake multi-chips: Fall / Winter / Spring toggle correctly",
+            scenario: "Click each chip → toggles highlighted (selected) / not highlighted."
+          },
+          {
+            id: "urec-loc-06",
+            label: "Mode of study chips: On-campus / Online / Hybrid toggle correctly",
+            scenario: "Click each chip → toggles."
+          }
+        ]
+      },
+      {
+        title: "Budget & Opportunity Filters",
+        items: [
+          {
+            id: "urec-budget-01",
+            label: "Tuition budget and Living expense fields accept numbers only",
+            scenario: "Try typing letters → non-numeric characters are stripped."
+          },
+          {
+            id: "urec-budget-02",
+            label: "Scholarship, Co-op, PGWP, PR-friendly, Diversity, Start flexibility, Campus housing dropdowns all work",
+            scenario: "Each dropdown opens and shows its options."
+          },
+          {
+            id: "urec-budget-03",
+            label: "Employment rate field accepts numeric input",
+            scenario: "Enter '85' in employment rate field."
+          },
+          {
+            id: "urec-budget-04",
+            label: "Ranking range: Min and Max fields accept numbers",
+            scenario: "Enter min and max ranking values."
+          }
+        ]
+      },
+      {
+        title: "Generating & Displaying Results",
+        items: [
+          {
+            id: "urec-gen-01",
+            label: "Summary chips appear showing active filter values",
+            scenario: "Set country=Canada, field=Computer Science → chips 'Canada' and 'Computer Science' appear below filters."
+          },
+          {
+            id: "urec-gen-02",
+            label: "'Generate recommendations' button shows loading spinner while generating",
+            scenario: "Click Generate → button shows spinning loader while API call is in progress."
+          },
+          {
+            id: "urec-gen-03",
+            label: "Results grid shows after generation with university cards",
+            scenario: "After generation → grid of university cards appears (2 or 3 column)."
+          },
+          {
+            id: "urec-gen-04",
+            label: "Each university card shows: name, program, country, degree level, eligibility reason, tuition fee, AI match %",
+            scenario: "All 7 pieces of info visible on each card."
+          },
+          {
+            id: "urec-gen-05",
+            label: "'Visit program →' link on card opens in new tab",
+            scenario: "Click the link → university website opens in new tab."
+          },
+          {
+            id: "urec-gen-06",
+            label: "Source indicator shows 'AI-generated suggestions' or 'Fallback'",
+            scenario: "Small text above results grid indicates whether AI or fallback was used."
+          },
+          {
+            id: "urec-gen-07",
+            label: "'Last generated' timestamp appears after generation",
+            scenario: "Shows 'Last generated: [date time]' after successful generation."
+          },
+          {
+            id: "urec-gen-08",
+            label: "'Reset filters' button clears all filter values",
+            scenario: "Click Reset → all filter fields return to defaults."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "applicant-ai-assistant",
+    icon: "💬",
+    iconBg: "#f3e8ff",
+    title: "Applicant — AI Immigration Assistant",
+    desc: "Applicant-facing AI chat for personalized immigration guidance",
+    items: [
+      {
+        id: "appai-01",
+        label: "AI Assistant page loads at /applicant/assistant",
+        scenario: "Navigate to /applicant/assistant. Chat interface renders with 'AI Immigration Assistant' header."
+      },
+      {
+        id: "appai-02",
+        label: "Header shows: AI bot icon, 'AI Immigration Assistant' title, context description",
+        scenario: "Header area has blue icon, bold title, and subtitle 'Context-aware help for your case — ask anything'."
+      },
+      {
+        id: "appai-03",
+        label: "Chat input is visible and accepts typing",
+        scenario: "Click input field → can type a message."
+      },
+      {
+        id: "appai-04",
+        label: "Sending a message shows it in the chat history",
+        scenario: "Type a question and send → message appears as user message in the chat."
+      },
+      {
+        id: "appai-05",
+        label: "AI responds with relevant immigration guidance",
+        scenario: "Ask 'What documents do I need for my study permit?' → AI provides relevant answer based on the applicant's profile/case context."
+      },
+      {
+        id: "appai-06",
+        label: "AI response is context-aware (knows about the applicant's case)",
+        scenario: "Ask about 'my application' → AI has context about this specific applicant, not generic responses."
+      },
+      {
+        id: "appai-07",
+        label: "Loading state (typing indicator) shows while AI is responding",
+        scenario: "After sending → a loading/typing indicator appears before the response arrives."
+      },
+      {
+        id: "appai-08",
+        label: "Multiple back-and-forth messages work in conversation",
+        scenario: "Send 3-4 messages → AI maintains conversation context, references earlier messages."
+      }
+    ]
+  },
+  {
+    id: "realtime-system",
+    icon: "⚡",
+    iconBg: "#fef9c3",
+    title: "Real-Time & Cross-Cutting Features",
+    desc: "Socket.IO, notifications, toasts, routing, responsive design, error handling",
+    items: [
+      {
+        id: "rt-01",
+        label: "Socket.IO connection established (no disconnect errors in console)",
+        scenario: "Open DevTools → Console. After login, should see socket connected — no 'WebSocket connection failed' errors."
+      },
+      {
+        id: "rt-02",
+        label: "Upload document → admin tasks page auto-updates without refresh",
+        scenario: "Open admin tasks page in tab 1. Upload a document as applicant in tab 2. Task appears in tab 1 automatically."
+      },
+      {
+        id: "rt-03",
+        label: "Verify document → admin tasks page status badge updates without refresh",
+        scenario: "While admin has tasks page open, verify a document → status badge changes in real time."
+      },
+      {
+        id: "rt-04",
+        label: "Toast notifications appear and auto-dismiss after success actions",
+        scenario: "Save changes on applicant → green success toast appears at top-right and auto-dismisses after ~3 seconds."
+      },
+      {
+        id: "rt-05",
+        label: "Error toasts appear on failure actions",
+        scenario: "Disconnect network and try to save → red error toast appears."
+      },
+      {
+        id: "rt-06",
+        label: "Admin routes are inaccessible to applicant role (redirect to forbidden/login)",
+        scenario: "Log in as applicant, manually navigate to /admin/dashboard → redirected to applicant dashboard or forbidden page."
+      },
+      {
+        id: "rt-07",
+        label: "Applicant routes are inaccessible to admin role",
+        scenario: "Log in as admin, navigate to /applicant/dashboard → redirected to admin dashboard or forbidden page."
+      },
+      {
+        id: "rt-08",
+        label: "Loading spinners appear during data fetching",
+        scenario: "Hard-reload any data page → spinning loader or skeleton shows while data loads, then disappears."
+      },
+      {
+        id: "rt-09",
+        label: "Error state messages appear when API calls fail",
+        scenario: "Simulate a failing request (disconnect, or bad ID in URL) → meaningful error message shown instead of blank screen."
+      },
+      {
+        id: "rt-10",
+        label: "Responsive design: mobile layout (375px) renders without broken UI",
+        scenario: "Open DevTools → toggle device toolbar → set to iPhone SE (375px) → navigate key pages. No overlapping or cut-off elements."
+      },
+      {
+        id: "rt-11",
+        label: "Responsive design: tablet layout (768px) renders correctly",
+        scenario: "Set DevTools to iPad (768px) → check admin dashboard, applicant documents, tasks pages. Layout should adapt gracefully."
+      },
+      {
+        id: "rt-12",
+        label: "Confirm dialogs (delete applicant, delete doc, delete case) all have Cancel that aborts the action",
+        scenario: "Trigger any delete confirm dialog → click Cancel → nothing is deleted, dialog closes."
+      },
+      {
+        id: "rt-13",
+        label: "Notification Bell unread count updates when new notifications arrive",
+        scenario: "When a task is completed/verified, the bell badge increments. When notifications are marked read, count decrements."
+      }
+    ]
+  }
+];
+
+// ────────────────────────────────────────────────────────────────
+// STORAGE
+// ────────────────────────────────────────────────────────────────
+const STORAGE_KEY = "imm_crm_test_v1";
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }
+}
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+let STATE = loadState();
+
+// ────────────────────────────────────────────────────────────────
+// HELPERS
+// ────────────────────────────────────────────────────────────────
+function allItems() {
+  const items = [];
+  SECTIONS.forEach(sec => {
+    if (sec.items) items.push(...sec.items);
+    if (sec.subsections) sec.subsections.forEach(sub => items.push(...sub.items));
+  });
+  return items;
+}
+
+function sectionItems(sec) {
+  const items = [];
+  if (sec.items) items.push(...sec.items);
+  if (sec.subsections) sec.subsections.forEach(sub => items.push(...sub.items));
+  return items;
+}
+
+function updateProgress() {
+  const all  = allItems();
+  const done = all.filter(i => STATE[i.id]?.checked).length;
+  const pct  = all.length ? Math.round((done / all.length) * 100) : 0;
+
+  document.getElementById("globalProgressBar").style.width = pct + "%";
+  document.getElementById("globalProgressLabel").textContent = `${done} of ${all.length} completed`;
+  document.getElementById("globalProgressPill").textContent  = pct + "%";
+
+  // Update each section badge
+  SECTIONS.forEach(sec => {
+    const items = sectionItems(sec);
+    const secDone = items.filter(i => STATE[i.id]?.checked).length;
+    const el = document.getElementById("prog-" + sec.id);
+    if (el) {
+      el.textContent = `${secDone} / ${items.length}`;
+      el.classList.toggle("done", secDone === items.length && items.length > 0);
+    }
+  });
+}
+
+// ────────────────────────────────────────────────────────────────
+// RENDER
+// ────────────────────────────────────────────────────────────────
+function renderItem(item) {
+  const checked  = STATE[item.id]?.checked || false;
+  const note     = STATE[item.id]?.note || "";
+  const hasNote  = note.trim().length > 0;
+
+  return `
+    <div class="test-item" id="item-${item.id}">
+      <input type="checkbox" id="chk-${item.id}" ${checked ? "checked" : ""}
+        onchange="toggleItem('${item.id}', this.checked)" />
+      <div class="test-item-right">
+        <label class="test-label${checked ? " checked" : ""}" for="chk-${item.id}">${item.label}</label>
+        ${item.scenario ? `<div class="test-scenario"><strong>How to test:</strong> ${item.scenario}</div>` : ""}
+        <button class="notes-toggle" onclick="toggleNotes('${item.id}')">
+          + Add note${hasNote ? `<span class="has-notes-dot"></span>` : ""}
+        </button>
+        <div class="notes-area${hasNote ? " open" : ""}" id="notes-area-${item.id}">
+          <textarea placeholder="Type your testing notes here — bugs found, observations, environment…"
+            oninput="saveNote('${item.id}', this.value)">${note}</textarea>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderSection(sec) {
+  const items = sectionItems(sec);
+  const done  = items.filter(i => STATE[i.id]?.checked).length;
+  const isAllDone = done === items.length && items.length > 0;
+
+  let bodyHtml = "";
+  if (sec.items) {
+    bodyHtml += `<div class="sub-section">${sec.items.map(renderItem).join("")}</div>`;
+  }
+  if (sec.subsections) {
+    sec.subsections.forEach(sub => {
+      bodyHtml += `
+        <div class="sub-section">
+          <div class="sub-section-title">${sub.title}</div>
+          ${sub.items.map(renderItem).join("")}
+        </div>`;
+    });
+  }
+
+  return `
+    <div class="section" id="sec-${sec.id}">
+      <div class="section-header" onclick="toggleSection('${sec.id}')">
+        <div class="section-title">
+          <div class="section-icon" style="background:${sec.iconBg}">${sec.icon}</div>
+          <div>
+            <h2>${sec.title}</h2>
+            <p>${sec.desc}</p>
+          </div>
+        </div>
+        <div class="section-meta">
+          <span class="section-progress${isAllDone ? " done" : ""}" id="prog-${sec.id}">${done} / ${items.length}</span>
+          <span class="chevron" id="chev-${sec.id}">▶</span>
+        </div>
+      </div>
+      <div class="section-body" id="body-${sec.id}">${bodyHtml}</div>
+    </div>`;
+}
+
+function renderTOC() {
+  const grid = document.getElementById("tocGrid");
+  grid.innerHTML = SECTIONS.map(sec => {
+    const items = sectionItems(sec);
+    return `<a href="#sec-${sec.id}" class="toc-link" onclick="openSection('${sec.id}')">
+      ${sec.icon} ${sec.title}
+      <span class="badge">${items.length}</span>
+    </a>`;
+  }).join("");
+}
+
+// ────────────────────────────────────────────────────────────────
+// ACTIONS
+// ────────────────────────────────────────────────────────────────
+function toggleItem(id, checked) {
+  if (!STATE[id]) STATE[id] = {};
+  STATE[id].checked = checked;
+  saveState(STATE);
+
+  const label = document.querySelector(`label[for="chk-${id}"]`);
+  if (label) label.classList.toggle("checked", checked);
+
+  updateProgress();
+}
+
+function saveNote(id, val) {
+  if (!STATE[id]) STATE[id] = {};
+  STATE[id].note = val;
+  saveState(STATE);
+
+  // Update dot
+  const btn = document.querySelector(`#item-${id} .notes-toggle`);
+  if (btn) {
+    const hasNote = val.trim().length > 0;
+    const dot = btn.querySelector(".has-notes-dot");
+    if (hasNote && !dot) btn.insertAdjacentHTML("beforeend", '<span class="has-notes-dot"></span>');
+    else if (!hasNote && dot) dot.remove();
+  }
+}
+
+function toggleNotes(id) {
+  const area = document.getElementById("notes-area-" + id);
+  if (area) { area.classList.toggle("open"); }
+}
+
+function toggleSection(id) {
+  const body = document.getElementById("body-" + id);
+  const chev = document.getElementById("chev-" + id);
+  if (body) { body.classList.toggle("open"); }
+  if (chev) { chev.classList.toggle("open"); }
+}
+
+function openSection(id) {
+  const body = document.getElementById("body-" + id);
+  const chev = document.getElementById("chev-" + id);
+  if (body && !body.classList.contains("open")) { body.classList.add("open"); }
+  if (chev && !chev.classList.contains("open")) { chev.classList.add("open"); }
+}
+
+function expandAll() {
+  SECTIONS.forEach(sec => openSection(sec.id));
+}
+
+function collapseAll() {
+  SECTIONS.forEach(sec => {
+    const body = document.getElementById("body-" + sec.id);
+    const chev = document.getElementById("chev-" + sec.id);
+    if (body) body.classList.remove("open");
+    if (chev) chev.classList.remove("open");
+  });
+}
+
+function resetAll() {
+  if (!confirm("Reset all checkboxes and notes? This cannot be undone.")) return;
+  STATE = {};
+  saveState(STATE);
+  document.querySelectorAll("input[type=checkbox]").forEach(cb => { cb.checked = false; });
+  document.querySelectorAll(".test-label").forEach(l => l.classList.remove("checked"));
+  document.querySelectorAll("textarea").forEach(t => { t.value = ""; });
+  document.querySelectorAll(".notes-area").forEach(a => { a.classList.remove("open"); });
+  document.querySelectorAll(".has-notes-dot").forEach(d => d.remove());
+  updateProgress();
+}
+
+function showExport() {
+  const all = allItems();
+  let output = `IMMIGRATION CRM — MANUAL TESTING EXPORT\n`;
+  output    += `Generated: ${new Date().toLocaleString()}\n`;
+  const done  = all.filter(i => STATE[i.id]?.checked).length;
+  output    += `Progress: ${done} / ${all.length} completed\n`;
+  output    += `${"=".repeat(60)}\n\n`;
+
+  SECTIONS.forEach(sec => {
+    const items = sectionItems(sec);
+    const secDone = items.filter(i => STATE[i.id]?.checked).length;
+    output += `${sec.icon} ${sec.title.toUpperCase()} (${secDone}/${items.length})\n`;
+    output += `${"-".repeat(50)}\n`;
+
+    const renderItems = (itemList) => {
+      itemList.forEach(item => {
+        const checked = STATE[item.id]?.checked;
+        const note    = STATE[item.id]?.note || "";
+        output += `  [${checked ? "X" : " "}] ${item.label}\n`;
+        if (note.trim()) output += `       NOTE: ${note.trim()}\n`;
+      });
+    };
+
+    if (sec.items) renderItems(sec.items);
+    if (sec.subsections) {
+      sec.subsections.forEach(sub => {
+        output += `\n  ${sub.title}\n`;
+        renderItems(sub.items);
+      });
+    }
+    output += "\n";
+  });
+
+  document.getElementById("exportContent").textContent = output;
+  document.getElementById("exportModal").classList.add("open");
+}
+
+function closeExport() {
+  document.getElementById("exportModal").classList.remove("open");
+}
+
+function copyExport() {
+  const text = document.getElementById("exportContent").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector(".btn-modal-copy");
+    btn.textContent = "Copied!";
+    setTimeout(() => { btn.textContent = "Copy to Clipboard"; }, 2000);
+  });
+}
+
+// Close modal on overlay click
+document.getElementById("exportModal").addEventListener("click", function(e) {
+  if (e.target === this) closeExport();
+});
+
+// ────────────────────────────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────────────────────────────
+document.getElementById("footerDate").textContent = new Date().toLocaleDateString("en-CA", {
+  year: "numeric", month: "long", day: "numeric"
+});
+
+const sectionsEl = document.getElementById("sections");
+sectionsEl.innerHTML = SECTIONS.map(renderSection).join("");
+
+renderTOC();
+updateProgress();
+
+// Open first section by default
+if (SECTIONS.length) openSection(SECTIONS[0].id);
+</script>
+</body>
+</html>

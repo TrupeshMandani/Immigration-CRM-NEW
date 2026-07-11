@@ -9,10 +9,19 @@ import Button from "../../components/common/Button";
 import { useCreateApplicant } from "../../hooks/useApplicants";
 
 const schema = z.object({
-  name: z.string().min(1, "Full name is required"),
-  email: z.string().email("Must be a valid email"),
-  phone: z.string().optional(),
-  message: z.string().optional(),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Full name is required")
+    .max(200, "Full name is too long"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .max(254, "Email is too long")
+    .email("Must be a valid email"),
+  phone: z.string().trim().max(50, "Phone number is too long").optional().or(z.literal("")),
+  message: z.string().trim().max(4000, "Message is too long").optional().or(z.literal("")),
 });
 
 const CreateApplicant = () => {
@@ -23,14 +32,27 @@ const CreateApplicant = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema) });
+  } = useForm({
+    resolver: zodResolver(schema),
+    mode: "onTouched",
+    defaultValues: { name: "", email: "", phone: "", message: "" },
+  });
 
   const onSubmit = async (values) => {
     try {
-      const response = await createApplicant.mutateAsync(values);
+      const payload = {
+        name: values.name.trim(),
+        email: values.email.trim(),
+        ...(values.phone?.trim() ? { phone: values.phone.trim() } : {}),
+        ...(values.message?.trim() ? { message: values.message.trim() } : {}),
+      };
+      const response = await createApplicant.mutateAsync(payload);
       toast.success("Applicant created successfully.");
       const applicantId =
-        response?.applicant?.id ?? response?.applicant?._id;
+        response?.applicant?.id ??
+        response?.applicant?._id ??
+        response?.id ??
+        response?._id;
       navigate(applicantId ? `/admin/applicants/${applicantId}` : "/admin/applicants");
     } catch (err) {
       toast.error(err?.message || "Failed to create applicant.");
@@ -62,6 +84,8 @@ const CreateApplicant = () => {
                   <input
                     id="name"
                     type="text"
+                    autoComplete="name"
+                    aria-invalid={errors.name ? "true" : "false"}
                     {...register("name")}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                     placeholder="Enter full name"
@@ -78,6 +102,9 @@ const CreateApplicant = () => {
                   <input
                     id="email"
                     type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    aria-invalid={errors.email ? "true" : "false"}
                     {...register("email")}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                     placeholder="Enter email address"
@@ -95,10 +122,15 @@ const CreateApplicant = () => {
                 <input
                   id="phone"
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   {...register("phone")}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   placeholder="Enter phone number"
                 />
+                {errors.phone && (
+                  <p className="mt-1 text-xs text-red-600">{errors.phone.message}</p>
+                )}
               </div>
 
               <div>
@@ -112,6 +144,9 @@ const CreateApplicant = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   placeholder="Enter any initial message or notes"
                 />
+                {errors.message && (
+                  <p className="mt-1 text-xs text-red-600">{errors.message.message}</p>
+                )}
               </div>
 
               <div className="border-t pt-6 text-sm text-gray-600">
