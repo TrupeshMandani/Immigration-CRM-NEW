@@ -33,7 +33,7 @@ const ApplicantListItem = ({ applicant }) => {
   };
 
   const handleNavigate = () => {
-    navigate(`/admin/applicants/${applicant._id}`);
+    navigate(`/admin/applicants/${applicant.id}`);
   };
 
   const handleKeyDown = (event) => {
@@ -97,7 +97,7 @@ const ApplicantListItem = ({ applicant }) => {
                 </p>
               )}
               <p className="text-sm text-gray-500">
-                ID: {applicant.aiKey || applicant._id || "N/A"}
+                ID: {applicant.aiKey || applicant.id || "N/A"}
               </p>
             </div>
           </div>

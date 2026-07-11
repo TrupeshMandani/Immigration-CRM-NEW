@@ -25,7 +25,7 @@ const RegisteredApplicants = () => {
 
   const handleActivate = async (applicant) => {
     try {
-      await activateApplicant.mutateAsync(applicant._id);
+      await activateApplicant.mutateAsync(applicant.id);
       toast.success(`${applicant.contactInfo?.name || applicant.email} is now active.`);
     } catch (err) {
       toast.error(err?.message || "Unable to activate applicant. Please try again.");
@@ -104,7 +104,7 @@ const RegisteredApplicants = () => {
                       ? new Date(applicant.createdAt).toLocaleString()
                       : "—";
                     return (
-                      <tr key={applicant._id}>
+                      <tr key={applicant.id}>
                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-800">
                           <div className="font-medium">
                             {applicant.contactInfo?.name || "Unnamed applicant"}
@@ -121,7 +121,7 @@ const RegisteredApplicants = () => {
                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
                           <div className="flex items-center justify-end gap-2">
                             <Link
-                              to={`/admin/applicants/${applicant._id}`}
+                              to={`/admin/applicants/${applicant.id}`}
                               className="text-sm font-medium text-primary hover:text-blue-700"
                             >
                               View profile

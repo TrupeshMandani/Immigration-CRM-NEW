@@ -110,8 +110,8 @@ const AdminDashboard = () => {
                 <div className="space-y-4">
                   {recentApplicants.map((applicant) => (
                     <Link
-                      key={applicant._id || applicant.id}
-                      to={`/admin/applicants/${applicant._id || applicant.id}`}
+                      key={applicant.id}
+                      to={`/admin/applicants/${applicant.id}`}
                       className="flex items-center justify-between rounded-lg border border-transparent bg-primary-200/30 p-3 transition hover:border-primary-400/40 hover:bg-primary-200"
                     >
                       <div>

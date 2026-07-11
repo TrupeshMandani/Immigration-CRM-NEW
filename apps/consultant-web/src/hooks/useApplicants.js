@@ -9,20 +9,10 @@ export const applicantKeys = {
   detail: (id) => ["applicants", "detail", id],
 };
 
-// Backend (post-Postgres migration) returns `id` (UUID), not `_id`.
-// This normalizer ensures both fields are always set so legacy components
-// referencing applicant._id keep working without individual edits.
-function normalize(a) {
-  if (!a) return a;
-  const unified = a._id || a.id;
-  return { ...a, _id: unified, id: unified };
-}
-
 export function useApplicants(params) {
   return useQuery({
     queryKey: applicantKeys.list(params),
     queryFn: () => api.applicants.list(params),
-    select: (data) => data.map(normalize),
   });
 }
 
@@ -30,7 +20,6 @@ export function useRegisteredApplicants() {
   return useQuery({
     queryKey: applicantKeys.registered(),
     queryFn: () => api.applicants.registered(),
-    select: (data) => data.map(normalize),
   });
 }
 
@@ -38,7 +27,6 @@ export function usePendingContacts() {
   return useQuery({
     queryKey: applicantKeys.pendingContacts(),
     queryFn: () => api.applicants.pendingContacts(),
-    select: (data) => data.map(normalize),
   });
 }
 
@@ -47,7 +35,6 @@ export function useApplicant(id) {
     queryKey: applicantKeys.detail(id),
     queryFn: () => api.applicants.byId(id),
     enabled: Boolean(id),
-    select: normalize,
   });
 }
 

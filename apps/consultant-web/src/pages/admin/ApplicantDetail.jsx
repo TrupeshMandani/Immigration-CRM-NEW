@@ -66,7 +66,7 @@ const ApplicantDetailPage = () => {
   const [recommendationMessage, setRecommendationMessage] = useState("");
   const [recommendationError, setRecommendationError] = useState(false);
   const [recommendationSource, setRecommendationSource] = useState("openai");
-  const applicantId = applicant?._id;
+  const applicantId = applicant?.id;
   const applicantAiKey = applicant?.aiKey;
   const [confirmDeleteApplicant, setConfirmDeleteApplicant] = useState(false);
   const [confirmDeleteDoc, setConfirmDeleteDoc] = useState({
@@ -335,11 +335,11 @@ const ApplicantDetailPage = () => {
     setError("");
 
     try {
-      await applicantService.updateApplicant(applicant._id, {
+      await applicantService.updateApplicant(applicant.id, {
         status,
         contactInfo,
       });
-      const refreshed = await applicantService.getApplicantById(applicant._id);
+      const refreshed = await applicantService.getApplicantById(applicant.id);
       setApplicant(refreshed);
       setStatus(refreshed.status || status);
       setContactInfo({ ...EMPTY_CONTACT, ...refreshed.contactInfo });
@@ -361,7 +361,7 @@ const ApplicantDetailPage = () => {
     setConfirmDeleteApplicant(false);
     if (!applicant) return;
     try {
-      await applicantService.deleteApplicant(applicant._id);
+      await applicantService.deleteApplicant(applicant.id);
       navigate("/admin/applicants", { replace: true });
     } catch (err) {
       console.error("Failed to delete applicant:", err);

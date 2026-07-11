@@ -157,7 +157,7 @@ const ApplicantList = () => {
             {viewMode === "card" && (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {applicants.map((applicant) => (
-                  <ApplicantCard key={applicant._id} applicant={applicant} />
+                  <ApplicantCard key={applicant.id} applicant={applicant} />
                 ))}
               </div>
             )}
@@ -165,7 +165,7 @@ const ApplicantList = () => {
             {viewMode === "list" && (
               <div className="space-y-4">
                 {applicants.map((applicant) => (
-                  <ApplicantListItem key={applicant._id} applicant={applicant} />
+                  <ApplicantListItem key={applicant.id} applicant={applicant} />
                 ))}
               </div>
             )}
@@ -187,8 +187,8 @@ const ApplicantList = () => {
                       <tbody className="divide-y divide-gray-100 bg-white">
                         {applicants.map((applicant) => (
                           <tr
-                            key={applicant._id}
-                            onClick={() => navigate(`/admin/applicants/${applicant._id}`)}
+                            key={applicant.id}
+                            onClick={() => navigate(`/admin/applicants/${applicant.id}`)}
                             className="cursor-pointer transition hover:bg-gray-50"
                           >
                             <td className="px-6 py-4">
@@ -215,7 +215,7 @@ const ApplicantList = () => {
                                 <Button
                                   variant="success"
                                   size="sm"
-                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(applicant._id, "active"); }}
+                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(applicant.id, "active"); }}
                                 >
                                   Activate
                                 </Button>
@@ -223,7 +223,7 @@ const ApplicantList = () => {
                               <Button
                                 variant="danger"
                                 size="sm"
-                                onClick={(e) => { e.stopPropagation(); handleDelete(applicant._id); }}
+                                onClick={(e) => { e.stopPropagation(); handleDelete(applicant.id); }}
                               >
                                 Delete
                               </Button>

@@ -43,7 +43,7 @@ const ApplicantCard = ({ applicant }) => {
   const applications = applicant.applications?.length || 0;
 
   const handleNavigate = () => {
-    navigate(`/admin/applicants/${applicant._id}`);
+    navigate(`/admin/applicants/${applicant.id}`);
   };
 
   const handleKeyDown = (event) => {
@@ -101,7 +101,7 @@ const ApplicantCard = ({ applicant }) => {
           icon={
             <UserIcon />
           }
-          label={`Applicant ID: ${applicant.aiKey || applicant._id || "N/A"}`}
+          label={`Applicant ID: ${applicant.aiKey || applicant.id || "N/A"}`}
         />
 
         <InfoRow
