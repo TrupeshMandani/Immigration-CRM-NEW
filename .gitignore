@@ -79,3 +79,4 @@ API_Test_Demos/run_all_api_tests.sh
 Testing_result
 .playwright-mcp
 instructions.txt
+.claude/qa-tester.md

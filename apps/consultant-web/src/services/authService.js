@@ -98,6 +98,13 @@ export const applicantService = {
     return response.data;
   },
 
+  // Send invitation with an access level (admin only).
+  // accessLevel: 'full' → active, 'restricted' → registered.
+  inviteApplicant: async (id, accessLevel) => {
+    const response = await api.post(`/applicants/${id}/invite`, { accessLevel });
+    return response.data;
+  },
+
   // Update applicant (admin only)
   updateApplicant: async (id, updates) => {
     const response = await api.put(`/applicants/${id}`, updates);

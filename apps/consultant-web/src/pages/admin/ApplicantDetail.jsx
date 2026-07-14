@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
+import { StatusBadge } from "../../components/common/StatusBadge";
+import { getStatusMeta } from "../../lib/applicantStatus";
 import AdminLayout from "../../components/layout/AdminLayout";
 import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
@@ -52,6 +55,7 @@ const ApplicantDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [actionLoading, setActionLoading] = useState(null);
   const [status, setStatus] = useState("pending");
   const [contactInfo, setContactInfo] = useState(EMPTY_CONTACT);
   const [viewingDocument, setViewingDocument] = useState(null);
@@ -350,6 +354,47 @@ const ApplicantDetailPage = () => {
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const refreshApplicant = useCallback(async () => {
+    const refreshed = await applicantService.getApplicantById(applicant.id);
+    setApplicant(refreshed);
+    setStatus(refreshed.status || "pending");
+    setContactInfo({ ...EMPTY_CONTACT, ...refreshed.contactInfo });
+  }, [applicant?.id]);
+
+  const handleInvite = async (accessLevel) => {
+    if (!applicant) return;
+    setActionLoading(`invite-${accessLevel}`);
+    setError("");
+    try {
+      const result = await applicantService.inviteApplicant(applicant.id, accessLevel);
+      await refreshApplicant();
+      toast.success(result?.message || `Invitation sent with ${accessLevel} access.`);
+    } catch (err) {
+      const message = err.response?.data?.message || "Failed to send invitation.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleMarkStatus = async (nextStatus) => {
+    if (!applicant) return;
+    setActionLoading(`status-${nextStatus}`);
+    setError("");
+    try {
+      await applicantService.updateApplicant(applicant.id, { status: nextStatus });
+      await refreshApplicant();
+      toast.success(`Applicant marked as ${getStatusMeta(nextStatus).label}.`);
+    } catch (err) {
+      const message = err.response?.data?.message || "Failed to update status.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -662,9 +707,12 @@ const ApplicantDetailPage = () => {
                       onChange={(event) => setStatus(event.target.value)}
                       className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                     >
-                      <option value="pending">Pending</option>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
+                      <option value="pending">Pending lead</option>
+                      <option value="registered">Registered (restricted)</option>
+                      <option value="active">Active (full access)</option>
+                      <option value="passed">Passed</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="closed">Closed</option>
                     </select>
                   </div>
                   <div>
@@ -1130,7 +1178,75 @@ const ApplicantDetailPage = () => {
           </Card>
         </section>
 
-        <section id="actions">
+        <section id="actions" className="space-y-6">
+          <Card>
+            <Card.Header>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-xl font-semibold">Actions</h2>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <span>Current status:</span>
+                  <StatusBadge status={applicant.status} />
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                Send a portal invitation or record the outcome of this applicant’s file.
+              </p>
+            </Card.Header>
+            <Card.Body className="space-y-6">
+              {/* Send invitation */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800">Send invitation</h3>
+                <p className="text-xs text-gray-500">
+                  Emails the applicant a login link. Choose how much of the portal they can access.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <Button
+                    variant="primary"
+                    loading={actionLoading === "invite-full"}
+                    disabled={Boolean(actionLoading)}
+                    onClick={() => handleInvite("full")}
+                  >
+                    Invite — Full access
+                  </Button>
+                  <Button
+                    variant="outline"
+                    loading={actionLoading === "invite-restricted"}
+                    disabled={Boolean(actionLoading)}
+                    onClick={() => handleInvite("restricted")}
+                  >
+                    Invite — Restricted access
+                  </Button>
+                </div>
+                <p className="mt-2 text-xs text-gray-400">
+                  Full = active (complete access). Restricted = registered (premium sections hidden).
+                </p>
+              </div>
+
+              {/* Record outcome */}
+              <div className="border-t border-gray-100 pt-6">
+                <h3 className="text-sm font-semibold text-gray-800">Record file outcome</h3>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <Button
+                    variant="secondary"
+                    loading={actionLoading === "status-passed"}
+                    disabled={Boolean(actionLoading)}
+                    onClick={() => handleMarkStatus("passed")}
+                  >
+                    Mark as Passed
+                  </Button>
+                  <Button
+                    variant="danger"
+                    loading={actionLoading === "status-rejected"}
+                    disabled={Boolean(actionLoading)}
+                    onClick={() => handleMarkStatus("rejected")}
+                  >
+                    Mark as Rejected
+                  </Button>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+
           <Card className="border-red-200">
             <Card.Body className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>

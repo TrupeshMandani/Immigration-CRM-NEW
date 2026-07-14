@@ -1,23 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../common/Button";
+import { StatusBadge } from "../common/StatusBadge";
 
 const ApplicantListItem = ({ applicant }) => {
   const navigate = useNavigate();
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "registered":
-        return "bg-sky-100 text-sky-800";
-      case "inactive":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -72,13 +58,7 @@ const ApplicantListItem = ({ applicant }) => {
                   applicant.username ||
                   "Unknown Applicant"}
               </h3>
-              <span
-                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                  applicant.status
-                )}`}
-              >
-                {applicant.status?.toUpperCase() || "ACTIVE"}
-              </span>
+              <StatusBadge status={applicant.status} />
               {applicant.priority && (
                 <span
                   className={`text-xs font-medium ${getPriorityColor(

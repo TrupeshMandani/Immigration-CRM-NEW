@@ -10,6 +10,7 @@ import ApplicantCard from "../../components/admin/ApplicantCard";
 import ApplicantListItem from "../../components/admin/ApplicantListItem";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { useViewMode } from "../../hooks/useViewMode";
+import { StatusBadge, StatusGlossary } from "../../components/common/StatusBadge";
 import {
   useApplicants,
   useActivateApplicant,
@@ -124,10 +125,12 @@ const ApplicantList = () => {
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                 >
                   <option value="">All</option>
-                  <option value="pending">Pending</option>
-                  <option value="registered">Registered</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="pending">Pending lead</option>
+                  <option value="registered">Registered (restricted)</option>
+                  <option value="active">Active (full access)</option>
+                  <option value="passed">Passed</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="closed">Closed</option>
                 </select>
               </div>
               <div className="flex items-end">
@@ -140,6 +143,13 @@ const ApplicantList = () => {
                 </Button>
               </div>
             </div>
+          </Card.Body>
+        </Card>
+
+        {/* Status glossary */}
+        <Card className="shadow-sm mb-8">
+          <Card.Body>
+            <StatusGlossary />
           </Card.Body>
         </Card>
 
@@ -198,14 +208,7 @@ const ApplicantList = () => {
                               {applicant.contactInfo?.email || applicant.email || "No email"}
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                                applicant.status === "active" ? "bg-green-100 text-green-700"
-                                  : applicant.status === "pending" ? "bg-yellow-100 text-yellow-700"
-                                  : applicant.status === "registered" ? "bg-sky-100 text-sky-700"
-                                  : "bg-gray-100 text-gray-700"
-                              }`}>
-                                {applicant.status?.charAt(0).toUpperCase() + applicant.status?.slice(1)}
-                              </span>
+                              <StatusBadge status={applicant.status} />
                             </td>
                             <td className="px-6 py-4 text-gray-500">
                               {applicant.createdAt ? new Date(applicant.createdAt).toLocaleDateString() : "Unknown"}

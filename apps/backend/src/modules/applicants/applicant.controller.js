@@ -71,6 +71,34 @@ const getApplicantName = (applicant) =>
     ? `${applicant.first_name} ${applicant.last_name || ''}`.trim()
     : (applicant.profile_data?.fullName || applicant.profile_data?.name || applicant.email || 'Applicant');
 
+// ─── API serializer ───────────────────────────────────────────────────────────
+// The frontend (built for the legacy Mongo shape) reads camelCase + a nested
+// `contactInfo` object. Postgres rows are snake_case. This maps a raw row into
+// the shape the UI expects WITHOUT dropping the raw fields, so existing readers
+// of snake_case props (e.g. profile_data, ai_key) keep working.
+const serializeApplicant = (row) => {
+  if (!row || typeof row !== 'object') return row;
+  const profile = row.profile_data ?? {};
+  const first = row.first_name || '';
+  const last = row.last_name || '';
+  const derivedName =
+    `${first} ${last}`.trim() || profile.fullName || profile.name || '';
+  return {
+    ...row,
+    aiKey: row.ai_key,
+    profile,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    username: row.email, // applicants sign in with their email
+    contactInfo: {
+      name: derivedName,
+      email: row.email || profile.email || '',
+      phone: profile.phone || '',
+      message: profile.message || profile.notes || '',
+    },
+  };
+};
+
 const sendTaskAssignedEmail = async ({ applicant, task }) => {
   const recipient = getApplicantEmail(applicant);
   if (!recipient) return;
@@ -292,7 +320,7 @@ exports.getAllApplicants = async (req, res) => {
       list = await db.select().from(applicants).where(and(...conditions));
     }
 
-    res.json(list);
+    res.json(list.map(serializeApplicant));
   } catch (error) {
     console.error('Get applicants error:', error);
     res.status(500).json({ message: 'Failed to get applicants' });
@@ -303,7 +331,13 @@ exports.getRegisteredApplicants = async (req, res) => {
   try {
     const { search } = req.query;
     const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
-    let conditions = [eq(applicants.firm_id, firmId), eq(applicants.status, 'registered')];
+    // 'registered' = applicants who have been invited with restricted access and
+    // are awaiting full activation. Pending leads live on the Contact Requests
+    // screen; they enter this list once the admin sends them an invitation.
+    let conditions = [
+      eq(applicants.firm_id, firmId),
+      eq(applicants.status, 'registered'),
+    ];
 
     let list;
     if (search) {
@@ -314,7 +348,7 @@ exports.getRegisteredApplicants = async (req, res) => {
       list = await db.select().from(applicants).where(and(...conditions));
     }
 
-    res.json(list);
+    res.json(list.map(serializeApplicant));
   } catch (error) {
     console.error('Get registered applicants error:', error);
     res.status(500).json({ message: 'Failed to get registered applicants' });
@@ -326,7 +360,7 @@ exports.getPendingContacts = async (req, res) => {
     const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
     const pending = await db.select().from(applicants)
       .where(and(eq(applicants.firm_id, firmId), eq(applicants.status, 'pending')));
-    res.json(pending);
+    res.json(pending.map(serializeApplicant));
   } catch (error) {
     console.error('Get pending contacts error:', error);
     res.status(500).json({ message: 'Failed to get pending contacts' });
@@ -438,12 +472,79 @@ exports.activateApplicant = async (req, res) => {
   }
 };
 
+// ─── Send invitation (full / restricted access) ───────────────────────────────
+// Turns a lead/registered applicant into a portal user with a chosen access
+// level and emails them a login link.
+//   accessLevel 'full'       → status 'active'      (full portal access)
+//   accessLevel 'restricted' → status 'registered'  (limited portal access)
+exports.inviteApplicant = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const accessLevel = (req.body?.accessLevel || '').toLowerCase();
+    if (!['full', 'restricted'].includes(accessLevel)) {
+      return res.status(400).json({ message: "accessLevel must be 'full' or 'restricted'." });
+    }
+    const firmId = req.context?.firmId || DEFAULT_FIRM_ID();
+
+    const [applicant] = await db.select().from(applicants)
+      .where(and(eq(applicants.id, id), eq(applicants.firm_id, firmId))).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
+
+    const contactEmail = applicant.email?.trim()?.toLowerCase();
+    if (!contactEmail) {
+      return res.status(400).json({ message: 'Applicant is missing an email address.' });
+    }
+
+    const nextStatus = accessLevel === 'full' ? 'active' : 'registered';
+    const updates = { status: nextStatus, updated_at: new Date() };
+
+    // Full-access applicants get their default required-document checklist,
+    // mirroring the activate flow.
+    if (accessLevel === 'full') {
+      const defs = getDocDefs(applicant);
+      ensureDefaultDocDefs(defs);
+      updates.state_data = { ...(applicant.state_data ?? {}), doc_defs: defs };
+    }
+
+    const [updated] = await db.update(applicants)
+      .set(updates)
+      .where(eq(applicants.id, id))
+      .returning();
+
+    let inviteSent = false;
+    let loginLink;
+    try {
+      const invite = await sendApplicantInviteEmail({
+        email: contactEmail,
+        name: getApplicantName(updated),
+      });
+      inviteSent = invite.emailSent;
+      loginLink = invite.loginLink;
+    } catch (emailError) {
+      console.error('Failed to send invitation email:', emailError);
+    }
+
+    res.json({
+      message: inviteSent
+        ? `Invitation sent with ${accessLevel} access.`
+        : `Access granted (${accessLevel}), but the invitation email could not be delivered.`,
+      accessLevel,
+      inviteSent,
+      loginLink,
+      applicant: serializeApplicant(updated),
+    });
+  } catch (error) {
+    console.error('Invite applicant error:', error);
+    res.status(500).json({ message: 'Failed to send invitation' });
+  }
+};
+
 exports.getApplicantByKey = async (req, res) => {
   try {
     const [applicant] = await db.select().from(applicants)
       .where(eq(applicants.ai_key, req.params.aiKey)).limit(1);
     if (!applicant) return res.status(404).json({ message: 'Not found' });
-    res.json(applicant);
+    res.json(serializeApplicant(applicant));
   } catch (error) {
     console.error('Get applicant by key error:', error);
     res.status(500).json({ message: 'Failed to get applicant' });
@@ -455,26 +556,70 @@ exports.getApplicantById = async (req, res) => {
     const [applicant] = await db.select().from(applicants)
       .where(eq(applicants.id, req.params.id)).limit(1);
     if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
-    res.json(applicant);
+    res.json(serializeApplicant(applicant));
   } catch (error) {
     console.error('Get applicant error:', error);
     res.status(500).json({ message: 'Failed to get applicant' });
   }
 };
 
+// The DB status check constraint only allows pending/registered/active/closed,
+// but the admin UI surfaces "inactive". Map between the two so saves don't fail.
+const normalizeStatusForDb = (status) => (status === 'inactive' ? 'closed' : status);
+
 exports.updateApplicant = async (req, res) => {
   try {
     const { id } = req.params;
-    const { first_name, last_name, email, status, stage, profile_data, state_data } = req.body;
+    const {
+      first_name, last_name, email, status, stage,
+      profile_data, state_data, contactInfo,
+    } = req.body || {};
+
+    const [existing] = await db.select().from(applicants)
+      .where(eq(applicants.id, id)).limit(1);
+    if (!existing) return res.status(404).json({ message: 'Applicant not found' });
 
     const allowedFields = {};
+    let nextProfile = { ...(existing.profile_data ?? {}) };
+    let profileTouched = false;
+
+    // Raw column updates (kept for API/programmatic callers).
     if (first_name !== undefined) allowedFields.first_name = first_name;
     if (last_name !== undefined) allowedFields.last_name = last_name;
     if (email !== undefined) allowedFields.email = email;
-    if (status !== undefined) allowedFields.status = status;
     if (stage !== undefined) allowedFields.stage = stage;
-    if (profile_data !== undefined) allowedFields.profile_data = profile_data;
     if (state_data !== undefined) allowedFields.state_data = state_data;
+    if (profile_data !== undefined && profile_data && typeof profile_data === 'object') {
+      nextProfile = { ...nextProfile, ...profile_data };
+      profileTouched = true;
+    }
+    if (status !== undefined) allowedFields.status = normalizeStatusForDb(status);
+
+    // The admin UI sends a nested contactInfo object — map it onto the columns
+    // and profile_data so name/email/phone/notes actually persist.
+    if (contactInfo && typeof contactInfo === 'object') {
+      if (typeof contactInfo.name === 'string') {
+        const trimmed = contactInfo.name.trim();
+        const parts = trimmed.split(/\s+/).filter(Boolean);
+        allowedFields.first_name = parts[0] ?? null;
+        allowedFields.last_name = parts.length > 1 ? parts.slice(1).join(' ') : null;
+        nextProfile.fullName = trimmed;
+        profileTouched = true;
+      }
+      if (typeof contactInfo.email === 'string' && contactInfo.email.trim()) {
+        allowedFields.email = contactInfo.email.trim();
+      }
+      if (contactInfo.phone !== undefined) {
+        nextProfile.phone = contactInfo.phone;
+        profileTouched = true;
+      }
+      if (contactInfo.message !== undefined) {
+        nextProfile.message = contactInfo.message;
+        profileTouched = true;
+      }
+    }
+
+    if (profileTouched) allowedFields.profile_data = nextProfile;
     allowedFields.updated_at = new Date();
 
     const [updated] = await db.update(applicants)
@@ -484,7 +629,7 @@ exports.updateApplicant = async (req, res) => {
 
     if (!updated) return res.status(404).json({ message: 'Applicant not found' });
 
-    res.json({ message: 'Applicant updated successfully', applicant: updated });
+    res.json({ message: 'Applicant updated successfully', applicant: serializeApplicant(updated) });
   } catch (error) {
     console.error('Update applicant error:', error);
     res.status(500).json({ message: 'Failed to update applicant' });
@@ -542,8 +687,11 @@ exports.updateSelfProfile = async (req, res) => {
     if (applicant.status === 'closed') return res.status(403).json({ message: 'Account inactive' });
 
     let profileData = { ...(applicant.profile_data ?? {}) };
+    const columnUpdates = {};
 
     if (profile && typeof profile === 'object') {
+      // Passport is optional — only merge it when the applicant actually filled
+      // it in, so basic profile edits never get blocked by passport fields.
       const cleanedPassport = sanitizePassportDetails(profile.passportDetails);
       if (cleanedPassport && Object.keys(cleanedPassport).length) {
         profileData.passportDetails = { ...(profileData.passportDetails || {}), ...cleanedPassport };
@@ -552,8 +700,21 @@ exports.updateSelfProfile = async (req, res) => {
       if (Object.keys(rest).length) profileData = { ...profileData, ...rest };
     }
 
-    if (contactInfo && typeof contactInfo === 'object' && Object.keys(contactInfo).length) {
-      profileData = { ...profileData, ...contactInfo };
+    // Map contactInfo onto the real columns so the name/email round-trip back
+    // through serializeApplicant (which derives name from first/last + email).
+    if (contactInfo && typeof contactInfo === 'object') {
+      if (typeof contactInfo.name === 'string' && contactInfo.name.trim()) {
+        const trimmed = contactInfo.name.trim();
+        const parts = trimmed.split(/\s+/).filter(Boolean);
+        columnUpdates.first_name = parts[0] ?? null;
+        columnUpdates.last_name = parts.length > 1 ? parts.slice(1).join(' ') : null;
+        profileData.fullName = trimmed;
+      }
+      if (typeof contactInfo.email === 'string' && contactInfo.email.trim()) {
+        columnUpdates.email = contactInfo.email.trim();
+        profileData.email = contactInfo.email.trim();
+      }
+      if (contactInfo.phone !== undefined) profileData.phone = contactInfo.phone;
     }
 
     const scores = ['listeningScore', 'readingScore', 'writingScore', 'speakingScore'];
@@ -562,11 +723,11 @@ exports.updateSelfProfile = async (req, res) => {
     }
 
     const [updated] = await db.update(applicants)
-      .set({ profile_data: profileData, updated_at: new Date() })
+      .set({ ...columnUpdates, profile_data: profileData, updated_at: new Date() })
       .where(eq(applicants.id, req.userId))
       .returning();
 
-    res.json({ message: 'Profile updated', applicant: updated });
+    res.json({ message: 'Profile updated', applicant: serializeApplicant(updated) });
   } catch (error) {
     console.error('Update self profile error:', error);
     res.status(500).json({ message: 'Failed to update profile' });

@@ -70,6 +70,12 @@ router.post(
   requireAdmin,
   ctrl.activateApplicant
 );
+router.post(
+  "/:id/invite",
+  authenticateToken,
+  requireAdmin,
+  ctrl.inviteApplicant
+);
 router.put("/:id", authenticateToken, requireAdmin, ctrl.updateApplicant);
 router.delete("/:id", authenticateToken, requireAdmin, ctrl.deleteApplicant);
 // Required Documents management

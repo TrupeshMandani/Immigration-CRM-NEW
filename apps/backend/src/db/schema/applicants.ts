@@ -28,7 +28,7 @@ export const applicants = pgTable(
     unique('applicants_firm_email_unique').on(table.firm_id, table.email),
     check(
       'applicants_status_check',
-      sql`status IN ('pending','registered','active','closed')`,
+      sql`status IN ('pending','registered','active','closed','passed','rejected')`,
     ),
     check(
       'applicants_stage_check',

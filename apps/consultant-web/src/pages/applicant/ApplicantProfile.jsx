@@ -177,29 +177,33 @@ const ApplicantProfilePage = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    const missing = ["passportFullName","passportNumber","passportDob","passportExpiry"]
-      .find((f) => !form[f]?.toString().trim());
-    if (missing) {
-      toast.error("Please complete all passport fields before saving.");
-      return;
-    }
     setSaving(true);
     try {
+      // Passport is optional and independent of the basic profile — only send it
+      // when the applicant actually filled something in, so saving name/contact
+      // details never requires passport data.
+      const profile = {
+        city: form.city, state: form.state, country: form.country,
+        fieldOfStudy: form.fieldOfStudy, academicGoals: form.goals,
+      };
+      const passportFilled = [
+        form.passportFullName, form.passportNumber, form.passportDob, form.passportExpiry,
+      ].some((v) => v?.toString().trim());
+      if (passportFilled) {
+        profile.passportDetails = {
+          fullName: form.passportFullName.trim(),
+          number: form.passportNumber.trim(),
+          dateOfBirth: form.passportDob,
+          expiryDate: form.passportExpiry,
+        };
+      }
+
       await applicantService.updateSelfProfile({
         contactInfo: { name: form.name, email: form.email, phone: form.phone },
-        profile: {
-          city: form.city, state: form.state, country: form.country,
-          fieldOfStudy: form.fieldOfStudy, academicGoals: form.goals,
-          passportDetails: {
-            fullName: form.passportFullName.trim(),
-            number: form.passportNumber.trim(),
-            dateOfBirth: form.passportDob,
-            expiryDate: form.passportExpiry,
-          },
-        },
+        profile,
       });
       toast.success("Profile updated successfully.");
-      setForm((prev) => ({ ...prev, passportSource: "manual" }));
+      if (passportFilled) setForm((prev) => ({ ...prev, passportSource: "manual" }));
       await fetchApplicantData(true);
     } catch (err) {
       toast.error(err.response?.data?.message || "Unable to save your profile at this time.");
@@ -323,23 +327,23 @@ const ApplicantProfilePage = () => {
                       <Label htmlFor="passportFullName">Full name (as on passport)</Label>
                       <Input id="passportFullName" name="passportFullName"
                         value={form.passportFullName} onChange={handlePassport}
-                        placeholder="e.g., TRUPESH MANDANI" required />
+                        placeholder="e.g., TRUPESH MANDANI" />
                     </div>
                     <div className="space-y-1">
                       <Label htmlFor="passportNumber">Passport number</Label>
                       <Input id="passportNumber" name="passportNumber"
                         value={form.passportNumber} onChange={handlePassport}
-                        className="uppercase tracking-wide" placeholder="Enter passport number" required />
+                        className="uppercase tracking-wide" placeholder="Enter passport number" />
                     </div>
                     <div className="space-y-1">
                       <Label htmlFor="passportDob">Date of birth</Label>
                       <Input id="passportDob" type="date" name="passportDob"
-                        value={form.passportDob} onChange={handlePassport} required />
+                        value={form.passportDob} onChange={handlePassport} />
                     </div>
                     <div className="space-y-1">
                       <Label htmlFor="passportExpiry">Passport expiry date</Label>
                       <Input id="passportExpiry" type="date" name="passportExpiry"
-                        value={form.passportExpiry} onChange={handlePassport} required />
+                        value={form.passportExpiry} onChange={handlePassport} />
                     </div>
                   </div>
                 </div>

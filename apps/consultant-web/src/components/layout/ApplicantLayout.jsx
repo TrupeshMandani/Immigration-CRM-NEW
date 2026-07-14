@@ -4,69 +4,72 @@ import { useAuth } from "../../context/AuthContext";
 import Button from "../common/Button";
 import applicantTaskService from "../../services/applicantTaskService";
 
+// restrictedAllowed: true  → visible to restricted (registered) applicants.
+// restrictedAllowed: false → premium; hidden until the applicant is fully
+//                            activated (status 'active').
 const navItems = [
   {
     label: "Dashboard",
     to: "/applicant/dashboard",
     icon: DashboardIcon,
     matchPrefixes: ["/applicant/dashboard"],
-    requiresActive: true,
+    restrictedAllowed: true,
   },
   {
     label: "Profile",
     to: "/applicant/profile",
     icon: UserIcon,
     matchPrefixes: ["/applicant/profile"],
-    requiresActive: false,
+    restrictedAllowed: true,
   },
   {
     label: "Documents",
     to: "/applicant/documents",
     icon: FolderIcon,
     matchPrefixes: ["/applicant/documents"],
-    requiresActive: true,
+    restrictedAllowed: true,
   },
   {
     label: "Tasks",
     to: "/applicant/tasks",
     icon: TasksIcon,
     matchPrefixes: ["/applicant/tasks"],
-    requiresActive: true,
+    restrictedAllowed: true,
   },
   {
     label: "University Recommendations",
     to: "/applicant/university-recommendations",
     icon: UniversityIcon,
     matchPrefixes: ["/applicant/university-recommendations"],
-    requiresActive: false,
+    restrictedAllowed: false,
   },
   {
     label: "Retainer Agreement",
     to: "/applicant/retainer",
     icon: RetainerIcon,
     matchPrefixes: ["/applicant/retainer"],
-    requiresActive: false,
+    restrictedAllowed: false,
   },
   {
     label: "Invoices & Payments",
     to: "/applicant/pay-invoice",
     icon: InvoiceIcon,
     matchPrefixes: ["/applicant/pay-invoice"],
-    requiresActive: false,
+    restrictedAllowed: false,
   },
   {
     label: "AI Assistant",
     to: "/applicant/assistant",
     icon: AssistantIcon,
     matchPrefixes: ["/applicant/assistant"],
-    requiresActive: true,
+    restrictedAllowed: false,
   },
   {
     label: "Change Password",
     to: "/applicant/change-password",
     icon: LockIcon,
     matchPrefixes: ["/applicant/change-password"],
-    requiresActive: true,
+    restrictedAllowed: true,
   },
 ];
 
@@ -208,11 +211,11 @@ const ApplicantLayout = ({ children }) => {
 
   const allowedRestrictedRoutes = useMemo(
     () =>
-      new Set([
-        "/applicant/profile",
-        "/applicant/university-recommendations",
-        "/applicant/change-password",
-      ]),
+      new Set(
+        navItems
+          .filter((item) => item.restrictedAllowed)
+          .flatMap((item) => item.matchPrefixes || [item.to])
+      ),
     []
   );
 
@@ -259,10 +262,13 @@ const ApplicantLayout = ({ children }) => {
 
   const renderNavLinks = (onNavigate) =>
     navItems.map((item) => {
+      // Premium sections are hidden entirely for restricted applicants.
+      if (isRestricted && !item.restrictedAllowed) return null;
+
       const prefixes = item.matchPrefixes || [item.to];
       const isActive = prefixes.some((prefix) => currentPath.startsWith(prefix));
       const Icon = item.icon;
-      const disabled = isRestricted && item.requiresActive;
+      const disabled = false;
       const showTaskBadge = item.to === "/applicant/tasks" && taskAlert;
 
       const handleClick = (event) => {
@@ -447,8 +453,8 @@ const ApplicantLayout = ({ children }) => {
 
           <main className="relative flex-1 overflow-y-auto bg-background px-4 py-6 md:px-8 md:py-10">
             {isRestricted && (
-              <div className="mb-4 rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-                Your registration is awaiting advisor approval. You can update your profile details and explore university recommendations while other features remain locked.
+              <div className="mb-4 rounded-md border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                You have restricted access. You can manage your profile, documents and tasks. Premium sections unlock once your advisor grants you full access.
               </div>
             )}
             <div className={restrictedViewOnly ? "pointer-events-none opacity-40" : ""}>
@@ -456,12 +462,12 @@ const ApplicantLayout = ({ children }) => {
             </div>
             {restrictedViewOnly && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div className="pointer-events-auto max-w-md rounded-lg border border-yellow-200 bg-white/95 px-6 py-4 text-center shadow-lg">
-                  <h3 className="text-base font-semibold text-yellow-800">
-                    Awaiting advisor activation
+                <div className="pointer-events-auto max-w-md rounded-lg border border-sky-200 bg-white/95 px-6 py-4 text-center shadow-lg">
+                  <h3 className="text-base font-semibold text-sky-800">
+                    Full access required
                   </h3>
                   <p className="mt-2 text-sm text-gray-600">
-                    These features unlock once your advisor approves your account. In the meantime, keep your profile up to date and review university recommendations.
+                    This section unlocks once your advisor grants you full access. In the meantime, keep your profile, documents and tasks up to date.
                   </p>
                 </div>
               </div>
