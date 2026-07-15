@@ -22,7 +22,7 @@ const {
   guessExtension,
 } = require('../../utils/fileName');
 const { verifyDocumentType } = require('../ai/verification.service');
-const { createAIVerificationTask } = require('../tasks/tasks.service');
+const { createAIVerificationTask, formatTask } = require('../tasks/tasks.service');
 const { send: sendNotification } = require('../notifications/notifications.service');
 
 const { db } = require('../../db/postgres');
@@ -42,6 +42,20 @@ const FIELD_LABELS = {
   IELTS_listening: 'IELTS Listening', IELTS_reading: 'IELTS Reading',
   IELTS_writing: 'IELTS Writing', IELTS_speaking: 'IELTS Speaking',
   GPA: 'GPA', degree: 'Degree', field: 'Field of Study', university: 'University',
+};
+
+// Render an AI-extracted value for the confirmation modal. Primitives stringify
+// directly; arrays of primitives join with commas; anything else (nested objects)
+// returns '' so it is filtered out instead of showing as "[object Object]".
+const formatExtractedValue = (value) => {
+  if (value === null || value === undefined) return '';
+  if (Array.isArray(value)) {
+    return value.every((v) => v === null || typeof v !== 'object')
+      ? value.filter((v) => v !== null && v !== undefined && v !== '').join(', ')
+      : '';
+  }
+  if (typeof value === 'object') return '';
+  return String(value);
 };
 
 const computeLocalHash = (filePath) => new Promise((resolve, reject) => {
@@ -1150,27 +1164,27 @@ const processRequiredDocumentUpload = async ({ applicant, slug, defData, file, f
     },
   }).returning();
 
-  // Create verification task if not verified
+  // Always create an admin verification task — a human must review every upload,
+  // even when the AI verdict is 'verified'. The admin clears it by verifying or
+  // rejecting the file from the profile / Tasks page.
   if (!skipVerification) {
-    if (verificationResult.status !== 'verified') {
-      try {
-        await createAIVerificationTask(
-          docRow.id,
-          verificationResult,
-          null,
-          { firmId: applicant.firm_id, applicantId: applicant.id }
-        );
-      } catch (e) { console.error('Failed to create verification task:', e); }
-    } else {
-      // Dismiss any existing open verification tasks for this slot
-      const slotFiles = await db.select({ id: documents.id }).from(documents)
-        .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, slug)));
-      const fileIds = slotFiles.map((r) => r.id);
-      if (fileIds.length) {
-        await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
-          .where(and(eq(tasks.firm_id, applicant.firm_id), eq(tasks.task_type, 'ai_verification'), inArray(tasks.document_id, fileIds)));
-      }
-    }
+    try {
+      await createAIVerificationTask(
+        docRow.id,
+        verificationResult,
+        null,
+        {
+          firmId: applicant.firm_id,
+          applicantId: applicant.id,
+          applicantAiKey: applicant.ai_key,
+          applicantName: applicantDisplayName,
+          documentField: defData.name || 'Document',
+          documentSlug: slug,
+          fileName: renamedFileName,
+          uploadTimestamp: new Date().toISOString(),
+        }
+      );
+    } catch (e) { console.error('Failed to create verification task:', e); }
   }
 
   // Merge AI-extracted profile data
@@ -1230,7 +1244,11 @@ exports.uploadRequiredDocumentFile = async (req, res) => {
     }
 
     const fileSource = isAISystemUpload ? 'ai' : actorRole === 'admin' ? 'admin' : 'manual';
-    const uploadedBy = req.user?.id || null;
+    // documents.uploaded_by is a FK to the `users` table (firm staff only). Applicants
+    // live in a separate `applicants` table, so an applicant's id is never present in
+    // `users` and would violate the constraint. Only record a uploader for firm staff.
+    const FIRM_STAFF_ROLES = ['admin', 'senior', 'junior'];
+    const uploadedBy = FIRM_STAFF_ROLES.includes(actorRole) ? (req.user?.id || null) : null;
 
     // Duplicate file detection: hash local file before upload
     let fileHash = null;
@@ -1264,17 +1282,24 @@ exports.uploadRequiredDocumentFile = async (req, res) => {
     if (extractedProfile && Object.keys(extractedProfile).length) {
       try {
         const { emitToUser } = require('../../socket');
-        const extractedFields = Object.entries(extractedProfile).map(([key, value]) => ({
-          field: key,
-          value: String(value ?? ''),
-          label: FIELD_LABELS[key] ?? key,
-        }));
-        emitToUser(applicant.firm_id, applicant.id, 'document:extracted', {
-          docSlug: slug,
-          docName: defData.name,
-          extractedFields,
-          fieldsCount: extractedFields.length,
-        });
+        const extractedFields = Object.entries(extractedProfile)
+          .map(([key, value]) => ({
+            field: key,
+            value: formatExtractedValue(value),
+            label: FIELD_LABELS[key] ?? key,
+          }))
+          // Drop empty and non-displayable values (e.g. nested objects) so the
+          // applicant never sees a blank or "[object Object]" row.
+          .filter((f) => f.value !== '');
+        // Only surface the confirmation modal when we actually captured fields.
+        if (extractedFields.length) {
+          emitToUser(applicant.firm_id, applicant.id, 'document:extracted', {
+            docSlug: slug,
+            docName: defData.name,
+            extractedFields,
+            fieldsCount: extractedFields.length,
+          });
+        }
       } catch (emitErr) {
         console.error('[socket] extraction feedback emit failed:', emitErr.message);
       }
@@ -1405,9 +1430,27 @@ exports.verifyRequiredDocumentFile = async (req, res) => {
       },
     }).where(eq(documents.id, fileId)).returning();
 
-    // Dismiss open verification tasks for this file
-    await db.update(tasks).set({ status: 'dismissed', updated_at: new Date() })
+    // Resolve the admin verification task → move it into "Verified" (done),
+    // not silently dismissed, so it shows under the Verified tab and updates live.
+    const openTasks = await db.select().from(tasks)
       .where(and(eq(tasks.firm_id, applicant.firm_id), eq(tasks.task_type, 'ai_verification'), eq(tasks.document_id, fileId)));
+    for (const t of openTasks) {
+      const [updatedTask] = await db.update(tasks).set({
+        status: 'done',
+        completed_at: new Date(),
+        is_read: false,
+        metadata: {
+          ...(t.metadata ?? {}),
+          verificationStatus: 'verified',
+          verificationReason: 'Verified by admin',
+        },
+        updated_at: new Date(),
+      }).where(eq(tasks.id, t.id)).returning();
+      try {
+        const { emitTaskUpdated } = require('../../socket');
+        emitTaskUpdated(formatTask(updatedTask), applicant.firm_id);
+      } catch (emitErr) { console.error('[socket] task:updated emit failed:', emitErr.message); }
+    }
 
     const fileRows = await db.select().from(documents)
       .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId)));
@@ -1415,6 +1458,92 @@ exports.verifyRequiredDocumentFile = async (req, res) => {
   } catch (error) {
     console.error('Verify required doc file error:', error);
     res.status(500).json({ success: false, message: 'Failed to verify document' });
+  }
+};
+
+// ─── Reject a required-doc file (admin) ───────────────────────────────────────
+// Marks the document rejected, resolves the admin verification task as "Failed",
+// and creates an applicant-facing task instructing them to re-upload the correct
+// document (with the admin's optional comment).
+exports.rejectRequiredDocumentFile = async (req, res) => {
+  try {
+    const { aiKey, docId, fileId } = req.params;
+    if (req.user?.role !== 'admin') return res.status(403).json({ message: 'Admin access required' });
+
+    const [applicant] = await db.select().from(applicants).where(eq(applicants.ai_key, aiKey)).limit(1);
+    if (!applicant) return res.status(404).json({ message: 'Applicant not found' });
+
+    const defs = getDocDefs(applicant);
+    if (!defs[docId]) return res.status(404).json({ message: 'Document not found' });
+
+    const [fileRow] = await db.select().from(documents)
+      .where(and(eq(documents.id, fileId), eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId))).limit(1);
+    if (!fileRow) return res.status(404).json({ message: 'File not found' });
+
+    const docLabel = defs[docId].name || 'Document';
+    const rawReason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : '';
+    const reason = rawReason || 'Please re-upload the correct document.';
+
+    await db.update(documents).set({
+      ai_verification: {
+        ...(fileRow.ai_verification ?? {}),
+        // 'failed' is the UI's rejected state (VERIFICATION_STATUSES = pending|verified|failed).
+        status: 'failed',
+        rejectedByAdmin: true,
+        confidence: 0,
+        detectedType: fileRow.ai_verification?.detectedType || docLabel,
+        reason,
+        checkedAt: new Date(),
+      },
+    }).where(eq(documents.id, fileId));
+
+    // Resolve the admin verification task → "Failed".
+    const openTasks = await db.select().from(tasks)
+      .where(and(eq(tasks.firm_id, applicant.firm_id), eq(tasks.task_type, 'ai_verification'), eq(tasks.document_id, fileId)));
+    for (const t of openTasks) {
+      const [updatedTask] = await db.update(tasks).set({
+        status: 'done',
+        completed_at: new Date(),
+        is_read: false,
+        metadata: {
+          ...(t.metadata ?? {}),
+          verificationStatus: 'failed',
+          verificationReason: reason,
+        },
+        updated_at: new Date(),
+      }).where(eq(tasks.id, t.id)).returning();
+      try {
+        const { emitTaskUpdated } = require('../../socket');
+        emitTaskUpdated(formatTask(updatedTask), applicant.firm_id);
+      } catch (emitErr) { console.error('[socket] task:updated emit failed:', emitErr.message); }
+    }
+
+    // Create an applicant-facing re-upload task.
+    const [applicantTask] = await db.insert(tasks).values({
+      firm_id: applicant.firm_id,
+      applicant_id: applicant.id,
+      document_id: fileId,
+      task_type: 'general',
+      title: `Re-upload: ${docLabel}`,
+      description: reason,
+      status: 'open',
+      created_by: req.user?.id ?? null,
+      is_read: false,
+      metadata: { documentSlug: docId, documentField: docLabel },
+    }).returning();
+
+    try { await sendTaskAssignedEmail({ applicant, task: applicantTask }); } catch (e) { console.error('Failed to send reject task email:', e.message); }
+    try {
+      const { emitTaskCreated } = require('../../socket');
+      emitTaskCreated(formatTask(applicantTask), applicant.firm_id);
+    } catch (emitErr) { console.error('[socket] task:created emit failed:', emitErr.message); }
+
+    const fileRows = await db.select().from(documents)
+      .where(and(eq(documents.applicant_id, applicant.id), eq(documents.document_type, docId)));
+    res.json({ success: true, document: formatRequiredDoc(docId, defs[docId], fileRows) });
+  } catch (error) {
+    console.error('Reject required doc file error:', error);
+    res.status(500).json({ success: false, message: 'Failed to reject document' });
   }
 };
 
@@ -1431,8 +1560,15 @@ exports.listApplicantTasks = async (req, res) => {
     const isOwner = req.user?.role === 'applicant' && (req.user?.ai_key || req.user?.aiKey) === aiKey;
     if (!isAdmin && !isOwner) return res.status(403).json({ message: 'Access denied' });
 
+    // Exclude internal ai_verification tasks — those are the admin's review queue,
+    // not work items for the applicant. Applicants see general/deadline/reminder tasks
+    // assigned to them (e.g. the "Re-upload: …" task created when a doc is rejected).
     const taskRows = await db.select().from(tasks)
-      .where(and(eq(tasks.applicant_id, applicant.id), eq(tasks.firm_id, applicant.firm_id)))
+      .where(and(
+        eq(tasks.applicant_id, applicant.id),
+        eq(tasks.firm_id, applicant.firm_id),
+        ne(tasks.task_type, 'ai_verification'),
+      ))
       .orderBy(desc(tasks.created_at));
 
     if (isOwner && markSeen === 'true') {
@@ -1493,7 +1629,11 @@ exports.createApplicantTask = async (req, res) => {
     await sendTaskAssignedEmail({ applicant, task: newTask });
 
     const allTasks = await db.select().from(tasks)
-      .where(and(eq(tasks.applicant_id, applicant.id), eq(tasks.firm_id, applicant.firm_id)))
+      .where(and(
+        eq(tasks.applicant_id, applicant.id),
+        eq(tasks.firm_id, applicant.firm_id),
+        ne(tasks.task_type, 'ai_verification'),
+      ))
       .orderBy(desc(tasks.created_at));
 
     res.json({ success: true, tasks: allTasks.map(formatApplicantTask) });
@@ -1556,7 +1696,11 @@ exports.updateApplicantTask = async (req, res) => {
     }
 
     const allTasks = await db.select().from(tasks)
-      .where(and(eq(tasks.applicant_id, applicant.id), eq(tasks.firm_id, applicant.firm_id)))
+      .where(and(
+        eq(tasks.applicant_id, applicant.id),
+        eq(tasks.firm_id, applicant.firm_id),
+        ne(tasks.task_type, 'ai_verification'),
+      ))
       .orderBy(desc(tasks.created_at));
 
     res.json({ success: true, tasks: allTasks.map(formatApplicantTask) });
@@ -1613,7 +1757,11 @@ exports.deleteApplicantTask = async (req, res) => {
     await db.delete(tasks).where(eq(tasks.id, taskId));
 
     const allTasks = await db.select().from(tasks)
-      .where(and(eq(tasks.applicant_id, applicant.id), eq(tasks.firm_id, applicant.firm_id)))
+      .where(and(
+        eq(tasks.applicant_id, applicant.id),
+        eq(tasks.firm_id, applicant.firm_id),
+        ne(tasks.task_type, 'ai_verification'),
+      ))
       .orderBy(desc(tasks.created_at));
 
     res.json({ success: true, tasks: allTasks.map(formatApplicantTask) });

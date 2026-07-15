@@ -51,6 +51,7 @@ const TasksPage = () => {
   });
   const [viewingDoc, setViewingDoc] = useState(null);
   const [verifyingFileId, setVerifyingFileId] = useState(null);
+  const [rejectingFileId, setRejectingFileId] = useState(null);
   const autoOpenTaskRef = useRef(false);
 
   const fetchTasks = useCallback(
@@ -108,8 +109,8 @@ const TasksPage = () => {
     (task) => ({
       id: task.documentId,
       name: task.documentField || "Document",
-      aiKey: task.applicantAiKey ?? task.applicantAiKey,
-      applicantId: task.applicantId ?? task.applicantId,
+      aiKey: task.applicantAiKey,
+      applicantId: task.applicantId,
     }),
     []
   );
@@ -240,6 +241,32 @@ const TasksPage = () => {
     [previewModal.doc, viewingDoc, fetchTasks]
   );
 
+  const handleRejectFile = useCallback(
+    async (file, reason = "") => {
+      if (!previewModal.doc?.aiKey || !previewModal.doc?.id || !file?.id) return;
+      setRejectingFileId(file.id);
+      try {
+        await requiredDocsService.rejectFile(
+          previewModal.doc.aiKey,
+          previewModal.doc.id,
+          file.id,
+          reason
+        );
+        setError("");
+        // Close the viewer/preview and refresh — the doc is now rejected.
+        setViewingDoc(null);
+        setPreviewModal(initialPreviewState);
+        await fetchTasks({ withLoader: false });
+      } catch (err) {
+        console.error("Failed to reject document:", err);
+        setError("Unable to reject document. Please try again.");
+      } finally {
+        setRejectingFileId(null);
+      }
+    },
+    [previewModal.doc, fetchTasks]
+  );
+
   const handleDeleteTask = useCallback(
     async (task) => {
       if (!task?.id) return;
@@ -285,7 +312,14 @@ const TasksPage = () => {
   const summary = useMemo(() => {
     return tasks.reduce(
       (acc, task) => {
-        const statusKey = task.status || task.verificationStatus || "pending";
+        // A resolved (done) task reflects its verification outcome; still-open
+        // tasks are pending human review regardless of the AI verdict.
+        const statusKey =
+          task.status === "done"
+            ? task.verificationStatus === "failed"
+              ? "failed"
+              : "verified"
+            : "pending";
         acc[statusKey] = (acc[statusKey] || 0) + 1;
         return acc;
       },
@@ -298,12 +332,12 @@ const TasksPage = () => {
       <Button variant="outline" size="sm" onClick={() => handleOpenPreview(task)}>
         View document
       </Button>
-      {(task.applicantId || task.applicantId) && (
+      {task.applicantId && (
         <Button
           variant="ghost"
           size="sm"
           className="text-neutral-700 hover:text-primary"
-          onClick={() => navigate(`/admin/applicants/${task.applicantId || task.applicantId}`)}
+          onClick={() => navigate(`/admin/applicants/${task.applicantId}`)}
         >
           Open profile
         </Button>
@@ -361,12 +395,10 @@ const TasksPage = () => {
         <tr key={task.id} className="border-t border-neutral-100">
           <td className="px-4 py-4 align-top">
             <p className="font-semibold text-neutral-900">
-              {task.applicantName || task.applicantName || "Applicant"}
+              {task.applicantName || "Applicant"}
             </p>
             <p className="text-xs text-neutral-500">
-              {(task.applicantAiKey || task.applicantAiKey)
-                ? `AI Key: ${task.applicantAiKey || task.applicantAiKey}`
-                : ""}
+              {task.applicantAiKey ? `AI Key: ${task.applicantAiKey}` : ""}
             </p>
           </td>
           <td className="px-4 py-4 align-top">
@@ -500,6 +532,12 @@ const TasksPage = () => {
             viewingDoc.file ? () => handleVerifyFile(viewingDoc.file) : undefined
           }
           verifying={verifyingFileId === viewingDoc.fileId}
+          onReject={
+            viewingDoc.file
+              ? (reason) => handleRejectFile(viewingDoc.file, reason)
+              : undefined
+          }
+          rejecting={rejectingFileId === viewingDoc.fileId}
         />
       )}
       <UploadedFilesModal
@@ -513,6 +551,8 @@ const TasksPage = () => {
         canVerify={Boolean(previewModal.doc)}
         onVerifyFile={handleVerifyFile}
         verifyingFileId={verifyingFileId}
+        onRejectFile={handleRejectFile}
+        rejectingFileId={rejectingFileId}
       />
     </AdminLayout>
   );

@@ -232,7 +232,9 @@ export async function executeTool(
           file: chatFile,
           uploadOptions: {
             fileSource: 'chat',
-            uploadedBy: applicantId,
+            // uploaded_by FKs to `users` (firm staff). An applicant's id lives in the
+            // separate `applicants` table, so leave it null and record the role instead.
+            uploadedBy: null,
             uploadedByRole: 'applicant',
             skipVerification: false,
             skipExtraction: false,

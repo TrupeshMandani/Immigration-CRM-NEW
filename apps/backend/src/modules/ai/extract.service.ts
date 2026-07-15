@@ -1,7 +1,13 @@
 import { createReadStream, readFileSync } from 'fs';
-// pdf-parse ships as a CommonJS module; use require to avoid TS call-signature error.
+// pdf-parse v2 exposes a class-based API (the old callable default export is gone).
+// Keep require to avoid ESM/TS interop friction; instantiate PDFParse per document.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const pdfParse = require('pdf-parse') as (buf: Buffer) => Promise<{ text: string }>;
+const { PDFParse } = require('pdf-parse') as {
+  PDFParse: new (opts: { data: Buffer }) => {
+    getText(): Promise<{ text: string }>;
+    destroy(): Promise<void>;
+  };
+};
 import mammoth from 'mammoth';
 import { runAIJob, type OAIMessage, type AIJobContext } from './ai-orchestrator.service';
 import { classifyDocument } from './classifier.service';
@@ -35,8 +41,13 @@ ${schemaDescription ? `Follow this structure: ${schemaDescription}` : 'Extract i
 
 export async function extractTextFromFile(filePath: string, mimeType: string): Promise<string> {
   if (mimeType === 'application/pdf') {
-    const data = await pdfParse(readFileSync(filePath));
-    return data.text || '';
+    const parser = new PDFParse({ data: readFileSync(filePath) });
+    try {
+      const { text } = await parser.getText();
+      return text || '';
+    } finally {
+      await parser.destroy();
+    }
   }
   if (mimeType.includes('word') || filePath.endsWith('.docx')) {
     const { value } = await mammoth.extractRawText({ path: filePath });
@@ -116,11 +127,14 @@ export async function extractProfileWithAI(
     results.push({ fileName: f.originalname ?? f.path, docType, data });
   }
 
+  // Merge only the extracted field data. We intentionally do NOT attach any
+  // metadata (e.g. a documentsFound array) onto the profile — consumers treat
+  // every key as an extracted field, so a nested object/array would surface to
+  // the applicant as a "[object Object]" field and pollute the stored profile.
   const mergedProfile = results.reduce<Record<string, unknown>>(
     (acc, curr) => ({ ...acc, ...curr.data }),
     {},
   );
-  mergedProfile.documentsFound = results.map((r) => ({ type: r.docType, fileName: r.fileName }));
 
   return mergedProfile;
 }

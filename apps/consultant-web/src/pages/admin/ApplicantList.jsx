@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import AdminLayout from "../../components/layout/AdminLayout";
 import Card from "../../components/common/Card";
@@ -19,8 +19,9 @@ import {
 
 const ApplicantList = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "");
   const [confirmDelete, setConfirmDelete] = useState({
     open: false,
     applicantId: null,

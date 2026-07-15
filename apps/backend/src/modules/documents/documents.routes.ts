@@ -26,7 +26,12 @@ function serviceError(res: Response, err: unknown) {
 documentsRouter.post('/upload-url', async (req: Request, res: Response) => {
   try {
     const firmId = req.context!.firmId;
-    const uploadedBy = req.context!.userId ?? null;
+    // uploaded_by FKs to `users` (firm staff). Applicant ids live in a separate table,
+    // so only record an uploader when the caller is a firm staff member.
+    const FIRM_STAFF_ROLES = ['admin', 'senior', 'junior'];
+    const uploadedBy = FIRM_STAFF_ROLES.includes(req.context!.role)
+      ? (req.context!.userId ?? null)
+      : null;
     const result = await generateUploadUrl(req.db, firmId, uploadedBy, req.body);
     res.status(201).json(result);
   } catch (err) {

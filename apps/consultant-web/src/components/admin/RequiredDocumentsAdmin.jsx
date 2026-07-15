@@ -50,6 +50,7 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
   const [applicantName, setApplicantName] = useState("");
   const hasAutoOpened = useRef(false);
   const [verifyingFileId, setVerifyingFileId] = useState(null);
+  const [rejectingFileId, setRejectingFileId] = useState(null);
 
   useEffect(() => {
     hasAutoOpened.current = false;
@@ -234,6 +235,37 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
       triggerToast("Unable to verify document. Please try again.", "error");
     } finally {
       setVerifyingFileId(null);
+    }
+  };
+
+  const handleRejectFile = async (doc, file, reason = "") => {
+    if (!doc?.id || !file?.id) return;
+    setRejectingFileId(file.id);
+    try {
+      const updated = await requiredDocsService.rejectFile(
+        aiKey,
+        doc.id,
+        file.id,
+        reason
+      );
+      const normalizedDoc = normalizeRequiredDoc(updated);
+      setRequiredDocs((prev) =>
+        prev.map((item) => (item.id === normalizedDoc.id ? normalizedDoc : item))
+      );
+      setFilesModal((prev) =>
+        prev.doc?.id === normalizedDoc.id
+          ? { ...prev, doc: normalizedDoc, files: normalizedDoc.files }
+          : prev
+      );
+      if (viewingDoc?.docId === normalizedDoc.id) {
+        setViewingDoc(null);
+      }
+      triggerToast("Document rejected. The applicant has been asked to re-upload.");
+    } catch (error) {
+      console.error("Failed to reject document:", error);
+      triggerToast("Unable to reject document. Please try again.", "error");
+    } finally {
+      setRejectingFileId(null);
     }
   };
 
@@ -641,6 +673,12 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
               : undefined
           }
           verifying={verifyingFileId === viewingDoc.fileId}
+          onReject={
+            viewingDoc.doc && viewingDoc.file
+              ? (reason) => handleRejectFile(viewingDoc.doc, viewingDoc.file, reason)
+              : undefined
+          }
+          rejecting={rejectingFileId === viewingDoc.fileId}
         />
       )}
       <UploadedFilesModal
@@ -661,6 +699,10 @@ const RequiredDocumentsAdmin = ({ aiKey, autoOpenDocumentId = null }) => {
           filesModal.doc ? handleVerifyFile(filesModal.doc, file) : undefined
         }
         verifyingFileId={verifyingFileId}
+        onRejectFile={(file, reason) =>
+          filesModal.doc ? handleRejectFile(filesModal.doc, file, reason) : undefined
+        }
+        rejectingFileId={rejectingFileId}
       />
 
       <UploadConfirmationModal

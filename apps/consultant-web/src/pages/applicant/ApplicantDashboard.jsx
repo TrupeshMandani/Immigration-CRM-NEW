@@ -62,7 +62,7 @@ const formatDate = (value) => {
 };
 
 const ApplicantDashboardPage = () => {
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
   const [applicant, setApplicant] = useState(null);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,12 +79,6 @@ const ApplicantDashboardPage = () => {
           ]);
           setApplicant(applicantData);
           setFiles(mapFilesWithDisplayName(filesData.files || []));
-          // Keep the cached auth status in sync so portal gating reflects any
-          // access change (e.g. advisor upgraded restricted → full) without
-          // requiring the applicant to sign out and back in.
-          if (applicantData?.status && applicantData.status !== user.status) {
-            updateUser({ ...user, status: applicantData.status });
-          }
         }
       } catch {
         setError("Failed to load applicant data");

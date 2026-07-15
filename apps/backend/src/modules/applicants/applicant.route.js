@@ -138,6 +138,12 @@ router.post(
   requireAdmin,
   ctrl.verifyRequiredDocumentFile
 );
+router.post(
+  "/:aiKey/required-documents/:docId/files/:fileId/reject",
+  authenticateToken,
+  requireAdmin,
+  ctrl.rejectRequiredDocumentFile
+);
 router.get("/:aiKey/tasks", authenticateToken, ctrl.listApplicantTasks);
 router.post(
   "/:aiKey/tasks",

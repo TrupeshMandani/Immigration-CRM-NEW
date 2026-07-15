@@ -1,18 +1,14 @@
 import { useMemo } from "react";
-import { Group, Panel, Separator } from "react-resizable-panels";
+import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
 
-const readStoredSizes = (key, expectedLength) => {
-  if (!key || typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(key);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length === expectedLength) return parsed;
-  } catch {
-    // ignore
-  }
-  return null;
-};
+// react-resizable-panels v4 persists layouts through the `useDefaultLayout`
+// hook (wired to the Group via `defaultLayout` + `onLayoutChanged`). The older
+// `onLayout` / per-panel `defaultSize`-from-localStorage pattern is a no-op in
+// v4 — `Group` never emitted `onLayout`, so nothing was ever saved and every
+// navigation fell back to the hard-coded default. This restores real
+// persistence so a resized sidebar stays where the user left it.
+
+const noopStorage = { getItem: () => null, setItem: () => {} };
 
 const AppSplitterLayout = ({
   left,
@@ -21,62 +17,76 @@ const AppSplitterLayout = ({
   showSecondary = false,
   initialSizes,
   minSizes,
-  storageKey,
+  storageKey = "app-splitter",
   className = "",
 }) => {
   const hasSecondary = Boolean(showSecondary && secondary);
-  const panelCount = hasSecondary ? 3 : 2;
 
-  const defaultSizes = useMemo(() => {
-    const stored = readStoredSizes(storageKey, panelCount);
-    if (stored) return stored;
-    if (Array.isArray(initialSizes) && initialSizes.length >= panelCount)
-      return initialSizes.slice(0, panelCount);
+  const panelIds = useMemo(
+    () => (hasSecondary ? ["sidebar", "secondary", "main"] : ["sidebar", "main"]),
+    [hasSecondary],
+  );
+
+  const fallbackSizes = useMemo(() => {
+    const count = panelIds.length;
+    if (Array.isArray(initialSizes) && initialSizes.length >= count)
+      return initialSizes.slice(0, count);
     return hasSecondary ? [22, 18, 60] : [22, 78];
-  }, [storageKey, panelCount, initialSizes, hasSecondary]);
+  }, [initialSizes, panelIds, hasSecondary]);
 
-  const normalizedMinSizes = useMemo(() => {
-    if (Array.isArray(minSizes) && minSizes.length >= panelCount)
-      return minSizes.slice(0, panelCount);
+  const fallbackMins = useMemo(() => {
+    const count = panelIds.length;
+    if (Array.isArray(minSizes) && minSizes.length >= count)
+      return minSizes.slice(0, count);
     return hasSecondary ? [12, 12, 30] : [12, 30];
-  }, [minSizes, panelCount, hasSecondary]);
+  }, [minSizes, panelIds, hasSecondary]);
 
-  const onLayout = (sizes) => {
-    if (!storageKey || typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(storageKey, JSON.stringify(sizes));
-    } catch {
-      // ignore
-    }
-  };
+  const storage =
+    typeof window !== "undefined" && window.localStorage
+      ? window.localStorage
+      : noopStorage;
 
-  const panels = [{ content: left, index: 0 }];
-  if (hasSecondary) panels.push({ content: secondary, index: 1 });
-  panels.push({ content: children, index: hasSecondary ? 2 : 1 });
+  const { defaultLayout, onLayoutChanged } = useDefaultLayout({
+    id: storageKey,
+    panelIds,
+    storage,
+  });
+
+  const renderPanel = (content, index, id) => (
+    <Panel
+      key={id}
+      id={id}
+      defaultSize={`${fallbackSizes[index]}%`}
+      minSize={`${fallbackMins[index]}%`}
+      className="overflow-hidden"
+    >
+      <div className="flex h-full min-h-0 flex-col overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-auto">{content}</div>
+      </div>
+    </Panel>
+  );
+
+  const separator = (key) => (
+    <Separator
+      key={key}
+      className="w-1 cursor-col-resize bg-neutral-200 transition-colors hover:bg-primary/40"
+    />
+  );
 
   return (
     <div className={`flex h-full w-full ${className}`}>
-      <Group direction="horizontal" onLayout={onLayout} className="flex-1">
-        {panels.map(({ content, index }, arrayIndex) => (
-          <>
-            {arrayIndex > 0 && (
-              <Separator
-                key={`sep-${arrayIndex}`}
-                className="w-1 cursor-col-resize bg-neutral-200 hover:bg-primary/40 transition-colors"
-              />
-            )}
-            <Panel
-              key={index}
-              defaultSize={defaultSizes[index] ?? (hasSecondary ? [22, 18, 60] : [22, 78])[index]}
-              minSize={normalizedMinSizes[index]}
-              className="overflow-hidden"
-            >
-              <div className="flex h-full flex-col overflow-hidden">
-                <div className="flex-1 overflow-auto">{content}</div>
-              </div>
-            </Panel>
-          </>
-        ))}
+      <Group
+        orientation="horizontal"
+        defaultLayout={defaultLayout}
+        onLayoutChanged={onLayoutChanged}
+        className="flex-1"
+      >
+        {renderPanel(left, 0, "sidebar")}
+        {separator("sep-1")}
+        {hasSecondary
+          ? [renderPanel(secondary, 1, "secondary"), separator("sep-2")]
+          : null}
+        {renderPanel(children, hasSecondary ? 2 : 1, "main")}
       </Group>
     </div>
   );

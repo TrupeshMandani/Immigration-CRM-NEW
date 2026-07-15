@@ -1,7 +1,14 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
-const DocumentViewer = ({ document: doc, onClose, onVerify, verifying = false }) => {
+const DocumentViewer = ({
+  document: doc,
+  onClose,
+  onVerify,
+  verifying = false,
+  onReject,
+  rejecting = false,
+}) => {
   const hasValidLink = doc?.url && doc.url !== "#";
   const isPDF = doc?.mimeType?.includes("pdf");
   const isImage = doc?.mimeType?.includes("image");
@@ -41,6 +48,18 @@ const DocumentViewer = ({ document: doc, onClose, onVerify, verifying = false })
   };
 
   const showVerify = typeof onVerify === "function" && hasValidLink;
+  const showReject = typeof onReject === "function" && hasValidLink;
+  const busy = verifying || rejecting;
+
+  const handleReject = () => {
+    const comment = window.prompt(
+      "Reason for rejection (optional — shown to the applicant):",
+      ""
+    );
+    // `null` means the admin cancelled the prompt; empty string is an allowed (optional) reason.
+    if (comment === null) return;
+    onReject(comment.trim());
+  };
 
   const modal = (
     <div
@@ -111,12 +130,61 @@ const DocumentViewer = ({ document: doc, onClose, onVerify, verifying = false })
                   </svg>
                   <span>View</span>
                 </button>
+                {showReject && (
+                  <button
+                    onClick={handleReject}
+                    disabled={busy}
+                    className={`px-4 py-2 rounded text-sm font-semibold transition-colors flex items-center space-x-2 ${
+                      busy
+                        ? "bg-rose-200 text-rose-700 cursor-not-allowed"
+                        : "bg-rose-600 text-white hover:bg-rose-700"
+                    }`}
+                  >
+                    {rejecting ? (
+                      <svg
+                        className="h-4 w-4 animate-spin"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          d="M4 12a8 8 0 018-8"
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    )}
+                    <span>{rejecting ? "Rejecting..." : "Reject"}</span>
+                  </button>
+                )}
                 {showVerify && (
                   <button
                     onClick={onVerify}
-                    disabled={verifying}
+                    disabled={busy}
                     className={`px-4 py-2 rounded text-sm font-semibold transition-colors flex items-center space-x-2 ${
-                      verifying
+                      busy
                         ? "bg-emerald-200 text-emerald-700 cursor-not-allowed"
                         : "bg-emerald-600 text-white hover:bg-emerald-700"
                     }`}

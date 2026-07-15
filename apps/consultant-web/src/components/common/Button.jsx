@@ -8,7 +8,7 @@ const Button = ({
   ...props
 }) => {
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-primary-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft";
+    "relative inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-primary-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft";
 
   const variants = {
     primary:
@@ -31,20 +31,23 @@ const Button = ({
     lg: "px-8 py-4 text-base",
   };
 
-  const spinner = (
-    <span className="inline-flex items-center gap-2">
-      <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-primary-200/40 border-t-primary-200" />
-      <span className="tracking-wide">Loading...</span>
-    </span>
-  );
-
   const classes = `${baseClasses} ${variants[variant] ?? variants.primary} ${
     sizes[size] ?? sizes.md
   } ${className}`;
 
   return (
     <button className={classes} disabled={disabled || loading} {...props}>
-      {loading ? spinner : children}
+      {loading && (
+        <span className="absolute inset-0 flex items-center justify-center gap-2">
+          <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-primary-200/40 border-t-primary-200" />
+          <span className="tracking-wide">Loading...</span>
+        </span>
+      )}
+      {/* Keep the label rendered (invisible while loading) so the button width
+          stays constant and the button row doesn't reflow/jump. */}
+      <span className={loading ? "invisible inline-flex items-center gap-2" : "inline-flex items-center gap-2"}>
+        {children}
+      </span>
     </button>
   );
 };

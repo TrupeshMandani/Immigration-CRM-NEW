@@ -7,6 +7,7 @@ import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { eq } from 'drizzle-orm';
 import { withFirmContext } from '../../db/postgres';
 import { documents } from '../../db/schema/documents';
+import { applicants } from '../../db/schema/applicants';
 import { s3 } from '../documents/documents.service';
 import { verifyDocumentType } from './verification.service';
 import { createAIVerificationTask } from '../tasks/tasks.service';
@@ -56,11 +57,31 @@ export function startVerifyWorker() {
         // Auto-create an ai_verification task for verdicts that need human review.
         // 'pending' = AI was uncertain; 'failed' = AI detected wrong doc type.
         if (result.status === 'pending' || result.status === 'failed') {
+          // Look up applicant context so the task carries the AI key the frontend
+          // needs to open the document (otherwise "File information missing").
+          let applicantAiKey: string | null = null;
+          let applicantName: string | null = null;
+          if (applicantId) {
+            const [appRow] = await withFirmContext(firmId, (tx) =>
+              tx.select().from(applicants).where(eq(applicants.id, applicantId)).limit(1),
+            );
+            if (appRow) {
+              applicantAiKey = appRow.ai_key ?? null;
+              applicantName = [appRow.first_name, appRow.last_name].filter(Boolean).join(' ').trim() || null;
+            }
+          }
+
           await createAIVerificationTask(
             documentId,
             result,
             null, // aiJobId — traceability link; TODO: thread through from runAIJob
-            { firmId, applicantId: applicantId ?? null },
+            {
+              firmId,
+              applicantId: applicantId ?? null,
+              applicantAiKey,
+              applicantName,
+              documentField: documentType,
+            },
           );
         }
 

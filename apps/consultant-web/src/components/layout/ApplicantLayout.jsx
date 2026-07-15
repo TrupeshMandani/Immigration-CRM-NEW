@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../common/Button";
+import AppSplitterLayout from "./AppSplitterLayout";
 import applicantTaskService from "../../services/applicantTaskService";
+import { applicantService } from "../../services/authService";
 
 // restrictedAllowed: true  → visible to restricted (registered) applicants.
 // restrictedAllowed: false → premium; hidden until the applicant is fully
@@ -202,7 +204,7 @@ function AssistantIcon(props) {
 const ApplicantLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [taskAlert, setTaskAlert] = useState(false);
 
@@ -225,6 +227,35 @@ const ApplicantLayout = ({ children }) => {
     !Array.from(allowedRestrictedRoutes).some((path) =>
       currentPath.startsWith(path)
     );
+
+  // The cached `user` (and its `status`) is a snapshot saved to localStorage at
+  // login and never re-fetched on refresh. Re-sync the authoritative status
+  // from the backend on every applicant page load so access changes (e.g.
+  // advisor upgraded restricted → full, or downgraded full → restricted) take
+  // effect on refresh regardless of which page the applicant is on — not only
+  // on the dashboard.
+  useEffect(() => {
+    let cancelled = false;
+    const syncAccessStatus = async () => {
+      if (user?.role !== "applicant" || !user?.aiKey) return;
+      try {
+        const applicant = await applicantService.getApplicantByKey(user.aiKey);
+        if (cancelled) return;
+        if (applicant?.status && applicant.status !== user.status) {
+          updateUser({ ...user, status: applicant.status });
+        }
+      } catch {
+        // Leave the cached status in place if the refresh fails.
+      }
+    };
+    syncAccessStatus();
+    return () => {
+      cancelled = true;
+    };
+    // Re-run when the identity changes; status is intentionally excluded so a
+    // successful sync does not retrigger the effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.aiKey, user?.role]);
 
   useEffect(() => {
     let cancelled = false;
@@ -318,50 +349,77 @@ const ApplicantLayout = ({ children }) => {
       );
     });
 
-  return (
-    <div className="h-screen bg-background">
-      <div className="flex h-full overflow-hidden">
-        <aside className="hidden h-full w-64 flex-shrink-0 flex-col border-r border-primary-800 bg-primary-900 p-6 md:flex">
-          <div className="mb-8">
-            <Link to="/applicant/dashboard" className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-800 text-primary-200">
-                <svg
-                  className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                >
-                  <path d="M4 7.5L12 3l8 4.5M4 7.5V16.5L12 21l8-4.5V7.5M4 7.5l8 4.5 8-4.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M12 12V21" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <span className="text-lg font-semibold text-primary-200">
-                Immigration CRM
-              </span>
-            </Link>
-          </div>
-
-          <nav className="flex-1 space-y-2">{renderNavLinks()}</nav>
-
-          <div className="mt-8 space-y-3 text-sm text-primary-400">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-primary-600">
-                Signed in as
-              </p>
-              <p className="mt-1 font-medium text-primary-200">
-                {user?.username || user?.contactInfo?.name || "Applicant"}
-              </p>
-            </div>
-            <button 
-              className="w-full text-left text-sm font-medium text-red-500 hover:text-red-400" 
-              onClick={handleLogout}
+  const desktopSidebar = (
+    <div className="flex h-full flex-col border-r border-primary-800 bg-primary-900 p-6">
+      <div className="mb-8">
+        <Link to="/applicant/dashboard" className="flex items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-800 text-primary-200">
+            <svg
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
             >
-              Logout
-            </button>
+              <path d="M4 7.5L12 3l8 4.5M4 7.5V16.5L12 21l8-4.5V7.5M4 7.5l8 4.5 8-4.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M12 12V21" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
-        </aside>
+          <span className="text-lg font-semibold text-primary-200">
+            Immigration CRM
+          </span>
+        </Link>
+      </div>
 
+      <nav className="flex-1 space-y-2">{renderNavLinks()}</nav>
+
+      <div className="mt-8 space-y-3 text-sm text-primary-400">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-primary-600">
+            Signed in as
+          </p>
+          <p className="mt-1 font-medium text-primary-200">
+            {user?.username || user?.contactInfo?.name || "Applicant"}
+          </p>
+        </div>
+        <button
+          className="w-full text-left text-sm font-medium text-red-500 hover:text-red-400"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  );
+
+  const mainInner = (
+    <>
+      {isRestricted && (
+        <div className="mb-4 rounded-md border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+          You have restricted access. You can manage your profile, documents and tasks. Premium sections unlock once your advisor grants you full access.
+        </div>
+      )}
+      <div className={restrictedViewOnly ? "pointer-events-none opacity-40" : ""}>
+        {children}
+      </div>
+      {restrictedViewOnly && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="pointer-events-auto max-w-md rounded-lg border border-sky-200 bg-white/95 px-6 py-4 text-center shadow-lg">
+            <h3 className="text-base font-semibold text-sky-800">
+              Full access required
+            </h3>
+            <p className="mt-2 text-sm text-gray-600">
+              This section unlocks once your advisor grants you full access. In the meantime, keep your profile, documents and tasks up to date.
+            </p>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <div className="h-dvh bg-background">
+      <div className="flex h-full overflow-hidden">
         <div
           className={`fixed inset-0 z-40 bg-primary-900/80 transition-opacity md:hidden ${
             mobileNavOpen ? "opacity-100" : "pointer-events-none opacity-0"
@@ -451,28 +509,24 @@ const ApplicantLayout = ({ children }) => {
             </button>
           </header>
 
-          <main className="relative flex-1 overflow-y-auto bg-background px-4 py-6 md:px-8 md:py-10">
-            {isRestricted && (
-              <div className="mb-4 rounded-md border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-                You have restricted access. You can manage your profile, documents and tasks. Premium sections unlock once your advisor grants you full access.
-              </div>
-            )}
-            <div className={restrictedViewOnly ? "pointer-events-none opacity-40" : ""}>
-              {children}
-            </div>
-            {restrictedViewOnly && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div className="pointer-events-auto max-w-md rounded-lg border border-sky-200 bg-white/95 px-6 py-4 text-center shadow-lg">
-                  <h3 className="text-base font-semibold text-sky-800">
-                    Full access required
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-600">
-                    This section unlocks once your advisor grants you full access. In the meantime, keep your profile, documents and tasks up to date.
-                  </p>
+          <div className="flex flex-1 overflow-hidden">
+            {/* Desktop: resizable + persisted sidebar */}
+            <div className="hidden h-full w-full md:flex">
+              <AppSplitterLayout
+                left={desktopSidebar}
+                storageKey="applicant-layout-splitter"
+              >
+                <div className="relative min-h-full bg-background px-4 py-6 md:px-8 md:py-8">
+                  {mainInner}
                 </div>
-              </div>
-            )}
-          </main>
+              </AppSplitterLayout>
+            </div>
+
+            {/* Mobile: fixed single-column main */}
+            <main className="relative min-h-0 flex-1 overflow-y-auto bg-background px-4 py-6 md:hidden">
+              {mainInner}
+            </main>
+          </div>
         </div>
       </div>
     </div>

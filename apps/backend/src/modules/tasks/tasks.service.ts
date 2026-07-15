@@ -303,11 +303,23 @@ export async function createTask(
  * @param aiJobId     ai_jobs.id for traceability (nullable)
  * @param context     firmId + applicantId (both available in the worker)
  */
+export interface AIVerificationTaskContext {
+  firmId: string;
+  applicantId?: string | null;
+  /** Applicant AI key — required by the frontend Tasks page to open document files. */
+  applicantAiKey?: string | null;
+  applicantName?: string | null;
+  documentField?: string | null;
+  documentSlug?: string | null;
+  fileName?: string | null;
+  uploadTimestamp?: string | null;
+}
+
 export async function createAIVerificationTask(
   documentId: string,
   verdict: VerificationResult,
   aiJobId: string | null,
-  context: { firmId: string; applicantId?: string | null },
+  context: AIVerificationTaskContext,
 ): Promise<Task | null> {
   const { firmId } = context;
   const applicantId = context.applicantId ?? null;
@@ -327,6 +339,14 @@ export async function createAIVerificationTask(
     verificationReason: verdict.reason,
     priority: verdict.status === 'failed' ? 'high' : 'medium',
     aiJobId,
+    // Applicant/document context so the frontend can open the file and show details.
+    ...(context.applicantAiKey ? { applicantAiKey: context.applicantAiKey } : {}),
+    ...(context.applicantName ? { applicantName: context.applicantName } : {}),
+    ...(context.documentField ? { documentField: context.documentField } : {}),
+    ...(context.documentSlug ? { documentSlug: context.documentSlug } : {}),
+    ...(context.fileName ? { fileName: context.fileName } : {}),
+    fileId: documentId,
+    ...(context.uploadTimestamp ? { uploadTimestamp: context.uploadTimestamp } : {}),
   };
 
   return withFirmContext(firmId, async (tx) => {

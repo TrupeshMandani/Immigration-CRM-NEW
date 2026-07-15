@@ -411,18 +411,20 @@ const AdminLayout = ({
   ) : null;
 
   const desktopMainContent = (
-    <div className="flex h-full flex-col bg-background">
+    <div className="flex h-full min-h-0 flex-col bg-background">
       {topbar ? (
-        <div className="shrink-0 px-6 pt-6">
+        <div className="shrink-0 px-6 pt-4">
           <div className="min-h-[28px] flex-1">{topbar}</div>
         </div>
       ) : null}
-      <div className="flex-1 overflow-y-auto px-8 py-10">{children}</div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
+        {children}
+      </div>
     </div>
   );
 
   return (
-    <div className="h-screen bg-background">
+    <div className="h-dvh bg-background">
       <div className="flex h-full overflow-hidden">
         {/* Mobile sidebar */}
         <div
@@ -561,7 +563,7 @@ const AdminLayout = ({
                   {topbar}
                 </div>
               ) : null}
-              <main className="flex-1 overflow-y-auto bg-background px-4 py-6">
+              <main className="min-h-0 flex-1 overflow-y-auto bg-background px-4 py-6">
                 {children}
               </main>
             </div>

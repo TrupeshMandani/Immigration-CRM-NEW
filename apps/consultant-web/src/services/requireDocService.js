@@ -55,4 +55,11 @@ export const requiredDocsService = {
     );
     return res.data.document;
   },
+  rejectFile: async (aiKey, docId, fileId, reason = "") => {
+    const res = await api.post(
+      `/applicants/${aiKey}/required-documents/${docId}/files/${fileId}/reject`,
+      { reason }
+    );
+    return res.data.document;
+  },
 };

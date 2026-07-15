@@ -16,7 +16,17 @@ const UploadedFilesModal = ({
   canVerify = false,
   onVerifyFile,
   verifyingFileId = null,
+  onRejectFile,
+  rejectingFileId = null,
 }) => {
+  const handleReject = (file) => {
+    const comment = window.prompt(
+      "Reason for rejection (optional — shown to the applicant):",
+      ""
+    );
+    if (comment === null) return;
+    onRejectFile?.(file, comment.trim());
+  };
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
@@ -173,6 +183,18 @@ const UploadedFilesModal = ({
                           Delete
                         </Button>
                       )}
+                      {canVerify && onRejectFile && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1 border border-rose-200 text-rose-600 hover:border-rose-400 hover:bg-rose-50"
+                          onClick={() => handleReject(file)}
+                          loading={rejectingFileId === file.id}
+                          disabled={verifyingFileId === file.id}
+                        >
+                          Reject
+                        </Button>
+                      )}
                       {canVerify && onVerifyFile && (
                         <Button
                           size="sm"
@@ -180,6 +202,7 @@ const UploadedFilesModal = ({
                           className="gap-1 border border-emerald-200 text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50"
                           onClick={() => onVerifyFile(file)}
                           loading={verifyingFileId === file.id}
+                          disabled={rejectingFileId === file.id}
                         >
                           Verify
                         </Button>
