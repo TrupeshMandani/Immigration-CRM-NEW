@@ -1,16 +1,16 @@
-# Graph Report - Immigration-CRM  (2026-07-15)
+# Graph Report - Immigration-CRM  (2026-07-17)
 
 ## Corpus Check
-- 349 files · ~354,717 words
+- 349 files · ~354,867 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3403 nodes · 5191 edges · 226 communities (204 shown, 22 thin omitted)
+- 3404 nodes · 5194 edges · 220 communities (199 shown, 21 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a8fa5a36`
+- Built from commit: `7010c8fd`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -97,6 +97,7 @@
 - [[_COMMUNITY_Community 79|Community 79]]
 - [[_COMMUNITY_Community 80|Community 80]]
 - [[_COMMUNITY_Community 81|Community 81]]
+- [[_COMMUNITY_Community 82|Community 82]]
 - [[_COMMUNITY_Community 83|Community 83]]
 - [[_COMMUNITY_Community 84|Community 84]]
 - [[_COMMUNITY_Community 85|Community 85]]
@@ -209,7 +210,6 @@
 - [[_COMMUNITY_Community 203|Community 203]]
 - [[_COMMUNITY_Community 204|Community 204]]
 - [[_COMMUNITY_Community 205|Community 205]]
-- [[_COMMUNITY_Community 206|Community 206]]
 - [[_COMMUNITY_Community 207|Community 207]]
 - [[_COMMUNITY_Community 208|Community 208]]
 - [[_COMMUNITY_Community 209|Community 209]]
@@ -222,13 +222,8 @@
 - [[_COMMUNITY_Community 216|Community 216]]
 - [[_COMMUNITY_Community 217|Community 217]]
 - [[_COMMUNITY_Community 218|Community 218]]
-- [[_COMMUNITY_Community 219|Community 219]]
 - [[_COMMUNITY_Community 220|Community 220]]
-- [[_COMMUNITY_Community 221|Community 221]]
 - [[_COMMUNITY_Community 222|Community 222]]
-- [[_COMMUNITY_Community 223|Community 223]]
-- [[_COMMUNITY_Community 224|Community 224]]
-- [[_COMMUNITY_Community 225|Community 225]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `useAuth()` - 75 edges
@@ -243,18 +238,18 @@
 10. `Step-by-Step Execution Order` - 17 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `registerApplicant()` --calls--> `sendEmail()`  [INFERRED]
-  apps/backend/src/modules/auth/auth.controller.ts → apps/mcp-server/services/email.service.js
 - `sendTaskAssignedEmail()` --calls--> `sendEmail()`  [INFERRED]
   apps/backend/src/modules/applicants/applicant.controller.js → apps/mcp-server/services/email.service.js
 - `notifyApplicantAboutRequiredDoc()` --calls--> `sendEmail()`  [INFERRED]
   apps/backend/src/modules/applicants/applicant.controller.js → apps/mcp-server/services/email.service.js
-- `registerStudent()` --calls--> `sendEmail()`  [INFERRED]
-  apps/backend/src/modules/auth/auth.controller.ts → apps/mcp-server/services/email.service.js
 - `notifyStudentAboutRequiredDoc()` --calls--> `sendEmail()`  [INFERRED]
   apps/backend/src/modules/applicants/applicant.controller.js → apps/mcp-server/services/email.service.js
+- `sendTaskAssignedEmail()` --calls--> `sendEmail()`  [INFERRED]
+  apps/backend/src/modules/students/student.controller.js → apps/mcp-server/services/email.service.js
+- `notifyStudentAboutRequiredDoc()` --calls--> `sendEmail()`  [INFERRED]
+  apps/backend/src/modules/students/student.controller.js → apps/mcp-server/services/email.service.js
 
-## Communities (226 total, 22 thin omitted)
+## Communities (220 total, 21 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.04
@@ -262,42 +257,42 @@ Nodes (44): 10. Future Extensibility Notes, 1. Executive Summary, 2. Goals & Suc
 
 ### Community 1 - "Community 1"
 Cohesion: 0.02
-Nodes (81): Admin, allowedFields, {
+Nodes (86): deleteS3Object(), Admin, allowedFields, {
   buildRequiredDocFileName,
   guessExtension,
 }, {
   buildRequiredDocFileName,
   guessExtension,
   getStudentDisplayName,
-}, buildVerificationSummary(), candidate, changed, cleanedPassport (+73 more)
+}, buildVerificationSummary(), candidate, changed (+78 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.1
-Nodes (25): agentRequest, { describe, it, expect, jest, beforeEach }, documentTools, fs, httpClient, mockFiles, { Readable }, tools (+17 more)
+Cohesion: 0.18
+Nodes (17): buildApplicantPath(), buildRequiredDocPath(), buildRequiredDocsPath(), buildStudentPath(), cleanupTempFile(), deleteDocument(), FormData, fs (+9 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.24
-Nodes (23): addNote(), buildApplicantPath(), createApplicantTask(), createStudentTask(), deleteApplicantTask(), deleteStudentTask(), ensureValue(), formatError() (+15 more)
+Cohesion: 0.05
+Nodes (73): addNote(), buildApplicantPath(), createApplicantTask(), createStudentTask(), deleteApplicantTask(), deleteStudentTask(), ensureValue(), formatError() (+65 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.06
-Nodes (32): StudentDetail(), ChangePassword(), DocumentUpload(), PayInvoice(), statusVariant, Retainer(), statusVariant, ApplicantTasksPage() (+24 more)
+Cohesion: 0.05
+Nodes (36): ApplicantDetailPage(), StudentDetail(), StudentDetail(), ApplicantDashboardPage(), ApplicantProfilePage(), ChangePassword(), Documents(), DocumentUpload() (+28 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.1
-Nodes (17): initialFilesModalState, initialUploadModalState, initialPreviewState, statusFilters, typeFilters, initialFilesModalState, statusTokens, requiredDocsService (+9 more)
+Cohesion: 0.09
+Nodes (20): initialFilesModalState, initialUploadModalState, initialPreviewState, statusFilters, typeFilters, initialFilesModalState, statusTokens, applicantService (+12 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.07
-Nodes (34): aiRouter, applicantId, current, documentId, profile, studentId, VerifyJobData, verifyQueue (+26 more)
+Cohesion: 0.12
+Nodes (23): FIRM_STAFF_ROLES, BUCKET(), computeS3Hash(), DbClient, deleteDocument(), DOWNLOAD_TTL(), finalizeUpload(), generateUploadUrl() (+15 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.22
 Nodes (12): createDraft(), DbClient, finalizeSignature(), getRetainer(), listTemplates(), notFound(), readTemplate(), renderTemplate() (+4 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.11
-Nodes (27): NewTask, body, taskId, { taskIds }, { type, status, scope, limit, page }, { userId }, AIVerificationTaskContext, completeTask() (+19 more)
+Cohesion: 0.1
+Nodes (29): VerificationResult, NewTask, body, taskId, { taskIds }, tasksRouter, { type, status, scope, limit, page }, { userId } (+21 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.1
@@ -311,8 +306,8 @@ Nodes (70): accessLevel, allowedFields, applicantName, { applicants, documents, 
 }, candidate, changed, cleanedPassport (+62 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.15
-Nodes (19): NewStudent, CreateStudentInput, CreateStudentSchema, StudentFilters, StudentFiltersSchema, StudentStageEnum, StudentStatusEnum, UpdateStudentInput (+11 more)
+Cohesion: 0.16
+Nodes (18): NewStudent, CreateStudentInput, CreateStudentSchema, StudentFilters, StudentFiltersSchema, StudentStageEnum, StudentStatusEnum, UpdateStudentInput (+10 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.06
@@ -327,16 +322,16 @@ Cohesion: 0.08
 Nodes (23): Admin, aiKey, aiKeyBase, baseKey, bcrypt, { db }, email, env (+15 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.1
-Nodes (30): casesRouter, getSocketEmitters(), createCase(), DbClient, deleteCase(), generateMatterNumber(), getCaseById(), listCaseEvents() (+22 more)
+Cohesion: 0.18
+Nodes (14): casesRouter, getSocketEmitters(), createCase(), DbClient, deleteCase(), generateMatterNumber(), getCaseById(), listCaseEvents() (+6 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.24
 Nodes (9): buildUserContent(), chatWithAssistant(), client, extractImportantFields(), fs, OpenAI, path, { chatWithAssistant } (+1 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.08
-Nodes (22): createCheckoutSession(), DbClient, forbidden(), getInvoice(), notFound(), sendInvoice(), stripe(), DbClient (+14 more)
+Cohesion: 0.06
+Nodes (29): billingRouter, body, month, { signature }, studentId, { studentId, lineItems, retainerId, dueAt }, { studentId, templateKey, scope }, templates (+21 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.15
@@ -351,8 +346,8 @@ Cohesion: 0.08
 Nodes (24): callOpenAI(), buildFallbackUniversities(), FALLBACK_UNIVERSITIES, generateUniversityListFromProfile(), OpenAI, { applicants }, bandValues, context (+16 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.23
-Nodes (11): CASE_TYPES, CaseDetail(), EVENT_ICONS, STATUSES, caseKeys, useCase(), useCaseEvents(), useDeleteCase() (+3 more)
+Cohesion: 0.21
+Nodes (12): CASE_TYPES, CaseDetail(), EVENT_ICONS, STATUSES, CaseList(), caseKeys, useCase(), useCaseEvents() (+4 more)
 
 ### Community 22 - "Community 22"
 Cohesion: 0.22
@@ -367,8 +362,8 @@ Nodes (9): { authenticateToken, requireAdmin }, express, {
 }, router, requireAdmin(), { authenticateToken, requireAdmin }, ctrl, express (+1 more)
 
 ### Community 24 - "Community 24"
-Cohesion: 0.13
-Nodes (14): billingRouter, body, month, { signature }, studentId, { studentId, lineItems, retainerId, dueAt }, { studentId, templateKey, scope }, templates (+6 more)
+Cohesion: 0.18
+Nodes (12): id, notificationsRouter, { status = 'UNREAD', page, limit }, DbClient, formatNotification(), listForUser(), ListOptions, markAllRead() (+4 more)
 
 ### Community 25 - "Community 25"
 Cohesion: 0.12
@@ -407,16 +402,16 @@ Cohesion: 0.09
 Nodes (22): aiKey, { APP_BASE_URL }, { applicants }, { db }, { eq, and, ne }, firmId, { generateAiKey }, generatedAiKey (+14 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.2
-Nodes (8): Anthropic, context, costCents, EXPECTED_HASHES, fakeCreate, instance, messages, tag
+Cohesion: 0.15
+Nodes (11): AiJob, aiJobs, NewAiJob, Anthropic, context, costCents, EXPECTED_HASHES, fakeCreate (+3 more)
 
 ### Community 35 - "Community 35"
 Cohesion: 0.11
 Nodes (17): 0. Impact Summary (biggest wins first), 10. Recommended execution order, 1. Committed build artifacts / generated files (remove from git), 2. Redundant lockfiles & workspace fragments, 3. Backend — dead / duplicate code (`apps/backend/src`), 4. Frontend — dead / duplicate code (`apps/consultant-web/src`), 4a. Fully orphaned files — 🟢 Safe delete (verified 0 imports), 4b. Orphaned shadcn UI primitives — 🟢 Safe delete (0 imports outside `ui/`; verified) (+9 more)
 
 ### Community 36 - "Community 36"
-Cohesion: 0.22
-Nodes (13): getEnv(), buildAttachmentPolicyMessage(), buildToolDefinitions(), extractAttachments(), { getEnv }, getOpenAIClient(), invokeTool, logger (+5 more)
+Cohesion: 0.15
+Nodes (17): dotenv, env, envPath, getEnv(), path, buildAttachmentPolicyMessage(), buildToolDefinitions(), extractAttachments() (+9 more)
 
 ### Community 37 - "Community 37"
 Cohesion: 0.16
@@ -431,8 +426,8 @@ Cohesion: 0.27
 Nodes (12): appendLog(), appendToAllLogs(), ensureLogsDirectory(), error(), errorLogPath, formatLine(), fs, info() (+4 more)
 
 ### Community 40 - "Community 40"
-Cohesion: 0.33
-Nodes (8): extractMessage(), logger, { runWithAuthContext }, sendChatMessage(), { sendToMCP }, streamReply(), wait(), runWithAuthContext()
+Cohesion: 0.2
+Nodes (13): extractMessage(), logger, { runWithAuthContext }, sendChatMessage(), { sendToMCP }, streamReply(), wait(), formatMCPResponse() (+5 more)
 
 ### Community 41 - "Community 41"
 Cohesion: 0.17
@@ -444,7 +439,7 @@ Nodes (21): baseResult(), buildImagePayload(), client, { extractTextFromFile }, 
 
 ### Community 43 - "Community 43"
 Cohesion: 0.07
-Nodes (12): defaultFilters, intakeOptions, modeOptions, UniversityRecommendation(), api, pendingQueue, token, notificationService (+4 more)
+Nodes (13): defaultFilters, intakeOptions, modeOptions, UniversityRecommendation(), api, pendingQueue, token, notificationService (+5 more)
 
 ### Community 44 - "Community 44"
 Cohesion: 0.04
@@ -459,12 +454,8 @@ Cohesion: 0.14
 Nodes (20): applicantsRouter, id, createApplicant(), DbClient, deleteApplicant(), generateAiKey(), getApplicantById(), listApplicants() (+12 more)
 
 ### Community 47 - "Community 47"
-Cohesion: 0.1
-Nodes (25): mongoose, taskSchema, emitTaskCreated(), emitTaskUpdated(), allowedStatuses, currentPage, { emitTaskUpdated }, {
-  formatTask,
-  purgeExpiredTasks,
-  markTasksRead,
-} (+17 more)
+Cohesion: 0.08
+Nodes (29): mongoose, taskSchema, emitTaskUpdated(), getStudentName(), processRequiredDocumentUpload(), allowedStatuses, currentPage, { emitTaskUpdated } (+21 more)
 
 ### Community 48 - "Community 48"
 Cohesion: 0.18
@@ -487,12 +478,12 @@ Cohesion: 0.22
 Nodes (8): axios, handleAssistantQuery(), document, express, { getPresignedUrl }, { handleAssistantQuery }, router, Student
 
 ### Community 52 - "Community 52"
-Cohesion: 0.22
-Nodes (11): ApplicantList(), StudentList(), RegisteredApplicants(), RegisteredStudents(), applicantKeys, studentKeys, useActivateApplicant(), useApplicants() (+3 more)
+Cohesion: 0.19
+Nodes (13): ApplicantList(), StudentList(), RegisteredApplicants(), RegisteredStudents(), StudentList(), applicantKeys, studentKeys, useActivateApplicant() (+5 more)
 
 ### Community 53 - "Community 53"
-Cohesion: 0.1
-Nodes (11): ApplicantDetailPage(), EMPTY_CONTACT, StudentDetail(), EMPTY_CONTACT, studentService, enableRecommendation(), generateRecommendation(), getRecommendations() (+3 more)
+Cohesion: 0.13
+Nodes (8): EMPTY_CONTACT, EMPTY_CONTACT, enableRecommendation(), generateRecommendation(), getRecommendations(), withAuth(), uploadService, withDisplayName()
 
 ### Community 54 - "Community 54"
 Cohesion: 0.13
@@ -507,24 +498,24 @@ Cohesion: 0.2
 Nodes (10): Admin (`backend/models/Admin.js`), Backend: Models, code:block2 ({), code:block3 ({), code:block4 ({ name, country, program, degreeLevel, eligibilityReason,), File (`backend/models/File.js`), Notification (`backend/models/Notification.js`), Recommendation (`backend/models/Recommendation.js`) (+2 more)
 
 ### Community 57 - "Community 57"
-Cohesion: 0.18
-Nodes (13): buildInviteEmail(), env, { getFirebaseAdmin }, sendApplicantInviteEmail(), { sendEmail }, sendEmail(), buildInviteEmail(), env (+5 more)
+Cohesion: 0.12
+Nodes (13): env, { getFirebaseAdmin }, { sendEmail }, { MONGODB_URI }, mongoose, env, { getFirebaseAdmin }, { sendEmail } (+5 more)
 
 ### Community 58 - "Community 58"
-Cohesion: 0.14
-Nodes (14): getAppBaseUrl(), registerApplicant(), registerStudent(), admin, adminSchema, bcrypt, mongoose, Admin (+6 more)
+Cohesion: 0.18
+Nodes (9): admin, adminSchema, bcrypt, mongoose, Admin, { ADMIN_NOTIFICATIONS_EMAIL }, { db }, { eq, and } (+1 more)
 
 ### Community 59 - "Community 59"
-Cohesion: 0.16
-Nodes (20): AIJobContext, OAIMessage, classifyDocument(), buildExtractSystemPrompt(), extractImportantFields(), extractProfileWithAI(), extractTextFromFile(), FileInput (+12 more)
+Cohesion: 0.17
+Nodes (19): AIJobContext, OAIMessage, classifyDocument(), buildExtractSystemPrompt(), extractImportantFields(), extractProfileWithAI(), extractTextFromFile(), FileInput (+11 more)
 
 ### Community 60 - "Community 60"
 Cohesion: 0.14
 Nodes (10): mongoose, notificationSchema, Notification, pageNum, perPage, query, { authenticateToken }, ctrl (+2 more)
 
 ### Community 61 - "Community 61"
-Cohesion: 0.2
-Nodes (12): getStudentName(), processRequiredDocumentUpload(), { db }, { eq }, extractPassportData(), mapKeysToLower(), mergePassportDetails(), normalizePassportDate() (+4 more)
+Cohesion: 0.24
+Nodes (10): { db }, { eq }, extractPassportData(), mapKeysToLower(), mergePassportDetails(), normalizePassportDate(), PASSPORT_FIELD_KEYS, Student (+2 more)
 
 ### Community 62 - "Community 62"
 Cohesion: 0.22
@@ -551,16 +542,16 @@ Cohesion: 0.25
 Nodes (8): code:bash (curl -X POST "http://localhost:4000/api/applicants/{aiKey}/r), code:json ({), Expected Result, Prerequisites, Purpose, Test Case 4: verifyDocument, Test Steps, Validation Checklist
 
 ### Community 68 - "Community 68"
-Cohesion: 0.1
-Nodes (25): ApplicantContext, buildSystemPrompt(), STAGE_DOC_REQUIREMENTS, STAGE_PROMPTS, calcCostCents(), getChatHistory(), handleApplicantChat(), writeChunk() (+17 more)
+Cohesion: 0.11
+Nodes (22): ApplicantContext, buildSystemPrompt(), STAGE_DOC_REQUIREMENTS, STAGE_PROMPTS, calcCostCents(), getChatHistory(), handleApplicantChat(), writeChunk() (+14 more)
 
 ### Community 69 - "Community 69"
 Cohesion: 0.29
 Nodes (6): express, multer, os, router, storage, upload
 
 ### Community 70 - "Community 70"
-Cohesion: 0.43
-Nodes (4): AdminDashboard(), ContactRequests(), useApproveContact(), usePendingContacts()
+Cohesion: 0.12
+Nodes (10): AdminDashboard(), ContactRequests(), useApproveContact(), usePendingContacts(), studentService, ICON_PATHS, QUICK_ACTIONS, StudentDashboard() (+2 more)
 
 ### Community 71 - "Community 71"
 Cohesion: 0.29
@@ -583,12 +574,12 @@ Cohesion: 0.25
 Nodes (6): emailTemplates, mailOptions, nodemailer, results, template, transporter
 
 ### Community 76 - "Community 76"
-Cohesion: 0.21
-Nodes (22): addNote(), axios, { BACKEND_SERVICE_TOKEN }, buildStudentPath(), client, createStudentTask(), deleteStudentTask(), ensureValue() (+14 more)
+Cohesion: 0.23
+Nodes (9): createCheckoutSession(), DbClient, forbidden(), getInvoice(), notFound(), sendInvoice(), stripe(), Invoice (+1 more)
 
 ### Community 77 - "Community 77"
-Cohesion: 0.13
-Nodes (9): redisOpts(), startVerifyWorker(), deadlineQueue, scheduleDeadlineScan(), documentExpiryQueue, scheduleExpiryScan(), redisOpts(), startDocumentExpiryWorker() (+1 more)
+Cohesion: 0.08
+Nodes (18): aiRouter, applicantId, current, documentId, profile, studentId, redisOpts(), startVerifyWorker() (+10 more)
 
 ### Community 78 - "Community 78"
 Cohesion: 0.36
@@ -606,13 +597,17 @@ Nodes (6): code:javascript (// Should fail), code:javascript (await uploadDocume
 Cohesion: 0.1
 Nodes (19): 1. Current Bundle Size, 2. Installed UI Libraries, 3. Page-Level Inventory, 4. Shared Component Inventory, 4a. Components using non-target libraries, 4b. Components already on target stack (Lucide + Tailwind), 4c. Pure Tailwind components (no library imports), 5. Migration Mapping Table (+11 more)
 
+### Community 82 - "Community 82"
+Cohesion: 0.15
+Nodes (12): CASE_STATUS_LABELS, CASE_TYPE_LABELS, CaseFilters, CaseFiltersSchema, CaseStatus, CaseStatusEnum, CaseType, CaseTypeEnum (+4 more)
+
 ### Community 83 - "Community 83"
 Cohesion: 0.05
 Nodes (40): 10. Future Extensibility Notes, 1. Executive Summary, 2. Goals & Success Criteria, 3. Prerequisites & Dependencies, 4.1 Database Schema, 4.2 API Endpoints, 4.3 Key Service Logic, 4.4 Frontend Components (+32 more)
 
 ### Community 84 - "Community 84"
-Cohesion: 0.14
-Nodes (17): BUCKET(), checkDailyLimit(), DAILY_LIMIT, generateDocument(), getGeneratedDocumentUrl(), buildGenerationPrompt(), DocType, DOC_TITLES (+9 more)
+Cohesion: 0.18
+Nodes (14): BUCKET(), checkDailyLimit(), DAILY_LIMIT, generateDocument(), getGeneratedDocumentUrl(), buildGenerationPrompt(), DocType, DOC_TITLES (+6 more)
 
 ### Community 85 - "Community 85"
 Cohesion: 0.4
@@ -643,8 +638,8 @@ Cohesion: 0.05
 Nodes (41): 10. Future Extensibility Notes, 1. Executive Summary, 2. Goals & Success Criteria, 3. Prerequisites & Dependencies, 4.1 Database Schema, 4.2 API Endpoints, 4.3 Timer Logic (Critical — Race Condition Prevention), 4.4 Invoice PDF Generation (+33 more)
 
 ### Community 94 - "Community 94"
-Cohesion: 0.14
-Nodes (14): deleteLocalFile(), deleteS3Object(), env, fs, getMimeType(), getPresignedUrl(), { getSignedUrl }, listApplicantFiles() (+6 more)
+Cohesion: 0.17
+Nodes (12): deleteLocalFile(), env, fs, getMimeType(), getPresignedUrl(), { getSignedUrl }, listApplicantFiles(), listStudentFiles() (+4 more)
 
 ### Community 106 - "Community 106"
 Cohesion: 0.11
@@ -655,8 +650,8 @@ Cohesion: 0.08
 Nodes (25): ApiError, Applicant, CaseEvent, CaseRecord, CaseStatus, CaseType, ContactRequest, CreateApplicantPayload (+17 more)
 
 ### Community 110 - "Community 110"
-Cohesion: 0.16
-Nodes (24): applicants, cases, NewDocument, firms, NewFirm, invoices, NewInvoice, NewRetainerAgreement (+16 more)
+Cohesion: 0.14
+Nodes (26): applicants, caseEvents, cases, NewDocument, firms, NewFirm, NewInvoice, NewRetainerAgreement (+18 more)
 
 ### Community 111 - "Community 111"
 Cohesion: 0.15
@@ -667,8 +662,8 @@ Cohesion: 0.15
 Nodes (13): 6.10 — Student registration (public), 6.11 — Admin AI Assistant (chat), 6.12 — Health check, 6.1 — Document upload (the canonical flagship feature), 6.2 — Authentication, 6.3 — Tasks (the realtime board), 6.4 — Notifications, 6.5 — Billing (Stripe Connect) (+5 more)
 
 ### Community 113 - "Community 113"
-Cohesion: 0.14
-Nodes (11): CaseStatusBadge(), STATUS_LABELS, STATUS_STYLES, CASE_TYPE_LABELS, CaseTypeBadge(), TYPE_STYLES, CASE_TYPES, CreateCase() (+3 more)
+Cohesion: 0.11
+Nodes (13): CASE_TYPES, STATUSES, CaseStatusBadge(), STATUS_LABELS, STATUS_STYLES, CASE_TYPE_LABELS, CaseTypeBadge(), TYPE_STYLES (+5 more)
 
 ### Community 114 - "Community 114"
 Cohesion: 0.17
@@ -695,8 +690,8 @@ Cohesion: 0.25
 Nodes (9): { applicants }, { db }, { eq }, extractPassportData(), mapKeysToLower(), mergePassportDetails(), normalizePassportDate(), PASSPORT_FIELD_KEYS (+1 more)
 
 ### Community 118 - "Community 118"
-Cohesion: 0.08
-Nodes (29): documentsRouter, issueJwt(), provisionTwoFirmsWithData(), seedInFirm(), teardownFirms(), TwoFirmFixture, id, notificationsRouter (+21 more)
+Cohesion: 0.13
+Nodes (17): documentsRouter, issueJwt(), provisionTwoFirmsWithData(), seedInFirm(), teardownFirms(), TwoFirmFixture, Document, Notification (+9 more)
 
 ### Community 119 - "Community 119"
 Cohesion: 0.2
@@ -715,12 +710,12 @@ Cohesion: 0.05
 Nodes (41): 10. Future Extensibility Notes, 1. Executive Summary, 2. Goals & Success Criteria, 3. Prerequisites & Dependencies, 4.1 Email Sync Architecture, 4.2 Database Schema, 4.3 Email Sync Service, 4.4 Role Permission Matrix (+33 more)
 
 ### Community 123 - "Community 123"
-Cohesion: 0.27
-Nodes (9): deriveOrigins(), emitNotification(), emitToFirm(), emitToUser(), getIo(), initSocket(), redisUrl(), SocketData (+1 more)
+Cohesion: 0.26
+Nodes (10): deriveOrigins(), emitNotification(), emitTaskCreated(), emitToFirm(), emitToUser(), getIo(), initSocket(), redisUrl() (+2 more)
 
 ### Community 124 - "Community 124"
-Cohesion: 0.17
-Nodes (11): applicantService, applicantTools, { describe, it, expect, jest, beforeEach }, mockApplicant, mockDocs, mockList, mockOverview, mockResult (+3 more)
+Cohesion: 0.29
+Nodes (10): buildInviteEmail(), sendApplicantInviteEmail(), getAppBaseUrl(), registerApplicant(), registerStudent(), sendEmail(), buildInviteEmail(), sendStudentInviteEmail() (+2 more)
 
 ### Community 125 - "Community 125"
 Cohesion: 0.22
@@ -739,8 +734,8 @@ Cohesion: 0.22
 Nodes (9): 5 — DIAGRAM #4 — MCP SERVER internal architecture (`apps/mcp-server`), code:mermaid (flowchart TB), MCP server — every tool (the 18-strong registry), MCP server — the per-request flow (one paragraph), MCP server — the prompt engineering rules baked into `chatProcessor`, `tools/documentTools.js` (7 tools), `tools/emailTools.js` (1 tool), `tools/studentTools.js` (6 tools) (+1 more)
 
 ### Community 129 - "Community 129"
-Cohesion: 0.22
-Nodes (7): getApplicantName(), getStudentName(), processRequiredDocumentUpload(), upsertApplicant(), FIELD_PRIORITY, prioritizeFields(), guessExtension()
+Cohesion: 0.25
+Nodes (6): getApplicantName(), getStudentName(), processRequiredDocumentUpload(), upsertApplicant(), FIELD_PRIORITY, prioritizeFields()
 
 ### Community 130 - "Community 130"
 Cohesion: 0.18
@@ -755,16 +750,16 @@ Cohesion: 0.25
 Nodes (5): SheetContent, SheetDescription, SheetOverlay, SheetTitle, sheetVariants
 
 ### Community 133 - "Community 133"
-Cohesion: 0.12
-Nodes (4): navItems, studentTaskService, QUICK_ACTIONS, StudentDashboard()
+Cohesion: 0.2
+Nodes (8): agentRequest, { describe, it, expect, jest, beforeEach }, documentTools, fs, httpClient, mockFiles, { Readable }, tools
 
 ### Community 134 - "Community 134"
 Cohesion: 0.25
 Nodes (8): A — Appendix A — Port map & env vars, code:block10 (PORT=3002), code:bash (pnpm docker:dev      # spin up Postgres + Redis), code:block8 (# Server), code:block9 (VITE_API_URL=http://localhost:4000/api    # REST + AI proxy ), Env vars by app, Port map (dev defaults), Root scripts (`/Volumes/Trupesh/Immigration-CRM/package.json`)
 
 ### Community 135 - "Community 135"
-Cohesion: 0.05
-Nodes (36): ApplicantDashboardPage(), ICON_PATHS, QUICK_ACTIONS, ApplicantJourneyWorkflowPro(), clamp(), STEPS, ApplicantProfilePage(), derivePassport() (+28 more)
+Cohesion: 0.06
+Nodes (32): ICON_PATHS, QUICK_ACTIONS, ApplicantJourneyWorkflowPro(), clamp(), STEPS, derivePassport(), mapLower(), normalizeDate() (+24 more)
 
 ### Community 137 - "Community 137"
 Cohesion: 0.33
@@ -783,14 +778,8 @@ Cohesion: 0.4
 Nodes (4): Alert, AlertDescription, AlertTitle, alertVariants
 
 ### Community 141 - "Community 141"
-Cohesion: 0.2
-Nodes (5): { MONGODB_URI }, mongoose, activeTransporter, nodemailer, {
-  SMTP_HOST,
-  SMTP_PORT,
-  SMTP_USER,
-  SMTP_PASSWORD,
-  EMAIL_FROM,
-}
+Cohesion: 0.53
+Nodes (5): CreateApplicant(), CreateStudent(), schema, useCreateApplicant(), Register()
 
 ### Community 143 - "Community 143"
 Cohesion: 0.4
@@ -825,8 +814,8 @@ Cohesion: 0.19
 Nodes (10): PromotionCard(), Props, Pathway, pathways, processSteps, PromotionCard, promotionCards, PromotionFilter (+2 more)
 
 ### Community 154 - "Community 154"
-Cohesion: 0.2
-Nodes (9): { describe, it, expect, jest, beforeEach }, mockDocs, mockList, mockOverview, mockResult, mockStudent, names, studentService (+1 more)
+Cohesion: 0.5
+Nodes (3): redisOpts(), startDeadlineWorker(), getDeadlinesForWorker()
 
 ### Community 156 - "Community 156"
 Cohesion: 0.05
@@ -857,12 +846,12 @@ Cohesion: 0.06
 Nodes (32): 10. Future Extensibility Notes, 1. Executive Summary, 2. Goals & Success Criteria, 3. Prerequisites & Dependencies, 4.1 Database — Reporting Views, 4.2 API Endpoints, 4.3 Frontend Components, 4.4 Date Range Handling (+24 more)
 
 ### Community 171 - "Community 171"
-Cohesion: 0.06
+Cohesion: 0.07
 Nodes (23): AdminDashboard, AIAssistantPage, ApplicantAssistant, ApplicantDashboard, ApplicantDetail, ApplicantDocuments, ApplicantList, ApplicantProfile (+15 more)
 
 ### Community 172 - "Community 172"
-Cohesion: 0.13
-Nodes (23): redisOpts(), startDeadlineWorker(), deadlinesRouter, icalFeedHandler(), acknowledgeDeadline(), computeUrgency(), createDeadline(), daysUntilDate() (+15 more)
+Cohesion: 0.21
+Nodes (17): deadlinesRouter, icalFeedHandler(), acknowledgeDeadline(), computeUrgency(), createDeadline(), daysUntilDate(), DbClient, DeadlineUrgency (+9 more)
 
 ### Community 173 - "Community 173"
 Cohesion: 0.11
@@ -870,15 +859,15 @@ Nodes (18): 1. Header, 2. Summary Table, 3. Per-Test Detail, 4. Console Errors, 
 
 ### Community 174 - "Community 174"
 Cohesion: 0.1
-Nodes (16): CreateDeadline(), DEADLINE_TYPES, NOTIFICATION_OPTIONS, DeadlineCalendar(), URGENCY_COLORS, URGENCY_TEXT_COLORS, URGENCY_TIERS, DEADLINE_TYPE_LABELS (+8 more)
+Nodes (17): CreateDeadline(), DEADLINE_TYPES, NOTIFICATION_OPTIONS, DeadlineCalendar(), URGENCY_COLORS, URGENCY_TEXT_COLORS, URGENCY_TIERS, DEADLINE_TYPE_LABELS (+9 more)
 
 ### Community 175 - "Community 175"
 Cohesion: 0.12
 Nodes (17): code:bash (pnpm --filter consultant-web add @fullcalendar/react @fullca), code:block15 (✓ createDeadline), code:typescript (// ── Deadline types ───────────────────────────────────────), code:javascript (import { useQuery, useMutation, useQueryClient } from "@tans), code:sql (-- 1. Add iCal token column to firms (for external calendar ), code:jsx ({/* ── Deadlines ───────────────────────────────────────────), code:typescript (import { z } from 'zod';), STEP 10 — Frontend React Query Hooks (+9 more)
 
 ### Community 176 - "Community 176"
-Cohesion: 0.06
-Nodes (23): buttonSizes, NotificationBell(), statusStyles, filterTabs, NotificationsPage(), TasksPage(), DocumentGenerationPanel(), ExpiryAlertBanner() (+15 more)
+Cohesion: 0.05
+Nodes (24): buttonSizes, NotificationBell(), statusStyles, filterTabs, NotificationsPage(), TasksPage(), DocumentGenerationPanel(), ExpiryAlertBanner() (+16 more)
 
 ### Community 177 - "Community 177"
 Cohesion: 0.12
@@ -901,8 +890,8 @@ Cohesion: 0.15
 Nodes (13): 4.1 System Overview, 4.3 Messaging Service, 4.5 API Routes, 4.6 Attachment Upload Flow, 4.8 Unread Count Endpoint, 4.9 Route Registration in Backend, 4. Technical Architecture, code:typescript (// apps/backend/src/modules/messaging/messaging.route.ts) (+5 more)
 
 ### Community 182 - "Community 182"
-Cohesion: 0.08
-Nodes (15): CreateApplicant(), CreateStudent(), schema, useCreateApplicant(), Navbar(), milestones, values, contactInfo (+7 more)
+Cohesion: 0.07
+Nodes (10): Navbar(), milestones, values, contactInfo, categories, faqs, tiers, highlights (+2 more)
 
 ### Community 183 - "Community 183"
 Cohesion: 0.18
@@ -949,8 +938,8 @@ Cohesion: 0.22
 Nodes (9): 7.1 Unit Tests, 7.2 Integration Tests, 7.3 Manual QA Test Script, 7.4 Frontend QA Checklist, 7. Testing Plan, code:typescript (describe('sendMessage', () => {), code:typescript (describe('escalation detection', () => {), code:typescript (describe('Messaging API', () => {) (+1 more)
 
 ### Community 197 - "Community 197"
-Cohesion: 0.27
-Nodes (6): CASE_TYPES, CaseList(), STATUSES, StudentList(), useCases(), useViewMode()
+Cohesion: 0.5
+Nodes (3): Deadline, deadlines, NewDeadline
 
 ### Community 198 - "Community 198"
 Cohesion: 0.25
@@ -983,10 +972,6 @@ Nodes (5): 4.2 Database Schemas, code:typescript (// apps/backend/src/db/schema/
 ### Community 205 - "Community 205"
 Cohesion: 0.4
 Nodes (5): 3. Prerequisites & Dependencies, Already Built (reuse), code:bash (# Backend), New Installs Required, New Tables Required
-
-### Community 206 - "Community 206"
-Cohesion: 0.22
-Nodes (8): applicantService, { describe, it, expect, jest, beforeEach }, mockCreated, mockResult, mockTasks, names, studentService, taskTools
 
 ### Community 207 - "Community 207"
 Cohesion: 0.5
@@ -1036,43 +1021,27 @@ Nodes (6): buildFallbackUniversities(), buildRecommendationUserPrompt(), FALLBAC
 Cohesion: 0.14
 Nodes (8): partnerBenefits, showcaseMetrics, College, CollegesExplorer(), Props, sortOptions, Dot, DotGridProps
 
-### Community 219 - "Community 219"
-Cohesion: 0.4
-Nodes (4): buildRequiredDocFileName(), getStudentDisplayName(), path, sanitizeSegment()
-
 ### Community 220 - "Community 220"
-Cohesion: 0.33
-Nodes (5): { authenticateToken }, express, protectedRouter, router, { tenantContextMiddleware }
-
-### Community 221 - "Community 221"
-Cohesion: 0.47
-Nodes (5): formatMCPResponse(), logger, normalizeReply(), { runMCPChat }, sendToMCP()
+Cohesion: 0.15
+Nodes (10): EXEMPT_PREFIXES, Request, tenantContextMiddleware(), { authenticateToken }, express, protectedRouter, router, { tenantContextMiddleware } (+2 more)
 
 ### Community 222 - "Community 222"
 Cohesion: 0.4
 Nodes (5): getApplicantEmail(), getStudentEmail(), notifyApplicantAboutRequiredDoc(), notifyStudentAboutRequiredDoc(), sendTaskAssignedEmail()
 
-### Community 224 - "Community 224"
-Cohesion: 0.67
-Nodes (3): mapDocRowForResponse(), mapFileForResponse(), normalizeFileVerification()
-
-### Community 225 - "Community 225"
-Cohesion: 0.4
-Nodes (4): dotenv, env, envPath, path
-
 ## Knowledge Gaps
 - **1769 isolated node(s):** `zod_1`, `ApplicantStatusEnum`, `ApplicantStageEnum`, `zod_1`, `GetApplicantByIdInput` (+1764 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `buildRequiredDocFileName()` connect `Community 219` to `Community 1`, `Community 10`, `Community 5`?**
+- **Why does `buildRequiredDocFileName()` connect `Community 5` to `Community 1`, `Community 10`, `Community 47`?**
   _High betweenness centrality (0.147) - this node is a cross-community bridge._
-- **Why does `sendEmail()` connect `Community 57` to `Community 32`, `Community 58`, `Community 163`, `Community 222`?**
-  _High betweenness centrality (0.069) - this node is a cross-community bridge._
-- **Why does `db` connect `Community 68` to `Community 1`, `Community 130`, `Community 6`, `Community 7`, `Community 8`, `Community 10`, `Community 11`, `Community 14`, `Community 15`, `Community 17`, `Community 19`, `Community 20`, `Community 24`, `Community 28`, `Community 33`, `Community 34`, `Community 172`, `Community 46`, `Community 183`, `Community 58`, `Community 61`, `Community 64`, `Community 77`, `Community 84`, `Community 110`, `Community 117`, `Community 118`?**
+- **Why does `sendEmail()` connect `Community 124` to `Community 32`, `Community 163`, `Community 222`?**
+  _High betweenness centrality (0.064) - this node is a cross-community bridge._
+- **Why does `db` connect `Community 68` to `Community 1`, `Community 130`, `Community 6`, `Community 7`, `Community 8`, `Community 10`, `Community 11`, `Community 14`, `Community 15`, `Community 17`, `Community 19`, `Community 20`, `Community 24`, `Community 28`, `Community 33`, `Community 34`, `Community 172`, `Community 46`, `Community 183`, `Community 58`, `Community 61`, `Community 64`, `Community 76`, `Community 84`, `Community 220`, `Community 110`, `Community 117`, `Community 118`?**
   _High betweenness centrality (0.052) - this node is a cross-community bridge._
 - **What connects `zod_1`, `ApplicantStatusEnum`, `ApplicantStageEnum` to the rest of the system?**
   _1769 weakly-connected nodes found - possible documentation gaps or missing edges._
@@ -1080,5 +1049,5 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.04 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.02 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.1 - nodes in this community are weakly interconnected._
+- **Should `Community 3` be split into smaller, more focused modules?**
+  _Cohesion score 0.05 - nodes in this community are weakly interconnected._

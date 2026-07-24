@@ -81,6 +81,9 @@ export function startVerifyWorker() {
               applicantAiKey,
               applicantName,
               documentField: documentType,
+              // documentType is the document-type slug (documents.document_type),
+              // which the files API expects as its :docId path param.
+              documentSlug: documentType,
             },
           );
         }

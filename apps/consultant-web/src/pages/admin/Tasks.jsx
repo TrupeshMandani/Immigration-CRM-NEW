@@ -7,16 +7,12 @@ import Button from "../../components/common/Button";
 import Loading from "../../components/common/Loading";
 import VerificationBadge from "../../components/common/VerificationBadge";
 import { taskService } from "../../services/taskService";
+import { authService } from "../../services/authService";
 import { useSocket } from "../../hooks/useSocket";
 import UploadedFilesModal from "../../components/applicant/UploadedFilesModal";
 import DocumentViewer from "../../components/applicant/DocumentViewer";
 import { requiredDocsService } from "../../services/requireDocService";
 import { normalizeFileList, normalizeRequiredDoc } from "../../utils/requiredDocs";
-
-const typeFilters = [
-  { label: "AI verification", value: "ai-verification" },
-  { label: "All tasks", value: "all" },
-];
 
 const statusFilters = [
   { label: "All statuses", value: "all" },
@@ -24,6 +20,15 @@ const statusFilters = [
   { label: "Verified", value: "verified" },
   { label: "Failed", value: "failed" },
 ];
+
+// The status tabs (pending/verified/failed) are UI-derived states, NOT the raw
+// DB status column (open/in_progress/done/dismissed). "verified" vs "failed"
+// depends on the AI verdict stored in metadata, so filtering must happen here
+// on the client — the backend can only filter by the raw status column.
+const deriveDisplayStatus = (task) => {
+  if (task.status !== "done") return "pending";
+  return task.verificationStatus === "failed" ? "failed" : "verified";
+};
 
 const initialPreviewState = {
   open: false,
@@ -38,7 +43,6 @@ const TasksPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [tasks, setTasks] = useState([]);
   const [filters, setFilters] = useState({
-    type: "ai-verification",
     status: "all",
   });
   const [loading, setLoading] = useState(true);
@@ -61,15 +65,12 @@ const TasksPage = () => {
           setLoading(true);
         }
         setError("");
+        // Fetch all tasks regardless of status — status filtering is derived on
+        // the client (see deriveDisplayStatus) because pending/verified/failed
+        // don't map one-to-one to the DB status column.
         const query = {
           limit: 100,
         };
-        if (filters.type !== "all") {
-          query.type = filters.type;
-        }
-        if (filters.status !== "all") {
-          query.status = filters.status;
-        }
         const data = await taskService.list(query);
         setTasks(Array.isArray(data.tasks) ? data.tasks : []);
       } catch (err) {
@@ -83,7 +84,7 @@ const TasksPage = () => {
         }
       }
     },
-    [filters]
+    []
   );
 
   useEffect(() => {
@@ -107,7 +108,10 @@ const TasksPage = () => {
 
   const buildDocMeta = useCallback(
     (task) => ({
-      id: task.documentId,
+      // The files API keys documents by their type slug (e.g. "passport"),
+      // NOT by the documents-table UUID. documentSlug is the slug; documentField
+      // falls back to the slug on worker-created tasks.
+      id: task.documentSlug || task.documentField,
       name: task.documentField || "Document",
       aiKey: task.applicantAiKey,
       applicantId: task.applicantId,
@@ -117,7 +121,20 @@ const TasksPage = () => {
 
   const handleOpenPreview = useCallback(
     async (task) => {
-      const docMeta = buildDocMeta(task);
+      let docMeta = buildDocMeta(task);
+      // Older tasks may not carry applicantAiKey in metadata; resolve it from
+      // the applicant id so the document can still be opened.
+      if (!docMeta.aiKey && docMeta.applicantId) {
+        try {
+          const applicant = await authService.getApplicantById(docMeta.applicantId);
+          const resolvedKey = applicant?.aiKey || applicant?.ai_key;
+          if (resolvedKey) {
+            docMeta = { ...docMeta, aiKey: resolvedKey };
+          }
+        } catch (err) {
+          console.error("Failed to resolve applicant AI key for task:", err);
+        }
+      }
       if (!docMeta.aiKey || !docMeta.id) {
         setError("File information missing for this task.");
         return;
@@ -312,20 +329,19 @@ const TasksPage = () => {
   const summary = useMemo(() => {
     return tasks.reduce(
       (acc, task) => {
-        // A resolved (done) task reflects its verification outcome; still-open
-        // tasks are pending human review regardless of the AI verdict.
-        const statusKey =
-          task.status === "done"
-            ? task.verificationStatus === "failed"
-              ? "failed"
-              : "verified"
-            : "pending";
+        const statusKey = deriveDisplayStatus(task);
         acc[statusKey] = (acc[statusKey] || 0) + 1;
         return acc;
       },
       { pending: 0, verified: 0, failed: 0 }
     );
   }, [tasks]);
+
+  // Apply the selected status tab on the client, since these are derived states.
+  const visibleTasks = useMemo(() => {
+    if (filters.status === "all") return tasks;
+    return tasks.filter((task) => deriveDisplayStatus(task) === filters.status);
+  }, [tasks, filters.status]);
 
   const renderActions = (task) => (
     <div className="flex flex-wrap gap-2">
@@ -374,7 +390,7 @@ const TasksPage = () => {
       );
     }
 
-    if (!tasks.length) {
+    if (!visibleTasks.length) {
       return (
         <tr>
           <td colSpan={5} className="py-12 text-center text-sm text-neutral-500">
@@ -384,7 +400,7 @@ const TasksPage = () => {
       );
     }
 
-    return tasks.map((task) => {
+    return visibleTasks.map((task) => {
       const timestamp = task.uploadTimestamp || task.createdAt;
       const detected = task.verificationDetectedType;
       const confidence =
@@ -470,22 +486,6 @@ const TasksPage = () => {
         <Card>
           <Card.Header>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex flex-wrap gap-2">
-                {typeFilters.map((filter) => (
-                  <button
-                    key={filter.value}
-                    type="button"
-                    onClick={() => handleFilterChange("type", filter.value)}
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                      filters.type === filter.value
-                        ? "bg-primary text-white shadow"
-                        : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
-                    }`}
-                  >
-                    {filter.label}
-                  </button>
-                ))}
-              </div>
               <div className="flex flex-wrap gap-2">
                 {statusFilters.map((filter) => (
                   <button
