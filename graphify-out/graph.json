@@ -1080,7 +1080,7 @@
       "source_file": "apps/mcp-server/config/env.js",
       "source_location": "L1",
       "id": "apps_mcp_server_config_env_js",
-      "community": 193,
+      "community": 36,
       "norm_label": "env.js"
     },
     {
@@ -1089,7 +1089,7 @@
       "source_file": "apps/mcp-server/config/env.js",
       "source_location": "L1",
       "id": "config_env_path",
-      "community": 193,
+      "community": 36,
       "norm_label": "path"
     },
     {
@@ -1098,7 +1098,7 @@
       "source_file": "apps/mcp-server/config/env.js",
       "source_location": "L2",
       "id": "config_env_dotenv",
-      "community": 193,
+      "community": 36,
       "norm_label": "dotenv"
     },
     {
@@ -1107,7 +1107,7 @@
       "source_file": "apps/mcp-server/config/env.js",
       "source_location": "L4",
       "id": "config_env_envpath",
-      "community": 193,
+      "community": 36,
       "norm_label": "envpath"
     },
     {
@@ -1125,7 +1125,7 @@
       "source_file": "apps/mcp-server/config/env.js",
       "source_location": "L15",
       "id": "config_env_env",
-      "community": 193,
+      "community": 36,
       "norm_label": "env"
     },
     {
@@ -1206,7 +1206,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L1",
       "id": "apps_mcp_server_tests_applicanttools_test_js",
-      "community": 133,
+      "community": 3,
       "norm_label": "applicanttools.test.js"
     },
     {
@@ -1215,7 +1215,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L1",
       "id": "tests_applicanttools_test_describe_it_expect_jest_beforeeach",
-      "community": 133,
+      "community": 3,
       "norm_label": "{ describe, it, expect, jest, beforeeach }"
     },
     {
@@ -1224,7 +1224,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L6",
       "id": "tests_applicanttools_test_applicantservice",
-      "community": 133,
+      "community": 3,
       "norm_label": "applicantservice"
     },
     {
@@ -1233,7 +1233,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L7",
       "id": "tests_applicanttools_test_applicanttools",
-      "community": 133,
+      "community": 3,
       "norm_label": "applicanttools"
     },
     {
@@ -1242,7 +1242,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L16",
       "id": "tests_applicanttools_test_names",
-      "community": 133,
+      "community": 3,
       "norm_label": "names"
     },
     {
@@ -1251,7 +1251,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L41",
       "id": "tests_applicanttools_test_mockapplicant",
-      "community": 133,
+      "community": 3,
       "norm_label": "mockapplicant"
     },
     {
@@ -1260,7 +1260,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L58",
       "id": "tests_applicanttools_test_mocklist",
-      "community": 133,
+      "community": 3,
       "norm_label": "mocklist"
     },
     {
@@ -1269,7 +1269,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L83",
       "id": "tests_applicanttools_test_mockdocs",
-      "community": 133,
+      "community": 3,
       "norm_label": "mockdocs"
     },
     {
@@ -1278,7 +1278,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L102",
       "id": "tests_applicanttools_test_mockresult",
-      "community": 133,
+      "community": 3,
       "norm_label": "mockresult"
     },
     {
@@ -1287,7 +1287,7 @@
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L152",
       "id": "tests_applicanttools_test_mockoverview",
-      "community": 133,
+      "community": 3,
       "norm_label": "mockoverview"
     },
     {
@@ -1296,7 +1296,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L1",
       "id": "apps_mcp_server_tests_documenttools_test_js",
-      "community": 2,
+      "community": 70,
       "norm_label": "documenttools.test.js"
     },
     {
@@ -1305,7 +1305,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L1",
       "id": "tests_documenttools_test_describe_it_expect_jest_beforeeach",
-      "community": 2,
+      "community": 70,
       "norm_label": "{ describe, it, expect, jest, beforeeach }"
     },
     {
@@ -1314,7 +1314,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L2",
       "id": "tests_documenttools_test_readable",
-      "community": 2,
+      "community": 70,
       "norm_label": "{ readable }"
     },
     {
@@ -1323,7 +1323,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L9",
       "id": "tests_documenttools_test_httpclient",
-      "community": 2,
+      "community": 70,
       "norm_label": "httpclient"
     },
     {
@@ -1332,7 +1332,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L10",
       "id": "tests_documenttools_test_documenttools",
-      "community": 2,
+      "community": 70,
       "norm_label": "documenttools"
     },
     {
@@ -1341,7 +1341,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L11",
       "id": "tests_documenttools_test_fs",
-      "community": 2,
+      "community": 70,
       "norm_label": "fs"
     },
     {
@@ -1350,7 +1350,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L37",
       "id": "tests_documenttools_test_tools",
-      "community": 2,
+      "community": 70,
       "norm_label": "tools"
     },
     {
@@ -1359,7 +1359,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L80",
       "id": "tests_documenttools_test_read",
-      "community": 2,
+      "community": 70,
       "norm_label": "read()"
     },
     {
@@ -1368,7 +1368,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L115",
       "id": "tests_documenttools_test_mockfiles",
-      "community": 2,
+      "community": 70,
       "norm_label": "mockfiles"
     },
     {
@@ -1377,7 +1377,7 @@
       "source_file": "apps/mcp-server/tests/documentTools.test.js",
       "source_location": "L280",
       "id": "tests_documenttools_test_agentrequest",
-      "community": 2,
+      "community": 70,
       "norm_label": "agentrequest"
     },
     {
@@ -1386,7 +1386,7 @@
       "source_file": "apps/mcp-server/tests/taskTools.test.js",
       "source_location": "L1",
       "id": "apps_mcp_server_tests_tasktools_test_js",
-      "community": 154,
+      "community": 3,
       "norm_label": "tasktools.test.js"
     },
     {
@@ -1395,7 +1395,7 @@
       "source_file": "apps/mcp-server/tests/taskTools.test.js",
       "source_location": "L1",
       "id": "tests_tasktools_test_describe_it_expect_jest_beforeeach",
-      "community": 154,
+      "community": 3,
       "norm_label": "{ describe, it, expect, jest, beforeeach }"
     },
     {
@@ -1404,7 +1404,7 @@
       "source_file": "apps/mcp-server/tests/taskTools.test.js",
       "source_location": "L6",
       "id": "tests_tasktools_test_applicantservice",
-      "community": 154,
+      "community": 3,
       "norm_label": "applicantservice"
     },
     {
@@ -1413,7 +1413,7 @@
       "source_file": "apps/mcp-server/tests/taskTools.test.js",
       "source_location": "L7",
       "id": "tests_tasktools_test_tasktools",
-      "community": 154,
+      "community": 3,
       "norm_label": "tasktools"
     },
     {
@@ -1422,7 +1422,7 @@
       "source_file": "apps/mcp-server/tests/taskTools.test.js",
       "source_location": "L17",
       "id": "tests_tasktools_test_names",
-      "community": 154,
+      "community": 3,
       "norm_label": "names"
     },
     {
@@ -1431,7 +1431,7 @@
       "source_file": "apps/mcp-server/tests/taskTools.test.js",
       "source_location": "L34",
       "id": "tests_tasktools_test_mocktasks",
-      "community": 154,
+      "community": 3,
       "norm_label": "mocktasks"
     },
     {
@@ -1440,7 +1440,7 @@
       "source_file": "apps/mcp-server/tests/taskTools.test.js",
       "source_location": "L51",
       "id": "tests_tasktools_test_mockcreated",
-      "community": 154,
+      "community": 3,
       "norm_label": "mockcreated"
     },
     {
@@ -1449,7 +1449,7 @@
       "source_file": "apps/mcp-server/tests/taskTools.test.js",
       "source_location": "L104",
       "id": "tests_tasktools_test_mockresult",
-      "community": 154,
+      "community": 3,
       "norm_label": "mockresult"
     },
     {
@@ -1890,7 +1890,7 @@
       "source_file": "apps/mcp-server/services/email.service.js",
       "source_location": "L39",
       "id": "services_email_service_sendemail",
-      "community": 57,
+      "community": 32,
       "norm_label": "sendemail()"
     },
     {
@@ -2052,7 +2052,7 @@
       "source_file": "apps/mcp-server/services/mcp.service.js",
       "source_location": "L1",
       "id": "apps_mcp_server_services_mcp_service_js",
-      "community": 187,
+      "community": 40,
       "norm_label": "mcp.service.js"
     },
     {
@@ -2061,7 +2061,7 @@
       "source_file": "apps/mcp-server/services/mcp.service.js",
       "source_location": "L1",
       "id": "services_mcp_service_runmcpchat",
-      "community": 187,
+      "community": 40,
       "norm_label": "{ runmcpchat }"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_file": "apps/mcp-server/services/mcp.service.js",
       "source_location": "L2",
       "id": "services_mcp_service_logger",
-      "community": 187,
+      "community": 40,
       "norm_label": "logger"
     },
     {
@@ -2079,7 +2079,7 @@
       "source_file": "apps/mcp-server/services/mcp.service.js",
       "source_location": "L4",
       "id": "services_mcp_service_normalizereply",
-      "community": 187,
+      "community": 40,
       "norm_label": "normalizereply()"
     },
     {
@@ -2088,7 +2088,7 @@
       "source_file": "apps/mcp-server/services/mcp.service.js",
       "source_location": "L27",
       "id": "services_mcp_service_formatmcpresponse",
-      "community": 187,
+      "community": 40,
       "norm_label": "formatmcpresponse()"
     },
     {
@@ -2097,7 +2097,7 @@
       "source_file": "apps/mcp-server/services/mcp.service.js",
       "source_location": "L42",
       "id": "services_mcp_service_sendtomcp",
-      "community": 187,
+      "community": 40,
       "norm_label": "sendtomcp()"
     },
     {
@@ -2664,7 +2664,7 @@
       "source_file": "apps/consultant-web/src/components/ui/dialog.jsx",
       "source_location": "L1",
       "id": "apps_consultant_web_src_components_ui_dialog_jsx",
-      "community": 70,
+      "community": 135,
       "norm_label": "dialog.jsx"
     },
     {
@@ -2673,7 +2673,7 @@
       "source_file": "apps/consultant-web/src/components/ui/dialog.jsx",
       "source_location": "L17",
       "id": "ui_dialog_dialogoverlay",
-      "community": 70,
+      "community": 135,
       "norm_label": "dialogoverlay"
     },
     {
@@ -2682,7 +2682,7 @@
       "source_file": "apps/consultant-web/src/components/ui/dialog.jsx",
       "source_location": "L28",
       "id": "ui_dialog_dialogcontent",
-      "community": 70,
+      "community": 135,
       "norm_label": "dialogcontent"
     },
     {
@@ -2691,7 +2691,7 @@
       "source_file": "apps/consultant-web/src/components/ui/dialog.jsx",
       "source_location": "L49",
       "id": "ui_dialog_dialogheader",
-      "community": 70,
+      "community": 135,
       "norm_label": "dialogheader()"
     },
     {
@@ -2700,7 +2700,7 @@
       "source_file": "apps/consultant-web/src/components/ui/dialog.jsx",
       "source_location": "L59",
       "id": "ui_dialog_dialogfooter",
-      "community": 70,
+      "community": 135,
       "norm_label": "dialogfooter()"
     },
     {
@@ -2709,7 +2709,7 @@
       "source_file": "apps/consultant-web/src/components/ui/dialog.jsx",
       "source_location": "L69",
       "id": "ui_dialog_dialogtitle",
-      "community": 70,
+      "community": 135,
       "norm_label": "dialogtitle"
     },
     {
@@ -2718,7 +2718,7 @@
       "source_file": "apps/consultant-web/src/components/ui/dialog.jsx",
       "source_location": "L77",
       "id": "ui_dialog_dialogdescription",
-      "community": 70,
+      "community": 135,
       "norm_label": "dialogdescription"
     },
     {
@@ -2898,7 +2898,7 @@
       "source_file": "apps/consultant-web/src/components/ui/calendar.jsx",
       "source_location": "L1",
       "id": "apps_consultant_web_src_components_ui_calendar_jsx",
-      "community": 70,
+      "community": 135,
       "norm_label": "calendar.jsx"
     },
     {
@@ -2907,7 +2907,7 @@
       "source_file": "apps/consultant-web/src/components/ui/calendar.jsx",
       "source_location": "L12",
       "id": "ui_calendar_calendar",
-      "community": 70,
+      "community": 135,
       "norm_label": "calendar()"
     },
     {
@@ -2916,7 +2916,7 @@
       "source_file": "apps/consultant-web/src/components/ui/calendar.jsx",
       "source_location": "L136",
       "id": "ui_calendar_calendardaybutton",
-      "community": 70,
+      "community": 135,
       "norm_label": "calendardaybutton()"
     },
     {
@@ -3267,7 +3267,7 @@
       "source_file": "apps/consultant-web/src/components/ui/button.jsx",
       "source_location": "L1",
       "id": "apps_consultant_web_src_components_ui_button_jsx",
-      "community": 70,
+      "community": 135,
       "norm_label": "button.jsx"
     },
     {
@@ -3276,7 +3276,7 @@
       "source_file": "apps/consultant-web/src/components/ui/button.jsx",
       "source_location": "L7",
       "id": "ui_button_buttonvariants",
-      "community": 70,
+      "community": 135,
       "norm_label": "buttonvariants"
     },
     {
@@ -3285,7 +3285,7 @@
       "source_file": "apps/marketing/src/components/ui/button.tsx",
       "source_location": "L25",
       "id": "ui_button_button",
-      "community": 70,
+      "community": 135,
       "norm_label": "button"
     },
     {
@@ -4635,7 +4635,7 @@
       "source_file": "apps/consultant-web/src/components/common/ErrorBoundary.jsx",
       "source_location": "L1",
       "id": "apps_consultant_web_src_components_common_errorboundary_jsx",
-      "community": 163,
+      "community": 135,
       "norm_label": "errorboundary.jsx"
     },
     {
@@ -4644,7 +4644,7 @@
       "source_file": "apps/consultant-web/src/components/common/ErrorBoundary.jsx",
       "source_location": "L3",
       "id": "common_errorboundary_errorboundary",
-      "community": 163,
+      "community": 135,
       "norm_label": "errorboundary"
     },
     {
@@ -4653,7 +4653,7 @@
       "source_file": "apps/consultant-web/src/components/common/ErrorBoundary.jsx",
       "source_location": "L4",
       "id": "common_errorboundary_errorboundary_constructor",
-      "community": 163,
+      "community": 135,
       "norm_label": ".constructor()"
     },
     {
@@ -4662,7 +4662,7 @@
       "source_file": "apps/consultant-web/src/components/common/ErrorBoundary.jsx",
       "source_location": "L9",
       "id": "common_errorboundary_errorboundary_getderivedstatefromerror",
-      "community": 163,
+      "community": 135,
       "norm_label": ".getderivedstatefromerror()"
     },
     {
@@ -4671,7 +4671,7 @@
       "source_file": "apps/consultant-web/src/components/common/ErrorBoundary.jsx",
       "source_location": "L13",
       "id": "common_errorboundary_errorboundary_componentdidcatch",
-      "community": 163,
+      "community": 135,
       "norm_label": ".componentdidcatch()"
     },
     {
@@ -4680,7 +4680,7 @@
       "source_file": "apps/consultant-web/src/components/common/ErrorBoundary.jsx",
       "source_location": "L17",
       "id": "common_errorboundary_errorboundary_render",
-      "community": 163,
+      "community": 135,
       "norm_label": ".render()"
     },
     {
@@ -4824,7 +4824,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/ApplicantJourneyFlow.jsx",
       "source_location": "L1",
       "id": "apps_consultant_web_src_components_applicant_applicantjourneyflow_jsx",
-      "community": 188,
+      "community": 135,
       "norm_label": "applicantjourneyflow.jsx"
     },
     {
@@ -4833,7 +4833,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/ApplicantJourneyFlow.jsx",
       "source_location": "L20",
       "id": "applicant_applicantjourneyflow_steps",
-      "community": 188,
+      "community": 135,
       "norm_label": "steps"
     },
     {
@@ -4842,7 +4842,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/ApplicantJourneyFlow.jsx",
       "source_location": "L86",
       "id": "applicant_applicantjourneyflow_clamp",
-      "community": 188,
+      "community": 135,
       "norm_label": "clamp()"
     },
     {
@@ -4851,7 +4851,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/ApplicantJourneyFlow.jsx",
       "source_location": "L90",
       "id": "applicant_applicantjourneyflow_journeystep",
-      "community": 188,
+      "community": 135,
       "norm_label": "journeystep()"
     },
     {
@@ -4860,7 +4860,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/ApplicantJourneyFlow.jsx",
       "source_location": "L116",
       "id": "applicant_applicantjourneyflow_applicantjourneyworkflowpro",
-      "community": 188,
+      "community": 135,
       "norm_label": "applicantjourneyworkflowpro()"
     },
     {
@@ -4959,7 +4959,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/ExtractionResultModal.jsx",
       "source_location": "L1",
       "id": "apps_consultant_web_src_components_applicant_extractionresultmodal_jsx",
-      "community": 70,
+      "community": 135,
       "norm_label": "extractionresultmodal.jsx"
     },
     {
@@ -4968,7 +4968,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/ExtractionResultModal.jsx",
       "source_location": "L14",
       "id": "applicant_extractionresultmodal_extractionresultmodal",
-      "community": 70,
+      "community": 135,
       "norm_label": "extractionresultmodal()"
     },
     {
@@ -4995,7 +4995,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/DocumentGenerationPanel.jsx",
       "source_location": "L1",
       "id": "apps_consultant_web_src_components_applicant_documentgenerationpanel_jsx",
-      "community": 70,
+      "community": 135,
       "norm_label": "documentgenerationpanel.jsx"
     },
     {
@@ -5004,7 +5004,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/DocumentGenerationPanel.jsx",
       "source_location": "L22",
       "id": "applicant_documentgenerationpanel_doc_types",
-      "community": 70,
+      "community": 135,
       "norm_label": "doc_types"
     },
     {
@@ -5013,7 +5013,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/DocumentGenerationPanel.jsx",
       "source_location": "L42",
       "id": "applicant_documentgenerationpanel_downloadabledocumentmodal",
-      "community": 70,
+      "community": 135,
       "norm_label": "downloadabledocumentmodal()"
     },
     {
@@ -5022,7 +5022,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/DocumentGenerationPanel.jsx",
       "source_location": "L216",
       "id": "applicant_documentgenerationpanel_versionhistoryaccordion",
-      "community": 70,
+      "community": 135,
       "norm_label": "versionhistoryaccordion()"
     },
     {
@@ -5031,7 +5031,7 @@
       "source_file": "apps/consultant-web/src/components/applicant/DocumentGenerationPanel.jsx",
       "source_location": "L302",
       "id": "applicant_documentgenerationpanel_documentgenerationpanel",
-      "community": 70,
+      "community": 135,
       "norm_label": "documentgenerationpanel()"
     },
     {
@@ -7434,7 +7434,7 @@
       "source_file": "apps/backend/src/index.js",
       "source_location": "L56",
       "id": "src_index_startupchecks",
-      "community": 6,
+      "community": 77,
       "norm_label": "startupchecks()"
     },
     {
@@ -7452,7 +7452,7 @@
       "source_file": "apps/backend/src/middleware/tenantContext.ts",
       "source_location": "L1",
       "id": "apps_backend_src_middleware_tenantcontext_ts",
-      "community": 68,
+      "community": 77,
       "norm_label": "tenantcontext.ts"
     },
     {
@@ -7461,7 +7461,7 @@
       "source_file": "apps/backend/src/middleware/tenantContext.ts",
       "source_location": "L20",
       "id": "middleware_tenantcontext_request",
-      "community": 68,
+      "community": 77,
       "norm_label": "request"
     },
     {
@@ -7470,7 +7470,7 @@
       "source_file": "apps/backend/src/middleware/tenantContext.ts",
       "source_location": "L29",
       "id": "middleware_tenantcontext_exempt_prefixes",
-      "community": 68,
+      "community": 77,
       "norm_label": "exempt_prefixes"
     },
     {
@@ -7479,7 +7479,7 @@
       "source_file": "apps/backend/src/middleware/tenantContext.ts",
       "source_location": "L36",
       "id": "middleware_tenantcontext_tenantcontextmiddleware",
-      "community": 68,
+      "community": 77,
       "norm_label": "tenantcontextmiddleware()"
     },
     {
@@ -7578,7 +7578,7 @@
       "source_file": "apps/backend/src/middleware/__tests__/tenantContext.test.ts",
       "source_location": "L1",
       "id": "apps_backend_src_middleware_tests_tenantcontext_test_ts",
-      "community": 68,
+      "community": 77,
       "norm_label": "tenantcontext.test.ts"
     },
     {
@@ -7587,7 +7587,7 @@
       "source_file": "apps/backend/src/middleware/__tests__/tenantContext.test.ts",
       "source_location": "L25",
       "id": "tests_tenantcontext_test_jwtauthstub",
-      "community": 68,
+      "community": 77,
       "norm_label": "jwtauthstub()"
     },
     {
@@ -7596,7 +7596,7 @@
       "source_file": "apps/backend/src/middleware/__tests__/tenantContext.test.ts",
       "source_location": "L46",
       "id": "tests_tenantcontext_test_issuetoken",
-      "community": 68,
+      "community": 77,
       "norm_label": "issuetoken()"
     },
     {
@@ -7605,7 +7605,7 @@
       "source_file": "apps/backend/src/middleware/__tests__/tenantContext.test.ts",
       "source_location": "L57",
       "id": "tests_tenantcontext_test_app",
-      "community": 68,
+      "community": 77,
       "norm_label": "app"
     },
     {
@@ -7614,7 +7614,7 @@
       "source_file": "apps/backend/src/middleware/__tests__/tenantContext.test.ts",
       "source_location": "L80",
       "id": "tests_tenantcontext_test_tag",
-      "community": 68,
+      "community": 77,
       "norm_label": "tag"
     },
     {
@@ -7623,7 +7623,7 @@
       "source_file": "apps/backend/src/config/env.js",
       "source_location": "L1",
       "id": "apps_backend_src_config_env_js",
-      "community": 152,
+      "community": 57,
       "norm_label": "env.js"
     },
     {
@@ -7632,7 +7632,7 @@
       "source_file": "apps/backend/src/utils/sendEmail.js",
       "source_location": "L1",
       "id": "apps_backend_src_utils_sendemail_js",
-      "community": 152,
+      "community": 57,
       "norm_label": "sendemail.js"
     },
     {
@@ -7641,7 +7641,7 @@
       "source_file": "apps/backend/src/utils/sendEmail.js",
       "source_location": "L1",
       "id": "utils_sendemail_nodemailer",
-      "community": 152,
+      "community": 57,
       "norm_label": "nodemailer"
     },
     {
@@ -7650,7 +7650,7 @@
       "source_file": "apps/backend/src/utils/sendEmail.js",
       "source_location": "L2",
       "id": "utils_sendemail_smtp_host_smtp_port_smtp_user_smtp_password_email_from",
-      "community": 152,
+      "community": 57,
       "norm_label": "{\n  smtp_host,\n  smtp_port,\n  smtp_user,\n  smtp_password,\n  email_from,\n}"
     },
     {
@@ -7659,7 +7659,7 @@
       "source_file": "apps/backend/src/utils/sendEmail.js",
       "source_location": "L12",
       "id": "utils_sendemail_ensuretransporter",
-      "community": 152,
+      "community": 57,
       "norm_label": "ensuretransporter()"
     },
     {
@@ -7668,7 +7668,7 @@
       "source_file": "apps/backend/src/utils/sendEmail.js",
       "source_location": "L37",
       "id": "utils_sendemail_activetransporter",
-      "community": 152,
+      "community": 57,
       "norm_label": "activetransporter"
     },
     {
@@ -8199,7 +8199,7 @@
       "source_file": "apps/backend/src/db/postgres.ts",
       "source_location": "L1",
       "id": "apps_backend_src_db_postgres_ts",
-      "community": 68,
+      "community": 77,
       "norm_label": "postgres.ts"
     },
     {
@@ -8208,7 +8208,7 @@
       "source_file": "apps/backend/src/db/postgres.ts",
       "source_location": "L11",
       "id": "db_postgres_sql",
-      "community": 68,
+      "community": 77,
       "norm_label": "sql"
     },
     {
@@ -8217,7 +8217,7 @@
       "source_file": "apps/backend/src/db/postgres.ts",
       "source_location": "L17",
       "id": "db_postgres_db",
-      "community": 68,
+      "community": 77,
       "norm_label": "db"
     },
     {
@@ -8532,7 +8532,7 @@
       "source_file": "apps/backend/src/db/schema/case_events.ts",
       "source_location": "L1",
       "id": "apps_backend_src_db_schema_case_events_ts",
-      "community": 15,
+      "community": 110,
       "norm_label": "case_events.ts"
     },
     {
@@ -8667,7 +8667,7 @@
       "source_file": "apps/backend/src/db/schema/retainer_agreements.ts",
       "source_location": "L37",
       "id": "schema_retainer_agreements_retaineragreement",
-      "community": 110,
+      "community": 24,
       "norm_label": "retaineragreement"
     },
     {
@@ -8721,7 +8721,7 @@
       "source_file": "apps/backend/src/db/schema/ai_jobs.ts",
       "source_location": "L1",
       "id": "apps_backend_src_db_schema_ai_jobs_ts",
-      "community": 84,
+      "community": 68,
       "norm_label": "ai_jobs.ts"
     },
     {
@@ -8730,7 +8730,7 @@
       "source_file": "apps/backend/src/db/schema/ai_jobs.ts",
       "source_location": "L5",
       "id": "schema_ai_jobs_aijobs",
-      "community": 84,
+      "community": 68,
       "norm_label": "aijobs"
     },
     {
@@ -8739,7 +8739,7 @@
       "source_file": "apps/backend/src/db/schema/ai_jobs.ts",
       "source_location": "L33",
       "id": "schema_ai_jobs_aijob",
-      "community": 84,
+      "community": 68,
       "norm_label": "aijob"
     },
     {
@@ -8748,7 +8748,7 @@
       "source_file": "apps/backend/src/db/schema/ai_jobs.ts",
       "source_location": "L34",
       "id": "schema_ai_jobs_newaijob",
-      "community": 84,
+      "community": 68,
       "norm_label": "newaijob"
     },
     {
@@ -8829,7 +8829,7 @@
       "source_file": "apps/backend/src/db/__tests__/rls.test.ts",
       "source_location": "L1",
       "id": "apps_backend_src_db_tests_rls_test_ts",
-      "community": 68,
+      "community": 77,
       "norm_label": "rls.test.ts"
     },
     {
@@ -8838,7 +8838,7 @@
       "source_file": "apps/backend/src/db/__tests__/rls.test.ts",
       "source_location": "L24",
       "id": "tests_rls_test_asapprole",
-      "community": 68,
+      "community": 77,
       "norm_label": "asapprole()"
     },
     {
@@ -8847,7 +8847,7 @@
       "source_file": "apps/backend/src/db/__tests__/rls.test.ts",
       "source_location": "L35",
       "id": "tests_rls_test_tag",
-      "community": 68,
+      "community": 77,
       "norm_label": "tag"
     },
     {
@@ -9279,7 +9279,7 @@
       "source_file": "apps/backend/src/modules/tasks/tasks.service.ts",
       "source_location": "L318",
       "id": "tasks_tasks_service_createaiverificationtask",
-      "community": 117,
+      "community": 152,
       "norm_label": "createaiverificationtask()"
     },
     {
@@ -9468,7 +9468,7 @@
       "source_file": "apps/backend/src/modules/auth/auth.controller.ts",
       "source_location": "L21",
       "id": "auth_auth_controller_getappbaseurl",
-      "community": 58,
+      "community": 32,
       "norm_label": "getappbaseurl()"
     },
     {
@@ -9585,7 +9585,7 @@
       "source_file": "apps/backend/src/modules/auth/auth.controller.ts",
       "source_location": "L292",
       "id": "auth_auth_controller_registerapplicant",
-      "community": 58,
+      "community": 32,
       "norm_label": "registerapplicant()"
     },
     {
@@ -10053,7 +10053,7 @@
       "source_file": "apps/backend/src/modules/applicants/applicant.invite.js",
       "source_location": "L64",
       "id": "applicants_applicant_invite_sendapplicantinviteemail",
-      "community": 57,
+      "community": 32,
       "norm_label": "sendapplicantinviteemail()"
     },
     {
@@ -10305,7 +10305,7 @@
       "source_file": "apps/backend/src/modules/applicants/applicant.controller.js",
       "source_location": "L83",
       "id": "applicants_applicant_controller_getapplicantname",
-      "community": 117,
+      "community": 152,
       "norm_label": "getapplicantname()"
     },
     {
@@ -10800,7 +10800,7 @@
       "source_file": "apps/backend/src/modules/applicants/applicant.controller.js",
       "source_location": "L1111",
       "id": "applicants_applicant_controller_processrequireddocumentupload",
-      "community": 117,
+      "community": 152,
       "norm_label": "processrequireddocumentupload()"
     },
     {
@@ -11745,7 +11745,7 @@
       "source_file": "apps/backend/src/modules/ai/utils/field-priority.js",
       "source_location": "L1",
       "id": "apps_backend_src_modules_ai_utils_field_priority_js",
-      "community": 117,
+      "community": 152,
       "norm_label": "field-priority.js"
     },
     {
@@ -11754,7 +11754,7 @@
       "source_file": "apps/backend/src/modules/ai/utils/field-priority.js",
       "source_location": "L1",
       "id": "utils_field_priority_field_priority",
-      "community": 117,
+      "community": 152,
       "norm_label": "field_priority"
     },
     {
@@ -11763,7 +11763,7 @@
       "source_file": "apps/backend/src/modules/ai/utils/field-priority.js",
       "source_location": "L61",
       "id": "utils_field_priority_prioritizefields",
-      "community": 117,
+      "community": 152,
       "norm_label": "prioritizefields()"
     },
     {
@@ -11772,7 +11772,7 @@
       "source_file": "apps/backend/src/modules/ai/utils/field-priority.js",
       "source_location": "L87",
       "id": "utils_field_priority_formatfieldname",
-      "community": 117,
+      "community": 152,
       "norm_label": "formatfieldname()"
     },
     {
@@ -12132,7 +12132,7 @@
       "source_file": "apps/backend/src/modules/deadlines/deadline.queue.ts",
       "source_location": "L1",
       "id": "apps_backend_src_modules_deadlines_deadline_queue_ts",
-      "community": 77,
+      "community": 154,
       "norm_label": "deadline.queue.ts"
     },
     {
@@ -12141,7 +12141,7 @@
       "source_file": "apps/backend/src/modules/deadlines/deadline.queue.ts",
       "source_location": "L3",
       "id": "deadlines_deadline_queue_redisopts",
-      "community": 77,
+      "community": 154,
       "norm_label": "redisopts()"
     },
     {
@@ -12150,7 +12150,7 @@
       "source_file": "apps/backend/src/modules/deadlines/deadline.queue.ts",
       "source_location": "L13",
       "id": "deadlines_deadline_queue_deadlinequeue",
-      "community": 77,
+      "community": 154,
       "norm_label": "deadlinequeue"
     },
     {
@@ -12159,7 +12159,7 @@
       "source_file": "apps/backend/src/modules/deadlines/deadline.queue.ts",
       "source_location": "L24",
       "id": "deadlines_deadline_queue_scheduledeadlinescan",
-      "community": 77,
+      "community": 154,
       "norm_label": "scheduledeadlinescan()"
     },
     {
@@ -12177,7 +12177,7 @@
       "source_file": "apps/backend/src/modules/documents/documents.worker.ts",
       "source_location": "L8",
       "id": "documents_documents_worker_redisopts",
-      "community": 6,
+      "community": 77,
       "norm_label": "redisopts()"
     },
     {
@@ -12186,7 +12186,7 @@
       "source_file": "apps/backend/src/modules/documents/documents.worker.ts",
       "source_location": "L20",
       "id": "documents_documents_worker_starthashingworker",
-      "community": 6,
+      "community": 77,
       "norm_label": "starthashingworker()"
     },
     {
@@ -12492,7 +12492,7 @@
       "source_file": "apps/backend/src/modules/documents/document-expiry.worker.ts",
       "source_location": "L1",
       "id": "apps_backend_src_modules_documents_document_expiry_worker_ts",
-      "community": 68,
+      "community": 77,
       "norm_label": "document-expiry.worker.ts"
     },
     {
@@ -12501,7 +12501,7 @@
       "source_file": "apps/backend/src/modules/documents/document-expiry.worker.ts",
       "source_location": "L6",
       "id": "documents_document_expiry_worker_redisopts",
-      "community": 68,
+      "community": 77,
       "norm_label": "redisopts()"
     },
     {
@@ -12510,7 +12510,7 @@
       "source_file": "apps/backend/src/modules/documents/document-expiry.worker.ts",
       "source_location": "L17",
       "id": "documents_document_expiry_worker_daysuntil",
-      "community": 68,
+      "community": 77,
       "norm_label": "daysuntil()"
     },
     {
@@ -12519,7 +12519,7 @@
       "source_file": "apps/backend/src/modules/documents/document-expiry.worker.ts",
       "source_location": "L24",
       "id": "documents_document_expiry_worker_parseexpiryfromprofile",
-      "community": 68,
+      "community": 77,
       "norm_label": "parseexpiryfromprofile()"
     },
     {
@@ -12528,7 +12528,7 @@
       "source_file": "apps/backend/src/modules/documents/document-expiry.worker.ts",
       "source_location": "L38",
       "id": "documents_document_expiry_worker_startdocumentexpiryworker",
-      "community": 68,
+      "community": 77,
       "norm_label": "startdocumentexpiryworker()"
     },
     {
@@ -13113,7 +13113,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L1",
       "id": "apps_backend_src_modules_billing_retainers_service_ts",
-      "community": 110,
+      "community": 24,
       "norm_label": "retainers.service.ts"
     },
     {
@@ -13122,7 +13122,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L15",
       "id": "billing_retainers_service_dbclient",
-      "community": 110,
+      "community": 24,
       "norm_label": "dbclient"
     },
     {
@@ -13131,7 +13131,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L17",
       "id": "billing_retainers_service_templates_dir",
-      "community": 110,
+      "community": 24,
       "norm_label": "templates_dir"
     },
     {
@@ -13140,7 +13140,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L21",
       "id": "billing_retainers_service_rendertemplate",
-      "community": 110,
+      "community": 24,
       "norm_label": "rendertemplate()"
     },
     {
@@ -13149,7 +13149,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L25",
       "id": "billing_retainers_service_s3client",
-      "community": 110,
+      "community": 24,
       "norm_label": "s3client()"
     },
     {
@@ -13158,7 +13158,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L35",
       "id": "billing_retainers_service_notfound",
-      "community": 110,
+      "community": 24,
       "norm_label": "notfound()"
     },
     {
@@ -13167,7 +13167,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L40",
       "id": "billing_retainers_service_listtemplates",
-      "community": 110,
+      "community": 24,
       "norm_label": "listtemplates()"
     },
     {
@@ -13176,7 +13176,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L49",
       "id": "billing_retainers_service_readtemplate",
-      "community": 110,
+      "community": 24,
       "norm_label": "readtemplate()"
     },
     {
@@ -13185,7 +13185,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L58",
       "id": "billing_retainers_service_createdraft",
-      "community": 110,
+      "community": 24,
       "norm_label": "createdraft()"
     },
     {
@@ -13194,7 +13194,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L99",
       "id": "billing_retainers_service_sendforsignature",
-      "community": 110,
+      "community": 24,
       "norm_label": "sendforsignature()"
     },
     {
@@ -13203,7 +13203,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L132",
       "id": "billing_retainers_service_finalizesignature",
-      "community": 110,
+      "community": 24,
       "norm_label": "finalizesignature()"
     },
     {
@@ -13212,7 +13212,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L204",
       "id": "billing_retainers_service_getretainer",
-      "community": 110,
+      "community": 24,
       "norm_label": "getretainer()"
     },
     {
@@ -13221,7 +13221,7 @@
       "source_file": "apps/backend/src/modules/billing/retainers.service.ts",
       "source_location": "L219",
       "id": "billing_retainers_service_listretainers",
-      "community": 110,
+      "community": 24,
       "norm_label": "listretainers()"
     },
     {
@@ -13581,7 +13581,7 @@
       "source_file": "apps/backend/src/socket/index.ts",
       "source_location": "L181",
       "id": "socket_index_emittaskcreated",
-      "community": 123,
+      "community": 47,
       "norm_label": "emittaskcreated()"
     },
     {
@@ -13651,7 +13651,7 @@
       "label": "nextConfig",
       "file_type": "code",
       "source_file": "apps/marketing/next.config.ts",
-      "source_location": "L3",
+      "source_location": "L4",
       "id": "marketing_next_config_nextconfig",
       "community": 97,
       "norm_label": "nextconfig"
@@ -13716,7 +13716,7 @@
       "source_file": "apps/marketing/src/app/page.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_app_page_tsx",
-      "community": 22,
+      "community": 218,
       "norm_label": "page.tsx"
     },
     {
@@ -13725,7 +13725,7 @@
       "source_file": "apps/marketing/src/app/page.tsx",
       "source_location": "L8",
       "id": "app_page_home",
-      "community": 22,
+      "community": 218,
       "norm_label": "home()"
     },
     {
@@ -13779,7 +13779,7 @@
       "source_file": "apps/marketing/src/app/colleges/page.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_app_colleges_page_tsx",
-      "community": 218,
+      "community": 153,
       "norm_label": "page.tsx"
     },
     {
@@ -13788,7 +13788,7 @@
       "source_file": "apps/marketing/src/app/colleges/page.tsx",
       "source_location": "L6",
       "id": "colleges_page_partnerbenefits",
-      "community": 218,
+      "community": 153,
       "norm_label": "partnerbenefits"
     },
     {
@@ -13797,7 +13797,7 @@
       "source_file": "apps/marketing/src/app/colleges/page.tsx",
       "source_location": "L24",
       "id": "colleges_page_showcasemetrics",
-      "community": 218,
+      "community": 153,
       "norm_label": "showcasemetrics"
     },
     {
@@ -13806,7 +13806,7 @@
       "source_file": "apps/marketing/src/app/colleges/page.tsx",
       "source_location": "L30",
       "id": "colleges_page_collegespage",
-      "community": 218,
+      "community": 153,
       "norm_label": "collegespage()"
     },
     {
@@ -13869,7 +13869,7 @@
       "source_file": "apps/marketing/src/app/promotions/page.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_app_promotions_page_tsx",
-      "community": 13,
+      "community": 22,
       "norm_label": "page.tsx"
     },
     {
@@ -13878,7 +13878,7 @@
       "source_file": "apps/marketing/src/app/promotions/page.tsx",
       "source_location": "L6",
       "id": "promotions_page_promotionspage",
-      "community": 13,
+      "community": 22,
       "norm_label": "promotionspage()"
     },
     {
@@ -13981,10 +13981,19 @@
       "norm_label": "interactivegridpatternprops"
     },
     {
+      "label": "FadeOutRect()",
+      "file_type": "code",
+      "source_file": "apps/marketing/src/components/ui/interactive-grid-pattern.tsx",
+      "source_location": "L39",
+      "id": "ui_interactive_grid_pattern_fadeoutrect",
+      "community": 49,
+      "norm_label": "fadeoutrect()"
+    },
+    {
       "label": "InteractiveGridPattern()",
       "file_type": "code",
       "source_file": "apps/marketing/src/components/ui/interactive-grid-pattern.tsx",
-      "source_location": "L34",
+      "source_location": "L85",
       "id": "ui_interactive_grid_pattern_interactivegridpattern",
       "community": 49,
       "norm_label": "interactivegridpattern()"
@@ -14022,7 +14031,7 @@
       "source_file": "apps/marketing/src/components/ui/marquee.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_components_ui_marquee_tsx",
-      "community": 22,
+      "community": 133,
       "norm_label": "marquee.tsx"
     },
     {
@@ -14031,7 +14040,7 @@
       "source_file": "apps/marketing/src/components/ui/marquee.tsx",
       "source_location": "L5",
       "id": "ui_marquee_marqueeprops",
-      "community": 22,
+      "community": 133,
       "norm_label": "marqueeprops"
     },
     {
@@ -14040,7 +14049,7 @@
       "source_file": "apps/marketing/src/components/ui/marquee.tsx",
       "source_location": "L36",
       "id": "ui_marquee_marquee",
-      "community": 22,
+      "community": 133,
       "norm_label": "marquee()"
     },
     {
@@ -14103,7 +14112,7 @@
       "source_file": "apps/marketing/src/components/ui/section-heading.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_components_ui_section_heading_tsx",
-      "community": 22,
+      "community": 218,
       "norm_label": "section-heading.tsx"
     },
     {
@@ -14112,7 +14121,7 @@
       "source_file": "apps/marketing/src/components/ui/section-heading.tsx",
       "source_location": "L3",
       "id": "ui_section_heading_sectionheadingprops",
-      "community": 22,
+      "community": 218,
       "norm_label": "sectionheadingprops"
     },
     {
@@ -14121,7 +14130,7 @@
       "source_file": "apps/marketing/src/components/ui/section-heading.tsx",
       "source_location": "L10",
       "id": "ui_section_heading_sectionheading",
-      "community": 22,
+      "community": 218,
       "norm_label": "sectionheading()"
     },
     {
@@ -14130,7 +14139,7 @@
       "source_file": "apps/marketing/src/components/ui/button.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_components_ui_button_tsx",
-      "community": 18,
+      "community": 26,
       "norm_label": "button.tsx"
     },
     {
@@ -14139,7 +14148,7 @@
       "source_file": "apps/marketing/src/components/ui/button.tsx",
       "source_location": "L7",
       "id": "ui_button_baseprops",
-      "community": 18,
+      "community": 26,
       "norm_label": "baseprops"
     },
     {
@@ -14148,7 +14157,7 @@
       "source_file": "apps/marketing/src/components/ui/button.tsx",
       "source_location": "L13",
       "id": "ui_button_buttonprops",
-      "community": 18,
+      "community": 26,
       "norm_label": "buttonprops"
     },
     {
@@ -14157,7 +14166,7 @@
       "source_file": "apps/marketing/src/components/ui/button.tsx",
       "source_location": "L16",
       "id": "ui_button_variantstyles",
-      "community": 18,
+      "community": 26,
       "norm_label": "variantstyles"
     },
     {
@@ -14166,7 +14175,7 @@
       "source_file": "apps/marketing/src/components/ui/DotGrid.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_components_ui_dotgrid_tsx",
-      "community": 218,
+      "community": 153,
       "norm_label": "dotgrid.tsx"
     },
     {
@@ -14175,7 +14184,7 @@
       "source_file": "apps/marketing/src/components/ui/DotGrid.tsx",
       "source_location": "L9",
       "id": "ui_dotgrid_throttle",
-      "community": 218,
+      "community": 153,
       "norm_label": "throttle()"
     },
     {
@@ -14184,7 +14193,7 @@
       "source_file": "apps/marketing/src/components/ui/DotGrid.tsx",
       "source_location": "L20",
       "id": "ui_dotgrid_dot",
-      "community": 218,
+      "community": 153,
       "norm_label": "dot"
     },
     {
@@ -14193,7 +14202,7 @@
       "source_file": "apps/marketing/src/components/ui/DotGrid.tsx",
       "source_location": "L28",
       "id": "ui_dotgrid_dotgridprops",
-      "community": 218,
+      "community": 153,
       "norm_label": "dotgridprops"
     },
     {
@@ -14202,7 +14211,7 @@
       "source_file": "apps/marketing/src/components/ui/DotGrid.tsx",
       "source_location": "L44",
       "id": "ui_dotgrid_hextorgb",
-      "community": 218,
+      "community": 153,
       "norm_label": "hextorgb()"
     },
     {
@@ -14211,7 +14220,7 @@
       "source_file": "apps/marketing/src/components/ui/DotGrid.tsx",
       "source_location": "L54",
       "id": "ui_dotgrid_dotgrid",
-      "community": 218,
+      "community": 153,
       "norm_label": "dotgrid()"
     },
     {
@@ -14310,7 +14319,7 @@
       "source_file": "apps/marketing/src/components/sections/process-flow.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_components_sections_process_flow_tsx",
-      "community": 22,
+      "community": 218,
       "norm_label": "process-flow.tsx"
     },
     {
@@ -14319,7 +14328,7 @@
       "source_file": "apps/marketing/src/components/sections/process-flow.tsx",
       "source_location": "L8",
       "id": "sections_process_flow_processflow",
-      "community": 22,
+      "community": 218,
       "norm_label": "processflow()"
     },
     {
@@ -14364,7 +14373,7 @@
       "source_file": "apps/marketing/src/components/sections/colleges-explorer.tsx",
       "source_location": "L33",
       "id": "sections_colleges_explorer_collegesexplorer",
-      "community": 218,
+      "community": 153,
       "norm_label": "collegesexplorer()"
     },
     {
@@ -14373,7 +14382,7 @@
       "source_file": "apps/marketing/src/components/sections/college-showcase.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_components_sections_college_showcase_tsx",
-      "community": 22,
+      "community": 133,
       "norm_label": "college-showcase.tsx"
     },
     {
@@ -14382,7 +14391,7 @@
       "source_file": "apps/marketing/src/components/sections/college-showcase.tsx",
       "source_location": "L10",
       "id": "sections_college_showcase_collegeshowcase",
-      "community": 22,
+      "community": 133,
       "norm_label": "collegeshowcase()"
     },
     {
@@ -14391,7 +14400,7 @@
       "source_file": "apps/marketing/src/components/sections/pathways-grid.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_components_sections_pathways_grid_tsx",
-      "community": 22,
+      "community": 218,
       "norm_label": "pathways-grid.tsx"
     },
     {
@@ -14400,7 +14409,7 @@
       "source_file": "apps/marketing/src/components/sections/pathways-grid.tsx",
       "source_location": "L6",
       "id": "sections_pathways_grid_pathwaysgrid",
-      "community": 22,
+      "community": 218,
       "norm_label": "pathwaysgrid()"
     },
     {
@@ -14409,7 +14418,7 @@
       "source_file": "apps/marketing/src/components/sections/trust.tsx",
       "source_location": "L1",
       "id": "apps_marketing_src_components_sections_trust_tsx",
-      "community": 22,
+      "community": 218,
       "norm_label": "trust.tsx"
     },
     {
@@ -14418,7 +14427,7 @@
       "source_file": "apps/marketing/src/components/sections/trust.tsx",
       "source_location": "L5",
       "id": "sections_trust_trustsection",
-      "community": 22,
+      "community": 218,
       "norm_label": "trustsection()"
     },
     {
@@ -14580,7 +14589,7 @@
       "source_file": "apps/marketing/src/lib/colleges.ts",
       "source_location": "L1",
       "id": "apps_marketing_src_lib_colleges_ts",
-      "community": 22,
+      "community": 133,
       "norm_label": "colleges.ts"
     },
     {
@@ -14589,7 +14598,7 @@
       "source_file": "apps/marketing/src/lib/colleges.ts",
       "source_location": "L3",
       "id": "lib_colleges_college",
-      "community": 22,
+      "community": 133,
       "norm_label": "college"
     },
     {
@@ -14598,7 +14607,7 @@
       "source_file": "apps/marketing/src/lib/colleges.ts",
       "source_location": "L15",
       "id": "lib_colleges_colleges",
-      "community": 22,
+      "community": 133,
       "norm_label": "colleges"
     },
     {
@@ -14607,7 +14616,7 @@
       "source_file": "apps/marketing/src/lib/colleges.ts",
       "source_location": "L18",
       "id": "lib_colleges_collegetopromotioncard",
-      "community": 22,
+      "community": 133,
       "norm_label": "collegetopromotioncard()"
     },
     {
@@ -14688,7 +14697,7 @@
       "source_file": "apps/marketing/src/lib/constants.ts",
       "source_location": "L121",
       "id": "lib_constants_processsteps",
-      "community": 22,
+      "community": 218,
       "norm_label": "processsteps"
     },
     {
@@ -14697,7 +14706,7 @@
       "source_file": "apps/marketing/src/lib/constants.ts",
       "source_location": "L139",
       "id": "lib_constants_trusthighlights",
-      "community": 22,
+      "community": 218,
       "norm_label": "trusthighlights"
     },
     {
@@ -26216,7 +26225,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L6",
-      "community": 133,
+      "community": 3,
       "norm_label": "studentservice",
       "id": "tests_applicanttools_test_studentservice"
     },
@@ -26225,7 +26234,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/applicantTools.test.js",
       "source_location": "L41",
-      "community": 133,
+      "community": 3,
       "norm_label": "mockstudent",
       "id": "tests_applicanttools_test_mockstudent"
     },
@@ -26234,7 +26243,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/taskTools.test.js",
       "source_location": "L6",
-      "community": 154,
+      "community": 3,
       "norm_label": "studentservice",
       "id": "tests_tasktools_test_studentservice"
     },
@@ -26981,7 +26990,7 @@
       "file_type": "code",
       "source_file": "apps/backend/src/db/schema/students.ts",
       "source_location": "L45",
-      "community": 118,
+      "community": 11,
       "norm_label": "student",
       "id": "schema_students_student"
     },
@@ -27008,7 +27017,7 @@
       "file_type": "code",
       "source_file": "apps/backend/src/modules/auth/auth.controller.ts",
       "source_location": "L292",
-      "community": 58,
+      "community": 32,
       "norm_label": "registerstudent()",
       "id": "auth_auth_controller_registerstudent"
     },
@@ -27053,7 +27062,7 @@
       "file_type": "code",
       "source_file": "apps/backend/src/modules/applicants/applicant.controller.js",
       "source_location": "L46",
-      "community": 117,
+      "community": 152,
       "norm_label": "getstudentname()",
       "id": "applicants_applicant_controller_getstudentname"
     },
@@ -27152,7 +27161,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tools/studentTools.js",
       "source_location": "L1",
-      "community": 24,
+      "community": 3,
       "norm_label": "studenttools.js",
       "id": "apps_mcp_server_tools_studenttools_js"
     },
@@ -27161,7 +27170,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tools/studentTools.js",
       "source_location": "L1",
-      "community": 24,
+      "community": 3,
       "norm_label": "{\n  getstudentbyid,\n  searchstudents,\n  getmissingdocuments,\n  updatestudentstage,\n  addnote,\n  getstudentoverview,\n}",
       "id": "tools_studenttools_getstudentbyid_searchstudents_getmissingdocuments_updatestudentstage_addnote_getstudentoverview"
     },
@@ -27170,7 +27179,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L1",
-      "community": 153,
+      "community": 3,
       "norm_label": "studenttools.test.js",
       "id": "apps_mcp_server_tests_studenttools_test_js"
     },
@@ -27179,7 +27188,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L1",
-      "community": 153,
+      "community": 3,
       "norm_label": "{ describe, it, expect, jest, beforeeach }",
       "id": "tests_studenttools_test_describe_it_expect_jest_beforeeach"
     },
@@ -27188,7 +27197,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L6",
-      "community": 153,
+      "community": 3,
       "norm_label": "studentservice",
       "id": "tests_studenttools_test_studentservice"
     },
@@ -27197,7 +27206,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L7",
-      "community": 153,
+      "community": 3,
       "norm_label": "studenttools",
       "id": "tests_studenttools_test_studenttools"
     },
@@ -27206,7 +27215,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L16",
-      "community": 153,
+      "community": 3,
       "norm_label": "names",
       "id": "tests_studenttools_test_names"
     },
@@ -27215,7 +27224,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L41",
-      "community": 153,
+      "community": 3,
       "norm_label": "mockstudent",
       "id": "tests_studenttools_test_mockstudent"
     },
@@ -27224,7 +27233,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L58",
-      "community": 153,
+      "community": 3,
       "norm_label": "mocklist",
       "id": "tests_studenttools_test_mocklist"
     },
@@ -27233,7 +27242,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L83",
-      "community": 153,
+      "community": 3,
       "norm_label": "mockdocs",
       "id": "tests_studenttools_test_mockdocs"
     },
@@ -27242,7 +27251,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L102",
-      "community": 153,
+      "community": 3,
       "norm_label": "mockresult",
       "id": "tests_studenttools_test_mockresult"
     },
@@ -27251,7 +27260,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/tests/studentTools.test.js",
       "source_location": "L152",
-      "community": 153,
+      "community": 3,
       "norm_label": "mockoverview",
       "id": "tests_studenttools_test_mockoverview"
     },
@@ -27260,7 +27269,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L1",
-      "community": 24,
+      "community": 3,
       "norm_label": "student.service.js",
       "id": "apps_mcp_server_services_student_service_js"
     },
@@ -27269,7 +27278,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L1",
-      "community": 24,
+      "community": 3,
       "norm_label": "axios",
       "id": "services_student_service_axios"
     },
@@ -27278,7 +27287,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L2",
-      "community": 24,
+      "community": 3,
       "norm_label": "formdata",
       "id": "services_student_service_formdata"
     },
@@ -27287,7 +27296,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L3",
-      "community": 24,
+      "community": 3,
       "norm_label": "fs",
       "id": "services_student_service_fs"
     },
@@ -27296,7 +27305,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L4",
-      "community": 24,
+      "community": 3,
       "norm_label": "{ backend_service_token }",
       "id": "services_student_service_backend_service_token"
     },
@@ -27305,7 +27314,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L5",
-      "community": 24,
+      "community": 3,
       "norm_label": "{ getauthheader, getfirmid }",
       "id": "services_student_service_getauthheader_getfirmid"
     },
@@ -27314,7 +27323,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L11",
-      "community": 24,
+      "community": 3,
       "norm_label": "trimmedbase",
       "id": "services_student_service_trimmedbase"
     },
@@ -27323,7 +27332,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L17",
-      "community": 24,
+      "community": 3,
       "norm_label": "client",
       "id": "services_student_service_client"
     },
@@ -27332,7 +27341,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L34",
-      "community": 24,
+      "community": 3,
       "norm_label": "firmid",
       "id": "services_student_service_firmid"
     },
@@ -27341,7 +27350,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L43",
-      "community": 24,
+      "community": 3,
       "norm_label": "ensurevalue()",
       "id": "services_student_service_ensurevalue"
     },
@@ -27350,7 +27359,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L49",
-      "community": 24,
+      "community": 3,
       "norm_label": "formaterror()",
       "id": "services_student_service_formaterror"
     },
@@ -27359,7 +27368,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L59",
-      "community": 24,
+      "community": 3,
       "norm_label": "buildstudentpath()",
       "id": "services_student_service_buildstudentpath"
     },
@@ -27368,7 +27377,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L64",
-      "community": 24,
+      "community": 3,
       "norm_label": "getstudentbyid()",
       "id": "services_student_service_getstudentbyid"
     },
@@ -27377,7 +27386,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L74",
-      "community": 24,
+      "community": 3,
       "norm_label": "searchstudents()",
       "id": "services_student_service_searchstudents"
     },
@@ -27386,7 +27395,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L89",
-      "community": 24,
+      "community": 3,
       "norm_label": "getmissingdocuments()",
       "id": "services_student_service_getmissingdocuments"
     },
@@ -27395,7 +27404,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L99",
-      "community": 24,
+      "community": 3,
       "norm_label": "getstudenttasks()",
       "id": "services_student_service_getstudenttasks"
     },
@@ -27404,7 +27413,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L109",
-      "community": 24,
+      "community": 3,
       "norm_label": "createstudenttask()",
       "id": "services_student_service_createstudenttask"
     },
@@ -27413,7 +27422,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L141",
-      "community": 24,
+      "community": 3,
       "norm_label": "updatestudenttask()",
       "id": "services_student_service_updatestudenttask"
     },
@@ -27422,7 +27431,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L159",
-      "community": 24,
+      "community": 3,
       "norm_label": "deletestudenttask()",
       "id": "services_student_service_deletestudenttask"
     },
@@ -27431,7 +27440,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L172",
-      "community": 24,
+      "community": 3,
       "norm_label": "updatestudentstage()",
       "id": "services_student_service_updatestudentstage"
     },
@@ -27440,7 +27449,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L185",
-      "community": 24,
+      "community": 3,
       "norm_label": "addnote()",
       "id": "services_student_service_addnote"
     },
@@ -27449,7 +27458,7 @@
       "file_type": "code",
       "source_file": "apps/mcp-server/services/student.service.js",
       "source_location": "L198",
-      "community": 24,
+      "community": 3,
       "norm_label": "getstudentoverview()",
       "id": "services_student_service_getstudentoverview"
     },
@@ -30626,7 +30635,7 @@
       "file_type": "code",
       "source_file": "apps/backend/src/config/db.js",
       "source_location": "L1",
-      "community": 152,
+      "community": 57,
       "norm_label": "db.js",
       "id": "apps_backend_src_config_db_js"
     },
@@ -30635,7 +30644,7 @@
       "file_type": "code",
       "source_file": "apps/backend/src/config/db.js",
       "source_location": "L1",
-      "community": 152,
+      "community": 57,
       "norm_label": "mongoose",
       "id": "config_db_mongoose"
     },
@@ -30644,7 +30653,7 @@
       "file_type": "code",
       "source_file": "apps/backend/src/config/db.js",
       "source_location": "L2",
-      "community": 152,
+      "community": 57,
       "norm_label": "{ mongodb_uri }",
       "id": "config_db_mongodb_uri"
     },
@@ -30653,7 +30662,7 @@
       "file_type": "code",
       "source_file": "apps/backend/src/config/db.js",
       "source_location": "L4",
-      "community": 152,
+      "community": 57,
       "norm_label": "connectdb()",
       "id": "config_db_connectdb"
     },
@@ -66307,6 +66316,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "apps/marketing/src/components/ui/interactive-grid-pattern.tsx",
+      "source_location": "L36",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "apps_marketing_src_components_ui_interactive_grid_pattern_tsx",
+      "target": "ui_interactive_grid_pattern_fadeoutrect"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/marketing/src/components/ui/interactive-grid-pattern.tsx",
       "source_location": "L34",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -67483,9 +67502,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "enterprise_readiness_audit_md",
-      "target": "immigration_crm_enterprise_readiness_audit_immigration_crm_enterprise_readiness_audit",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_immigration_crm_enterprise_readiness_audit"
     },
     {
       "relation": "contains",
@@ -67493,9 +67512,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_immigration_crm_enterprise_readiness_audit",
-      "target": "immigration_crm_enterprise_readiness_audit_1_architectural_assessment_bottlenecks",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_1_architectural_assessment_bottlenecks"
     },
     {
       "relation": "contains",
@@ -67503,9 +67522,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_immigration_crm_enterprise_readiness_audit",
-      "target": "immigration_crm_enterprise_readiness_audit_2_hidden_bugs_code_smells",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_2_hidden_bugs_code_smells"
     },
     {
       "relation": "contains",
@@ -67513,9 +67532,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L209",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_immigration_crm_enterprise_readiness_audit",
-      "target": "immigration_crm_enterprise_readiness_audit_3_enterprise_grade_improvements",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_3_enterprise_grade_improvements"
     },
     {
       "relation": "contains",
@@ -67523,9 +67542,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L273",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_immigration_crm_enterprise_readiness_audit",
-      "target": "immigration_crm_enterprise_readiness_audit_4_step_by_step_refactoring_roadmap",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_4_step_by_step_refactoring_roadmap"
     },
     {
       "relation": "contains",
@@ -67533,9 +67552,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_1_architectural_assessment_bottlenecks",
-      "target": "immigration_crm_enterprise_readiness_audit_1_1_what_the_system_is_today",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_1_1_what_the_system_is_today"
     },
     {
       "relation": "contains",
@@ -67543,9 +67562,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_1_architectural_assessment_bottlenecks",
-      "target": "immigration_crm_enterprise_readiness_audit_1_2_the_single_most_severe_bottleneck_verified_not_theoretical",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_1_2_the_single_most_severe_bottleneck_verified_not_theoretical"
     },
     {
       "relation": "contains",
@@ -67553,9 +67572,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_1_architectural_assessment_bottlenecks",
-      "target": "immigration_crm_enterprise_readiness_audit_1_3_other_structural_bottlenecks",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_1_3_other_structural_bottlenecks"
     },
     {
       "relation": "contains",
@@ -67563,9 +67582,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_1_architectural_assessment_bottlenecks",
-      "target": "immigration_crm_enterprise_readiness_audit_1_4_recommended_patterns_for_this_specific_system",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_1_4_recommended_patterns_for_this_specific_system"
     },
     {
       "relation": "contains",
@@ -67573,9 +67592,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_2_hidden_bugs_code_smells",
-      "target": "immigration_crm_enterprise_readiness_audit_2_1_stripe_webhook_has_no_idempotency_guard_financial_double_counting_risk",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_2_1_stripe_webhook_has_no_idempotency_guard_financial_double_counting_risk"
     },
     {
       "relation": "contains",
@@ -67583,9 +67602,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L139",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_2_hidden_bugs_code_smells",
-      "target": "immigration_crm_enterprise_readiness_audit_2_2_jwt_signing_verification_fails_open_on_missing_secret",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_2_2_jwt_signing_verification_fails_open_on_missing_secret"
     },
     {
       "relation": "contains",
@@ -67593,9 +67612,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L153",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_2_hidden_bugs_code_smells",
-      "target": "immigration_crm_enterprise_readiness_audit_2_3_tenant_fallback_constant_reintroduces_the_isolation_hole_rls_was_built_to_close",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_2_3_tenant_fallback_constant_reintroduces_the_isolation_hole_rls_was_built_to_close"
     },
     {
       "relation": "contains",
@@ -67603,9 +67622,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L169",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_2_hidden_bugs_code_smells",
-      "target": "immigration_crm_enterprise_readiness_audit_2_4_no_request_db_call_timeout_on_the_ai_chat_proxy",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_2_4_no_request_db_call_timeout_on_the_ai_chat_proxy"
     },
     {
       "relation": "contains",
@@ -67613,9 +67632,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L177",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_2_hidden_bugs_code_smells",
-      "target": "immigration_crm_enterprise_readiness_audit_2_5_duplicate_shadowed_route_handlers_are_a_live_correctness_trap_not_just_dead_code",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_2_5_duplicate_shadowed_route_handlers_are_a_live_correctness_trap_not_just_dead_code"
     },
     {
       "relation": "contains",
@@ -67623,9 +67642,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L188",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_2_hidden_bugs_code_smells",
-      "target": "immigration_crm_enterprise_readiness_audit_2_6_legacy_controllers_bypass_the_validation_layer_the_new_modules_use",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_2_6_legacy_controllers_bypass_the_validation_layer_the_new_modules_use"
     },
     {
       "relation": "contains",
@@ -67633,9 +67652,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L198",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_2_hidden_bugs_code_smells",
-      "target": "immigration_crm_enterprise_readiness_audit_2_7_silent_worker_degradation_with_no_alerting",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_2_7_silent_worker_degradation_with_no_alerting"
     },
     {
       "relation": "contains",
@@ -67643,9 +67662,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L211",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_3_enterprise_grade_improvements",
-      "target": "immigration_crm_enterprise_readiness_audit_3_1_security_owasp_mapped",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_3_1_security_owasp_mapped"
     },
     {
       "relation": "contains",
@@ -67653,9 +67672,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L231",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_3_enterprise_grade_improvements",
-      "target": "immigration_crm_enterprise_readiness_audit_3_2_resilience",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_3_2_resilience"
     },
     {
       "relation": "contains",
@@ -67663,9 +67682,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L248",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_3_enterprise_grade_improvements",
-      "target": "immigration_crm_enterprise_readiness_audit_3_3_observability",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_3_3_observability"
     },
     {
       "relation": "contains",
@@ -67673,9 +67692,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L275",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_4_step_by_step_refactoring_roadmap",
-      "target": "immigration_crm_enterprise_readiness_audit_high_priority_production_risk_fix_before_scaling_load_or_before_compliance_review",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_high_priority_production_risk_fix_before_scaling_load_or_before_compliance_review"
     },
     {
       "relation": "contains",
@@ -67683,9 +67702,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L283",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_4_step_by_step_refactoring_roadmap",
-      "target": "immigration_crm_enterprise_readiness_audit_medium_priority_do_before_the_next_scale_up_or_before_external_audit",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_medium_priority_do_before_the_next_scale_up_or_before_external_audit"
     },
     {
       "relation": "contains",
@@ -67693,9 +67712,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L291",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_4_step_by_step_refactoring_roadmap",
-      "target": "immigration_crm_enterprise_readiness_audit_lower_priority_hygiene_compliance_runway",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_lower_priority_hygiene_compliance_runway"
     },
     {
       "relation": "contains",
@@ -67703,9 +67722,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L301",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_4_step_by_step_refactoring_roadmap",
-      "target": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code"
     },
     {
       "relation": "contains",
@@ -67713,9 +67732,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L415",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_4_step_by_step_refactoring_roadmap",
-      "target": "immigration_crm_enterprise_readiness_audit_closing_note",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_closing_note"
     },
     {
       "relation": "contains",
@@ -67723,9 +67742,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L305",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code",
-      "target": "immigration_crm_enterprise_readiness_audit_codeblock_1",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_codeblock_1"
     },
     {
       "relation": "contains",
@@ -67733,9 +67752,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L315",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code",
-      "target": "immigration_crm_enterprise_readiness_audit_codeblock_2",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_codeblock_2"
     },
     {
       "relation": "contains",
@@ -67743,9 +67762,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L341",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code",
-      "target": "immigration_crm_enterprise_readiness_audit_codeblock_3",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_codeblock_3"
     },
     {
       "relation": "contains",
@@ -67753,9 +67772,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L349",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code",
-      "target": "immigration_crm_enterprise_readiness_audit_codeblock_4",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_codeblock_4"
     },
     {
       "relation": "contains",
@@ -67763,9 +67782,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L367",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code",
-      "target": "immigration_crm_enterprise_readiness_audit_codeblock_5",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_codeblock_5"
     },
     {
       "relation": "contains",
@@ -67773,9 +67792,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L376",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code",
-      "target": "immigration_crm_enterprise_readiness_audit_codeblock_6",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_codeblock_6"
     },
     {
       "relation": "contains",
@@ -67783,9 +67802,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L390",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code",
-      "target": "immigration_crm_enterprise_readiness_audit_codeblock_7",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_codeblock_7"
     },
     {
       "relation": "contains",
@@ -67793,9 +67812,9 @@
       "source_file": "ENTERPRISE_READINESS_AUDIT.md",
       "source_location": "L397",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "immigration_crm_enterprise_readiness_audit_before_after_the_four_concrete_fixes_worth_showing_in_code",
-      "target": "immigration_crm_enterprise_readiness_audit_codeblock_8",
-      "confidence_score": 1.0
+      "target": "immigration_crm_enterprise_readiness_audit_codeblock_8"
     },
     {
       "relation": "contains",
@@ -78823,9 +78842,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "apps_marketing_plans_003_reduced_motion_site_wide_md",
-      "target": "plans_003_reduced_motion_site_wide_003_honor_prefers_reduced_motion_across_the_marketing_site",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_003_honor_prefers_reduced_motion_across_the_marketing_site"
     },
     {
       "relation": "contains",
@@ -78833,9 +78852,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_003_honor_prefers_reduced_motion_across_the_marketing_site",
-      "target": "plans_003_reduced_motion_site_wide_problem",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_problem"
     },
     {
       "relation": "contains",
@@ -78843,9 +78862,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_003_honor_prefers_reduced_motion_across_the_marketing_site",
-      "target": "plans_003_reduced_motion_site_wide_target",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_target"
     },
     {
       "relation": "contains",
@@ -78853,9 +78872,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_003_honor_prefers_reduced_motion_across_the_marketing_site",
-      "target": "plans_003_reduced_motion_site_wide_repo_conventions_to_follow",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_repo_conventions_to_follow"
     },
     {
       "relation": "contains",
@@ -78863,9 +78882,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_003_honor_prefers_reduced_motion_across_the_marketing_site",
-      "target": "plans_003_reduced_motion_site_wide_steps",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_steps"
     },
     {
       "relation": "contains",
@@ -78873,9 +78892,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L180",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_003_honor_prefers_reduced_motion_across_the_marketing_site",
-      "target": "plans_003_reduced_motion_site_wide_boundaries",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_boundaries"
     },
     {
       "relation": "contains",
@@ -78883,9 +78902,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L189",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_003_honor_prefers_reduced_motion_across_the_marketing_site",
-      "target": "plans_003_reduced_motion_site_wide_verification",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_verification"
     },
     {
       "relation": "contains",
@@ -78893,9 +78912,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_problem",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_1",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_1"
     },
     {
       "relation": "contains",
@@ -78903,9 +78922,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_problem",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_2",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_2"
     },
     {
       "relation": "contains",
@@ -78913,9 +78932,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_problem",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_3",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_3"
     },
     {
       "relation": "contains",
@@ -78923,9 +78942,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_problem",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_4",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_4"
     },
     {
       "relation": "contains",
@@ -78933,9 +78952,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_5",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_5"
     },
     {
       "relation": "contains",
@@ -78943,9 +78962,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L82",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_6",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_6"
     },
     {
       "relation": "contains",
@@ -78953,9 +78972,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_7",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_7"
     },
     {
       "relation": "contains",
@@ -78963,9 +78982,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_8",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_8"
     },
     {
       "relation": "contains",
@@ -78973,9 +78992,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_9",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_9"
     },
     {
       "relation": "contains",
@@ -78983,9 +79002,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L125",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_10",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_10"
     },
     {
       "relation": "contains",
@@ -78993,9 +79012,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_11",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_11"
     },
     {
       "relation": "contains",
@@ -79003,9 +79022,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L137",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_12",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_12"
     },
     {
       "relation": "contains",
@@ -79013,9 +79032,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L146",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_13",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_13"
     },
     {
       "relation": "contains",
@@ -79023,9 +79042,9 @@
       "source_file": "apps/marketing/plans/003-reduced-motion-site-wide.md",
       "source_location": "L158",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_003_reduced_motion_site_wide_steps",
-      "target": "plans_003_reduced_motion_site_wide_codeblock_14",
-      "confidence_score": 1.0
+      "target": "plans_003_reduced_motion_site_wide_codeblock_14"
     },
     {
       "relation": "contains",
@@ -79033,9 +79052,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "apps_marketing_plans_001_dotgrid_idle_park_raf_md",
-      "target": "plans_001_dotgrid_idle_park_raf_001_park_the_dotgrid_render_loop_when_nothing_is_moving",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_001_park_the_dotgrid_render_loop_when_nothing_is_moving"
     },
     {
       "relation": "contains",
@@ -79043,9 +79062,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_001_park_the_dotgrid_render_loop_when_nothing_is_moving",
-      "target": "plans_001_dotgrid_idle_park_raf_problem",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_problem"
     },
     {
       "relation": "contains",
@@ -79053,9 +79072,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_001_park_the_dotgrid_render_loop_when_nothing_is_moving",
-      "target": "plans_001_dotgrid_idle_park_raf_target",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_target"
     },
     {
       "relation": "contains",
@@ -79063,9 +79082,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_001_park_the_dotgrid_render_loop_when_nothing_is_moving",
-      "target": "plans_001_dotgrid_idle_park_raf_repo_conventions_to_follow",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_repo_conventions_to_follow"
     },
     {
       "relation": "contains",
@@ -79073,9 +79092,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_001_park_the_dotgrid_render_loop_when_nothing_is_moving",
-      "target": "plans_001_dotgrid_idle_park_raf_steps",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_steps"
     },
     {
       "relation": "contains",
@@ -79083,9 +79102,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L193",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_001_park_the_dotgrid_render_loop_when_nothing_is_moving",
-      "target": "plans_001_dotgrid_idle_park_raf_boundaries",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_boundaries"
     },
     {
       "relation": "contains",
@@ -79093,9 +79112,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L203",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_001_park_the_dotgrid_render_loop_when_nothing_is_moving",
-      "target": "plans_001_dotgrid_idle_park_raf_verification",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_verification"
     },
     {
       "relation": "contains",
@@ -79103,9 +79122,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_problem",
-      "target": "plans_001_dotgrid_idle_park_raf_codeblock_1",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_codeblock_1"
     },
     {
       "relation": "contains",
@@ -79113,9 +79132,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_problem",
-      "target": "plans_001_dotgrid_idle_park_raf_codeblock_2",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_codeblock_2"
     },
     {
       "relation": "contains",
@@ -79123,9 +79142,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L76",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_steps",
-      "target": "plans_001_dotgrid_idle_park_raf_codeblock_3",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_codeblock_3"
     },
     {
       "relation": "contains",
@@ -79133,9 +79152,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L85",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_steps",
-      "target": "plans_001_dotgrid_idle_park_raf_codeblock_4",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_codeblock_4"
     },
     {
       "relation": "contains",
@@ -79143,9 +79162,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L170",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_steps",
-      "target": "plans_001_dotgrid_idle_park_raf_codeblock_5",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_codeblock_5"
     },
     {
       "relation": "contains",
@@ -79153,9 +79172,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L177",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_steps",
-      "target": "plans_001_dotgrid_idle_park_raf_codeblock_6",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_codeblock_6"
     },
     {
       "relation": "contains",
@@ -79163,9 +79182,9 @@
       "source_file": "apps/marketing/plans/001-dotgrid-idle-park-raf.md",
       "source_location": "L185",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_001_dotgrid_idle_park_raf_steps",
-      "target": "plans_001_dotgrid_idle_park_raf_codeblock_7",
-      "confidence_score": 1.0
+      "target": "plans_001_dotgrid_idle_park_raf_codeblock_7"
     },
     {
       "relation": "contains",
@@ -79173,9 +79192,9 @@
       "source_file": "apps/marketing/plans/README.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "apps_marketing_plans_readme_md",
-      "target": "plans_readme_marketing_site_animation_improvement_plans",
-      "confidence_score": 1.0
+      "target": "plans_readme_marketing_site_animation_improvement_plans"
     },
     {
       "relation": "contains",
@@ -79183,9 +79202,9 @@
       "source_file": "apps/marketing/plans/README.md",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_readme_marketing_site_animation_improvement_plans",
-      "target": "plans_readme_plans",
-      "confidence_score": 1.0
+      "target": "plans_readme_plans"
     },
     {
       "relation": "contains",
@@ -79193,9 +79212,9 @@
       "source_file": "apps/marketing/plans/README.md",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_readme_marketing_site_animation_improvement_plans",
-      "target": "plans_readme_recommended_execution_order",
-      "confidence_score": 1.0
+      "target": "plans_readme_recommended_execution_order"
     },
     {
       "relation": "contains",
@@ -79203,9 +79222,9 @@
       "source_file": "apps/marketing/plans/README.md",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_readme_marketing_site_animation_improvement_plans",
-      "target": "plans_readme_dependencies_shared_touch_points",
-      "confidence_score": 1.0
+      "target": "plans_readme_dependencies_shared_touch_points"
     },
     {
       "relation": "contains",
@@ -79213,9 +79232,9 @@
       "source_file": "apps/marketing/plans/README.md",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_readme_marketing_site_animation_improvement_plans",
-      "target": "plans_readme_not_yet_planned_from_the_audit_deferred",
-      "confidence_score": 1.0
+      "target": "plans_readme_not_yet_planned_from_the_audit_deferred"
     },
     {
       "relation": "contains",
@@ -79223,9 +79242,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "apps_marketing_plans_005_button_press_and_easing_md",
-      "target": "plans_005_button_press_and_easing_005_give_buttons_real_press_feedback_and_drop_transition_all",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_005_give_buttons_real_press_feedback_and_drop_transition_all"
     },
     {
       "relation": "contains",
@@ -79233,9 +79252,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_005_give_buttons_real_press_feedback_and_drop_transition_all",
-      "target": "plans_005_button_press_and_easing_problem",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_problem"
     },
     {
       "relation": "contains",
@@ -79243,9 +79262,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_005_give_buttons_real_press_feedback_and_drop_transition_all",
-      "target": "plans_005_button_press_and_easing_target",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_target"
     },
     {
       "relation": "contains",
@@ -79253,9 +79272,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_005_give_buttons_real_press_feedback_and_drop_transition_all",
-      "target": "plans_005_button_press_and_easing_repo_conventions_to_follow",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_repo_conventions_to_follow"
     },
     {
       "relation": "contains",
@@ -79263,9 +79282,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_005_give_buttons_real_press_feedback_and_drop_transition_all",
-      "target": "plans_005_button_press_and_easing_steps",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_steps"
     },
     {
       "relation": "contains",
@@ -79273,9 +79292,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_005_give_buttons_real_press_feedback_and_drop_transition_all",
-      "target": "plans_005_button_press_and_easing_boundaries",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_boundaries"
     },
     {
       "relation": "contains",
@@ -79283,9 +79302,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L82",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_005_give_buttons_real_press_feedback_and_drop_transition_all",
-      "target": "plans_005_button_press_and_easing_verification",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_verification"
     },
     {
       "relation": "contains",
@@ -79293,9 +79312,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_problem",
-      "target": "plans_005_button_press_and_easing_codeblock_1",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_codeblock_1"
     },
     {
       "relation": "contains",
@@ -79303,9 +79322,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_target",
-      "target": "plans_005_button_press_and_easing_codeblock_2",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_codeblock_2"
     },
     {
       "relation": "contains",
@@ -79313,9 +79332,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_steps",
-      "target": "plans_005_button_press_and_easing_codeblock_3",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_codeblock_3"
     },
     {
       "relation": "contains",
@@ -79323,9 +79342,9 @@
       "source_file": "apps/marketing/plans/005-button-press-and-easing.md",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_005_button_press_and_easing_steps",
-      "target": "plans_005_button_press_and_easing_codeblock_4",
-      "confidence_score": 1.0
+      "target": "plans_005_button_press_and_easing_codeblock_4"
     },
     {
       "relation": "contains",
@@ -79333,9 +79352,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "apps_marketing_plans_006_navbar_transition_scope_md",
-      "target": "plans_006_navbar_transition_scope_006_tighten_the_navbar_scroll_state_transition",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_006_tighten_the_navbar_scroll_state_transition"
     },
     {
       "relation": "contains",
@@ -79343,9 +79362,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_006_tighten_the_navbar_scroll_state_transition",
-      "target": "plans_006_navbar_transition_scope_problem",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_problem"
     },
     {
       "relation": "contains",
@@ -79353,9 +79372,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_006_tighten_the_navbar_scroll_state_transition",
-      "target": "plans_006_navbar_transition_scope_target",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_target"
     },
     {
       "relation": "contains",
@@ -79363,9 +79382,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_006_tighten_the_navbar_scroll_state_transition",
-      "target": "plans_006_navbar_transition_scope_repo_conventions_to_follow",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_repo_conventions_to_follow"
     },
     {
       "relation": "contains",
@@ -79373,9 +79392,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_006_tighten_the_navbar_scroll_state_transition",
-      "target": "plans_006_navbar_transition_scope_steps",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_steps"
     },
     {
       "relation": "contains",
@@ -79383,9 +79402,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_006_tighten_the_navbar_scroll_state_transition",
-      "target": "plans_006_navbar_transition_scope_boundaries",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_boundaries"
     },
     {
       "relation": "contains",
@@ -79393,9 +79412,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_006_tighten_the_navbar_scroll_state_transition",
-      "target": "plans_006_navbar_transition_scope_verification",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_verification"
     },
     {
       "relation": "contains",
@@ -79403,9 +79422,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_problem",
-      "target": "plans_006_navbar_transition_scope_codeblock_1",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_codeblock_1"
     },
     {
       "relation": "contains",
@@ -79413,9 +79432,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L33",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_problem",
-      "target": "plans_006_navbar_transition_scope_codeblock_2",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_codeblock_2"
     },
     {
       "relation": "contains",
@@ -79423,9 +79442,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_steps",
-      "target": "plans_006_navbar_transition_scope_codeblock_3",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_codeblock_3"
     },
     {
       "relation": "contains",
@@ -79433,9 +79452,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_steps",
-      "target": "plans_006_navbar_transition_scope_codeblock_4",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_codeblock_4"
     },
     {
       "relation": "contains",
@@ -79443,9 +79462,9 @@
       "source_file": "apps/marketing/plans/006-navbar-transition-scope.md",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_006_navbar_transition_scope_steps",
-      "target": "plans_006_navbar_transition_scope_codeblock_5",
-      "confidence_score": 1.0
+      "target": "plans_006_navbar_transition_scope_codeblock_5"
     },
     {
       "relation": "contains",
@@ -79453,9 +79472,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "apps_marketing_plans_004_marquee_pause_reverse_fix_md",
-      "target": "plans_004_marquee_pause_reverse_fix_004_fix_the_marquee_s_non_functional_pause_on_hover_and_reverse",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_004_fix_the_marquee_s_non_functional_pause_on_hover_and_reverse"
     },
     {
       "relation": "contains",
@@ -79463,9 +79482,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_004_fix_the_marquee_s_non_functional_pause_on_hover_and_reverse",
-      "target": "plans_004_marquee_pause_reverse_fix_problem",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_problem"
     },
     {
       "relation": "contains",
@@ -79473,9 +79492,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_004_fix_the_marquee_s_non_functional_pause_on_hover_and_reverse",
-      "target": "plans_004_marquee_pause_reverse_fix_target",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_target"
     },
     {
       "relation": "contains",
@@ -79483,9 +79502,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_004_fix_the_marquee_s_non_functional_pause_on_hover_and_reverse",
-      "target": "plans_004_marquee_pause_reverse_fix_repo_conventions_to_follow",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_repo_conventions_to_follow"
     },
     {
       "relation": "contains",
@@ -79493,9 +79512,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_004_fix_the_marquee_s_non_functional_pause_on_hover_and_reverse",
-      "target": "plans_004_marquee_pause_reverse_fix_steps",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_steps"
     },
     {
       "relation": "contains",
@@ -79503,9 +79522,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_004_fix_the_marquee_s_non_functional_pause_on_hover_and_reverse",
-      "target": "plans_004_marquee_pause_reverse_fix_boundaries",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_boundaries"
     },
     {
       "relation": "contains",
@@ -79513,9 +79532,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_004_fix_the_marquee_s_non_functional_pause_on_hover_and_reverse",
-      "target": "plans_004_marquee_pause_reverse_fix_verification",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_verification"
     },
     {
       "relation": "contains",
@@ -79523,9 +79542,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_problem",
-      "target": "plans_004_marquee_pause_reverse_fix_codeblock_1",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_codeblock_1"
     },
     {
       "relation": "contains",
@@ -79533,9 +79552,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_target",
-      "target": "plans_004_marquee_pause_reverse_fix_codeblock_2",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_codeblock_2"
     },
     {
       "relation": "contains",
@@ -79543,9 +79562,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_steps",
-      "target": "plans_004_marquee_pause_reverse_fix_codeblock_3",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_codeblock_3"
     },
     {
       "relation": "contains",
@@ -79553,9 +79572,9 @@
       "source_file": "apps/marketing/plans/004-marquee-pause-reverse-fix.md",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_004_marquee_pause_reverse_fix_steps",
-      "target": "plans_004_marquee_pause_reverse_fix_codeblock_4",
-      "confidence_score": 1.0
+      "target": "plans_004_marquee_pause_reverse_fix_codeblock_4"
     },
     {
       "relation": "contains",
@@ -79563,9 +79582,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "apps_marketing_plans_002_interactive_grid_single_highlight_md",
-      "target": "plans_002_interactive_grid_single_highlight_002_stop_the_interactivegridpattern_re_render_storm",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_002_stop_the_interactivegridpattern_re_render_storm"
     },
     {
       "relation": "contains",
@@ -79573,9 +79592,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_002_stop_the_interactivegridpattern_re_render_storm",
-      "target": "plans_002_interactive_grid_single_highlight_problem",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_problem"
     },
     {
       "relation": "contains",
@@ -79583,9 +79602,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_002_stop_the_interactivegridpattern_re_render_storm",
-      "target": "plans_002_interactive_grid_single_highlight_target",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_target"
     },
     {
       "relation": "contains",
@@ -79593,9 +79612,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_002_stop_the_interactivegridpattern_re_render_storm",
-      "target": "plans_002_interactive_grid_single_highlight_repo_conventions_to_follow",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_repo_conventions_to_follow"
     },
     {
       "relation": "contains",
@@ -79603,9 +79622,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_002_stop_the_interactivegridpattern_re_render_storm",
-      "target": "plans_002_interactive_grid_single_highlight_steps",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_steps"
     },
     {
       "relation": "contains",
@@ -79613,9 +79632,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_002_stop_the_interactivegridpattern_re_render_storm",
-      "target": "plans_002_interactive_grid_single_highlight_boundaries",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_boundaries"
     },
     {
       "relation": "contains",
@@ -79623,9 +79642,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L210",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_002_stop_the_interactivegridpattern_re_render_storm",
-      "target": "plans_002_interactive_grid_single_highlight_verification",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_verification"
     },
     {
       "relation": "contains",
@@ -79633,9 +79652,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_problem",
-      "target": "plans_002_interactive_grid_single_highlight_codeblock_1",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_codeblock_1"
     },
     {
       "relation": "contains",
@@ -79643,9 +79662,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_problem",
-      "target": "plans_002_interactive_grid_single_highlight_codeblock_2",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_codeblock_2"
     },
     {
       "relation": "contains",
@@ -79653,9 +79672,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_problem",
-      "target": "plans_002_interactive_grid_single_highlight_codeblock_3",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_codeblock_3"
     },
     {
       "relation": "contains",
@@ -79663,9 +79682,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_steps",
-      "target": "plans_002_interactive_grid_single_highlight_codeblock_4",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_codeblock_4"
     },
     {
       "relation": "contains",
@@ -79673,9 +79692,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_steps",
-      "target": "plans_002_interactive_grid_single_highlight_codeblock_5",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_codeblock_5"
     },
     {
       "relation": "contains",
@@ -79683,9 +79702,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_steps",
-      "target": "plans_002_interactive_grid_single_highlight_codeblock_6",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_codeblock_6"
     },
     {
       "relation": "contains",
@@ -79693,9 +79712,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L173",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_steps",
-      "target": "plans_002_interactive_grid_single_highlight_codeblock_7",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_codeblock_7"
     },
     {
       "relation": "contains",
@@ -79703,9 +79722,9 @@
       "source_file": "apps/marketing/plans/002-interactive-grid-single-highlight.md",
       "source_location": "L185",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_002_interactive_grid_single_highlight_steps",
-      "target": "plans_002_interactive_grid_single_highlight_codeblock_8",
-      "confidence_score": 1.0
+      "target": "plans_002_interactive_grid_single_highlight_codeblock_8"
     },
     {
       "relation": "contains",
@@ -87125,5 +87144,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "ecc6ab3feda1c585ea540f2283750317af9c0980"
+  "built_at_commit": "55849775cb401a1a971431a82149f9c93825ffa4"
 }

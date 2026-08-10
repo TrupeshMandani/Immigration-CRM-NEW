@@ -26,6 +26,57 @@ interface InteractiveGridPatternProps extends React.SVGProps<SVGSVGElement> {
 }
 
 /**
+ * One rect in the fading trail left behind the cursor.
+ *
+ * Every cell the cursor leaves spawns one of these; they fade out independently
+ * and overlap, which is what reads as a smooth comet tail. It mounts at full
+ * opacity then flips to 0 on the next animation frame so the CSS opacity
+ * transition actually runs (a rect mounted straight at 0 has no start value to
+ * animate from and would just vanish). No drop-shadow filter here — the trailing
+ * rects fade purely on compositor opacity, so a long tail stays smooth; the glow
+ * lives only on the single active cell.
+ */
+function FadeOutRect({
+  x,
+  y,
+  width,
+  height,
+  fill,
+  onDone,
+}: {
+  x: number
+  y: number
+  width: number
+  height: number
+  fill: string
+  onDone: () => void
+}) {
+  const [opacity, setOpacity] = useState(1)
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setOpacity(0))
+    return () => cancelAnimationFrame(id)
+  }, [])
+
+  return (
+    <rect
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      fill={fill}
+      style={{
+        transition: "opacity 1000ms cubic-bezier(0.22, 1, 0.36, 1)",
+        opacity,
+        willChange: "opacity",
+      }}
+      onTransitionEnd={onDone}
+      pointerEvents="none"
+    />
+  )
+}
+
+/**
  * The InteractiveGridPattern component.
  *
  * @see InteractiveGridPatternProps for the props interface.
@@ -51,6 +102,11 @@ export function InteractiveGridPattern({
   const [hoveredSquare, setHoveredSquare] = useState<number | null>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
+  const rafRef = useRef<number | null>(null)
+  const pendingIndexRef = useRef<number | null>(null)
+  const prevSquareRef = useRef<number | null>(null)
+  const trailIdRef = useRef(0)
+  const [trail, setTrail] = useState<{ id: number; index: number }[]>([])
 
   useEffect(() => {
     setGridSize(initialGrid)
@@ -86,6 +142,21 @@ export function InteractiveGridPattern({
 
   useEffect(() => {
     if (!interactive) return
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return // no hover interaction under reduced motion
+    }
+
+    const flush = () => {
+      rafRef.current = null
+      setHoveredSquare(pendingIndexRef.current)
+    }
+    const schedule = () => {
+      if (rafRef.current == null) rafRef.current = requestAnimationFrame(flush)
+    }
+
     const handlePointerMove = (event: PointerEvent) => {
       const svg = svgRef.current
       if (!svg) return
@@ -93,22 +164,42 @@ export function InteractiveGridPattern({
       const x = event.clientX - rect.left
       const y = event.clientY - rect.top
       if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-        setHoveredSquare(null)
+        pendingIndexRef.current = null
+        schedule()
         return
       }
       const col = Math.floor(x / width)
       const row = Math.floor(y / height)
-      const index = row * gridSize.horizontal + col
-      setHoveredSquare(index)
+      pendingIndexRef.current = row * gridSize.horizontal + col
+      schedule()
     }
-    const clearHover = () => setHoveredSquare(null)
+    const clearHover = () => {
+      pendingIndexRef.current = null
+      schedule()
+    }
     window.addEventListener("pointermove", handlePointerMove)
     window.addEventListener("pointerleave", clearHover)
     return () => {
       window.removeEventListener("pointermove", handlePointerMove)
       window.removeEventListener("pointerleave", clearHover)
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
     }
   }, [interactive, width, height, gridSize.horizontal, gridSize.vertical])
+
+  useEffect(() => {
+    const prev = prevSquareRef.current
+    if (prev != null && prev !== hoveredSquare) {
+      const id = trailIdRef.current++
+      setTrail((current) => {
+        const next = [...current, { id, index: prev }]
+        // Cap the tail to 4 boxes: the oldest entries are the most faded, so
+        // dropping them keeps the trail short without a visible pop.
+        return next.length > 4 ? next.slice(next.length - 4) : next
+      })
+    }
+    prevSquareRef.current = hoveredSquare
+  }, [hoveredSquare])
 
   const totalWidth = width * gridSize.horizontal
   const totalHeight = height * gridSize.vertical
@@ -147,6 +238,35 @@ export function InteractiveGridPattern({
     )
   })
 
+  const baseRects = useMemo(
+    () =>
+      Array.from({ length: gridSize.horizontal * gridSize.vertical }).map((_, index) => {
+        const x = (index % gridSize.horizontal) * width
+        const y = Math.floor(index / gridSize.horizontal) * height
+        return (
+          <rect
+            key={index}
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            className={cn(squaresClassName)}
+            fill="rgba(255,255,255,0.02)"
+            stroke={baseColor}
+            strokeWidth={strokeWidth}
+            shapeRendering="crispEdges"
+            vectorEffect="non-scaling-stroke"
+          />
+        )
+      }),
+    [gridSize.horizontal, gridSize.vertical, width, height, baseColor, strokeWidth, squaresClassName],
+  )
+
+  const cellPos = (i: number) => ({
+    x: (i % gridSize.horizontal) * width,
+    y: Math.floor(i / gridSize.horizontal) * height,
+  })
+
   return (
     <div ref={wrapperRef} className="pointer-events-none absolute inset-0 h-full w-full">
       <svg
@@ -160,33 +280,29 @@ export function InteractiveGridPattern({
         {verticalLines}
         {horizontalLines}
       </g>
-      {Array.from({ length: gridSize.horizontal * gridSize.vertical }).map((_, index) => {
-        const x = (index % gridSize.horizontal) * width
-        const y = Math.floor(index / gridSize.horizontal) * height
-        return (
-          <rect
-            key={index}
-            x={x}
-            y={y}
-            width={width}
-            height={height}
-            className={cn(
-              "transition-all duration-300 ease-out [&:not(:hover)]:duration-[1200ms]",
-              hoveredSquare === index ? "drop-shadow-[0_10px_25px_rgba(193,18,31,0.35)]" : "",
-              squaresClassName,
-            )}
-            fill={
-              hoveredSquare === index
-                ? highlightColor
-                : "rgba(255,255,255,0.02)"
-            }
-            stroke={baseColor}
-            strokeWidth={strokeWidth}
-            shapeRendering="geometricPrecision"
-            vectorEffect="non-scaling-stroke"
-          />
-        )
-      })}
+      {baseRects}
+      {trail.map(({ id, index }) => (
+        <FadeOutRect
+          key={id}
+          {...cellPos(index)}
+          width={width}
+          height={height}
+          fill={highlightColor}
+          onDone={() => setTrail((current) => current.filter((t) => t.id !== id))}
+        />
+      ))}
+      {hoveredSquare != null && (
+        <rect
+          key={`in-${hoveredSquare}`}
+          {...cellPos(hoveredSquare)}
+          width={width}
+          height={height}
+          fill={highlightColor}
+          className="drop-shadow-[0_10px_25px_rgba(193,18,31,0.35)]"
+          style={{ transition: "opacity 300ms ease-out", opacity: 1 }}
+          pointerEvents="none"
+        />
+      )}
       </svg>
     </div>
   )
