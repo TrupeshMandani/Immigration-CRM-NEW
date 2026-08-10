@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Internal planning docs contain illustrative class strings (e.g. the
+   `ease-[var(--...)]` placeholder). Exclude them from Tailwind's content
+   scanning so those placeholders don't generate invalid utilities. */
+@source not "../../plans";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

@@ -8,6 +8,7 @@
     "dev:frontend": "pnpm --filter @icrm/consultant-web dev",
     "dev:mcp": "pnpm --filter @icrm/mcp-server dev",
     "dev:db": "pnpm --filter @icrm/backend db:studio",
+    "dev:marketing": "pnpm --filter @icrm/marketing dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "docker:dev": "docker compose -f docker-compose.dev.yml up -d",

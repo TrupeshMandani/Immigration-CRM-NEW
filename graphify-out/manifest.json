@@ -1216,8 +1216,8 @@
     "hash": "6a00efca0050dccce7e1f15e68eed175"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/components/ui/DotGrid.tsx": {
-    "mtime": 1766708745.0,
-    "hash": "cb6286a43bf97bf5000a0d616bef2f68"
+    "mtime": 1786389687.4275534,
+    "hash": "61c6a332178d3b6f5e48dd5b69a6fa79"
   },
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/components/ui/section-shell.tsx": {
     "mtime": 1766716440.0,
@@ -1278,6 +1278,10 @@
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/src/lib/constants.ts": {
     "mtime": 1782286359.1165428,
     "hash": "b929f88f554310bc6c6a7e0aa723a638"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/ENTERPRISE_READINESS_AUDIT.md": {
+    "mtime": 1784822118.3289871,
+    "hash": "22670666c1bf0b4e55c3023e13cdeb30"
   },
   "/Volumes/Trupesh/Immigration-CRM/CLEANUP_PLAN.md": {
     "mtime": 1784298933.1251998,
@@ -1430,6 +1434,34 @@
   "/Volumes/Trupesh/Immigration-CRM/apps/marketing/pnpm-workspace.yaml": {
     "mtime": 1774535840.9048204,
     "hash": "bb50e932d44a2dde6b7fe1bbea2c98c5"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/marketing/plans/003-reduced-motion-site-wide.md": {
+    "mtime": 1786387813.4481807,
+    "hash": "ef685255ee88d4381af404a69411458c"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/marketing/plans/001-dotgrid-idle-park-raf.md": {
+    "mtime": 1786387732.6871498,
+    "hash": "5c82a19c74d9cae09f5ba512c5420d06"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/marketing/plans/README.md": {
+    "mtime": 1786387903.8942597,
+    "hash": "11a8c14328f61e1995c00cacd0176c14"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/marketing/plans/005-button-press-and-easing.md": {
+    "mtime": 1786387860.0461726,
+    "hash": "292a1ed2022806dae281303cd146c01d"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/marketing/plans/006-navbar-transition-scope.md": {
+    "mtime": 1786387882.5826085,
+    "hash": "83333389bd57968fc462e782ba8608d4"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/marketing/plans/004-marquee-pause-reverse-fix.md": {
+    "mtime": 1786387833.1194596,
+    "hash": "de360f77155e1b7c1502cbc13cca4630"
+  },
+  "/Volumes/Trupesh/Immigration-CRM/apps/marketing/plans/002-interactive-grid-single-highlight.md": {
+    "mtime": 1786387773.2170613,
+    "hash": "a1b83521bf44b667ad9b0ba595f2bf45"
   },
   "/Volumes/Trupesh/Immigration-CRM/IMMIGRATION_CRM_MASTER_PLAN.pdf": {
     "mtime": 1779146348.3297791,

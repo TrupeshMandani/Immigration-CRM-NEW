@@ -79,6 +79,9 @@ const DotGrid: React.FC<DotGridProps> = ({
     lastX: 0,
     lastY: 0
   });
+  const rafIdRef = useRef<number | null>(null);
+  const lastPointerActivityRef = useRef(0);
+  const startLoopRef = useRef<(() => void) | null>(null);
 
   const baseRgb = useMemo(() => hexToRgb(baseColor), [baseColor]);
   const activeRgb = useMemo(() => hexToRgb(activeColor), [activeColor]);
@@ -128,24 +131,32 @@ const DotGrid: React.FC<DotGridProps> = ({
       }
     }
     dotsRef.current = dots;
+    startLoopRef.current?.();
   }, [dotSize, gap]);
 
   useEffect(() => {
     if (!circlePath) return;
 
-    let rafId: number;
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     const proxSq = proximity * proximity;
 
-    const draw = () => {
+    const paintFrame = () => {
       const canvas = canvasRef.current;
-      if (!canvas) return;
+      if (!canvas) return false;
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) return false;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const { x: px, y: py } = pointerRef.current;
+      let stillActive = false;
 
       for (const dot of dotsRef.current) {
+        if (Math.abs(dot.xOffset) > 0.05 || Math.abs(dot.yOffset) > 0.05) {
+          stillActive = true;
+        }
         const ox = dot.cx + dot.xOffset;
         const oy = dot.cy + dot.yOffset;
         const dx = dot.cx - px;
@@ -168,12 +179,40 @@ const DotGrid: React.FC<DotGridProps> = ({
         ctx.fill(circlePath);
         ctx.restore();
       }
-
-      rafId = requestAnimationFrame(draw);
+      return stillActive;
     };
 
-    draw();
-    return () => cancelAnimationFrame(rafId);
+    const loop = () => {
+      const dotsActive = paintFrame();
+      const pointerRecentlyActive =
+        performance.now() - lastPointerActivityRef.current < 250;
+
+      if (dotsActive || pointerRecentlyActive) {
+        rafIdRef.current = requestAnimationFrame(loop);
+      } else {
+        rafIdRef.current = null; // park: nothing to animate
+      }
+    };
+
+    // expose a starter other effects/handlers can call
+    const start = () => {
+      if (rafIdRef.current == null) {
+        rafIdRef.current = requestAnimationFrame(loop);
+      }
+    };
+    startLoopRef.current = start;
+
+    if (prefersReduced) {
+      paintFrame(); // one static resting frame, no loop
+    } else {
+      start();
+    }
+
+    return () => {
+      if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+      startLoopRef.current = null;
+    };
   }, [proximity, baseColor, activeRgb, baseRgb, circlePath]);
 
   useEffect(() => {
@@ -218,6 +257,9 @@ const DotGrid: React.FC<DotGridProps> = ({
       pr.x = e.clientX - rect.left;
       pr.y = e.clientY - rect.top;
 
+      lastPointerActivityRef.current = performance.now();
+      startLoopRef.current?.();
+
       for (const dot of dotsRef.current) {
         const dist = Math.hypot(dot.cx - pr.x, dot.cy - pr.y);
         if (speed > speedTrigger && dist < proximity && !dot._inertiaApplied) {
@@ -245,6 +287,10 @@ const DotGrid: React.FC<DotGridProps> = ({
       const rect = canvasRef.current!.getBoundingClientRect();
       const cx = e.clientX - rect.left;
       const cy = e.clientY - rect.top;
+
+      lastPointerActivityRef.current = performance.now();
+      startLoopRef.current?.();
+
       for (const dot of dotsRef.current) {
         const dist = Math.hypot(dot.cx - cx, dot.cy - cy);
         if (dist < shockRadius && !dot._inertiaApplied) {
